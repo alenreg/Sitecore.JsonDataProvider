@@ -1,4 +1,4 @@
-namespace Sitecore.Support.Data.Items
+namespace Sitecore.Data.Items
 {
   using System.Collections.Generic;
 

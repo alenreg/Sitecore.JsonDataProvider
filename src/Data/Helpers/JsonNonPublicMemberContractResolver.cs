@@ -1,4 +1,4 @@
-﻿namespace Sitecore.Support.Data.Helpers
+﻿namespace Sitecore.Data.Helpers
 {
   using System;
   using System.Collections.Generic;

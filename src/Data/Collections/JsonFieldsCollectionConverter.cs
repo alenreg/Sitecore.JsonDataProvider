@@ -1,4 +1,4 @@
-namespace Sitecore.Support.Data.Collections
+namespace Sitecore.Data.Collections
 {
   using System;
   using System.Collections.Generic;

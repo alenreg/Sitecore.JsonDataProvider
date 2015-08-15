@@ -1,6 +1,6 @@
-﻿namespace Sitecore.Support.Data.Items
+﻿namespace Sitecore.Data.Items
 {
-  using Sitecore.Support.Data.Collections;
+  using Sitecore.Data.Collections;
 
   public class JsonFields
   {

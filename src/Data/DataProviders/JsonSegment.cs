@@ -1,4 +1,4 @@
-﻿namespace Sitecore.Support.Data.DataProviders
+﻿namespace Sitecore.Data.DataProviders
 {
   using System;
   using System.Collections.Generic;
@@ -10,12 +10,11 @@
 
   using Sitecore.Collections;
   using Sitecore.Data;
+  using Sitecore.Data.Collections;
+  using Sitecore.Data.Helpers;
   using Sitecore.Data.Items;
   using Sitecore.Diagnostics;
   using Sitecore.Globalization;
-  using Sitecore.Support.Data.Collections;
-  using Sitecore.Support.Data.Helpers;
-  using Sitecore.Support.Data.Items;
 
   public class JsonSegment
   {

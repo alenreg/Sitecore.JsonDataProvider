@@ -1,7 +1,7 @@
 # Sitecore.JsonDataProvider
 
-* JSON Data Provider is a shared source module that allows storing parts of content tree in separate `*.json` files. 
-* Unlike serialization, the items exist only in `*.json` files which makes synchronization absolutely unnecessary. 
+* JSON Data Provider allows storing parts of content tree in separate `*.json` files. 
+* Unlike serialization, items exist only in `*.json` files which makes synchronization unnecessary. 
 * Single `*.json` file stores all descendant items of the specific item that exists in a SQL database. 
 
 #### Release Notes:

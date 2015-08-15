@@ -1,4 +1,4 @@
-﻿namespace Sitecore.Support.Data.DataProviders
+﻿namespace Sitecore.Data.DataProviders
 {
   using System.Collections.Generic;
   using System.Linq;
@@ -6,7 +6,6 @@
 
   using Sitecore.Collections;
   using Sitecore.Data;
-  using Sitecore.Data.DataProviders;
   using Sitecore.Data.Items;
   using Sitecore.Data.SqlServer;
   using Sitecore.Diagnostics;
