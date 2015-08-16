@@ -160,8 +160,15 @@
         fieldList.Add(field.Key, field.Value);
       }
 
-      // add unversioned fields
       var language = versionUri.Language;
+      Assert.IsNotNull(language, "language");
+
+      if (language == Language.Invariant)
+      {
+        return fieldList;
+      }
+
+      // add unversioned fields
       foreach (var field in item.Fields.Unversioned[language])
       {
         fieldList.Add(field.Key, field.Value);

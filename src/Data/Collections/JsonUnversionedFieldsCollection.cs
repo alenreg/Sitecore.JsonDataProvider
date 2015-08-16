@@ -31,7 +31,7 @@
     {
       get
       {
-        Assert.ArgumentNotNull(language, "language");
+        Assert.ArgumentNotNullOrEmpty(language, "language");
 
         JsonFieldsCollection value;
         if (this.TryGetValue(language, out value))
@@ -47,6 +47,9 @@
 
       set
       {
+        Assert.ArgumentNotNullOrEmpty(language, "language");
+        Assert.ArgumentNotNull(value, "value");
+
         base[language] = value;
       }
     }
