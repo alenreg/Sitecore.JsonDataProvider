@@ -1,4 +1,4 @@
-namespace Sitecore.Data.Collections
+namespace Sitecore.Data.Helpers
 {
   using System;
   using System.Collections.Generic;
@@ -7,6 +7,7 @@ namespace Sitecore.Data.Collections
   using Newtonsoft.Json;
 
   using Sitecore.Data;
+  using Sitecore.Data.Collections;
   using Sitecore.Diagnostics;
 
   public class JsonFieldsCollectionConverter : JsonConverter
@@ -24,6 +25,7 @@ namespace Sitecore.Data.Collections
         writer.WritePropertyName(field.Key.ToString());
         writer.WriteValue(field.Value);
       }
+
       writer.WriteEndObject();
     }
 

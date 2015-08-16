@@ -53,7 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\Collections\JsonFieldsCollection.cs" />
-    <Compile Include="Data\Collections\JsonFieldsCollectionConverter.cs" />
+    <Compile Include="Data\Helpers\JsonFieldsCollectionConverter.cs" />
     <Compile Include="Data\Items\JsonFields.cs" />
     <Compile Include="Data\Items\JsonItem.cs" />
     <Compile Include="Data\Helpers\JsonNonPublicMemberContractResolver.cs" />
