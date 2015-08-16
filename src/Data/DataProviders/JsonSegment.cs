@@ -50,8 +50,6 @@
       {
         Log.Info("Deserializing items from: " + filePath, this);
 
-        Thread.Sleep(1000);
-
         var json = File.ReadAllText(filePath);
         var list = JsonConvert.DeserializeObject<List<JsonItem>>(json, new JsonSerializerSettings { ContractResolver = new JsonNonPublicMemberContractResolver() });
         if (list == null)
