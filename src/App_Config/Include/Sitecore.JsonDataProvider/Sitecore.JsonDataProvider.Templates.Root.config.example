@@ -3,9 +3,9 @@
     <dataProviders>
       <jsonMaster>
         <Segments>
-          <TemplatesUserDefined
-            file="/App_Data/user-defined-templates.json"
-            root="{B29EE504-861C-492F-95A3-0D890B6FCA09}"/>
+          <TemplatesRoot
+            file="/App_Data/templates-root.json"
+            root="{3C1715FE-6A13-4FCF-845F-DE308BA9741D}"/>
         </Segments>
       </jsonMaster>
     </dataProviders>

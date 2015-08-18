@@ -73,15 +73,17 @@
     <Content Include="App_Data\user-defined-templates.json" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.Items.Layout.Placeholders.example" />
-    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.Items.Content.example" />
-    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.Items.Layout.Layouts.example" />
-    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.Items.Layout.Renderings.example" />
-    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.Items.System.Aliases.example" />
-    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.Items.System.Workflows.example" />
-    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.Templates.UserDefined.example" />
-    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.IgnoreFields.Statistics.example" />
-    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.IgnoreFields.Workflow.example" />
+    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.Items.Layout.Placeholders.config.example" />
+    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.Items.Content.config.example" />
+    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.Items.Layout.Layouts.config.example" />
+    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.Items.Layout.Renderings.config.example" />
+    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.Items.System.Aliases.config.example" />
+    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.Items.System.Workflows.config.example" />
+    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.Templates.Root.config.example">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.IgnoreFields.Statistics.config.example" />
+    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.IgnoreFields.Workflow.config.example" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

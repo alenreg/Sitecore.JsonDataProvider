@@ -4,8 +4,8 @@
       <jsonMaster>
         <Segments>
           <ItemsLayoutLayouts
-            file="/App_Data/user-defined-templates.json"
-            root="{B29EE504-861C-492F-95A3-0D890B6FCA09}"/>
+            file="/App_Data/items-layout-layouts.json"
+            root="{75CC5CE4-8979-4008-9D3C-806477D57619}"/>
         </Segments>
       </jsonMaster>
     </dataProviders>
