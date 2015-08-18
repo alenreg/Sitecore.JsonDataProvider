@@ -15,6 +15,9 @@
   public class JsonDataProvider : SqlServerDataProvider
   {
     [NotNull]
+    public static readonly List<ID> IgnoreFields = new List<ID>();
+
+    [NotNull]
     public readonly List<JsonSegment> Segments = new List<JsonSegment>();
 
     public JsonDataProvider([NotNull] string connectionString, [NotNull] string databaseName)
@@ -45,6 +48,21 @@
       var segment = new JsonSegment(root, filePath);
 
       this.Segments.Add(segment);
+    }
+
+    [UsedImplicitly]
+    public void AddIgnoreField([NotNull] XmlNode fieldNode)
+    {
+      Assert.ArgumentNotNull(fieldNode, "fieldNode");
+
+      var fieldElement = (XmlElement)fieldNode;
+      var idString = fieldElement.InnerText;
+      Assert.IsNotNull(idString, "node value is not specified or has empty string value: " + fieldElement.OuterXml);
+
+      ID fieldID;
+      Assert.IsTrue(ID.TryParse(idString, out fieldID), "node value is not a valid GUID value: " + fieldElement.OuterXml);
+      
+      IgnoreFields.Add(fieldID);
     }
 
     [NotNull]
