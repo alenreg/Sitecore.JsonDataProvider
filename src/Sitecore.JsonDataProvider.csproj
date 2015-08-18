@@ -40,11 +40,9 @@
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\wwwroot\json-data-provider\Website\bin\Newtonsoft.Json.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Sitecore.Kernel, Version=8.0.5193.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Sitecore.Kernel">
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -54,6 +52,7 @@
   <ItemGroup>
     <Compile Include="Data\Collections\JsonFieldsCollection.cs" />
     <Compile Include="Data\Helpers\JsonFieldsCollectionConverter.cs" />
+    <Compile Include="Data\Helpers\JsonSettings.cs" />
     <Compile Include="Data\Items\JsonFields.cs" />
     <Compile Include="Data\Items\JsonItem.cs" />
     <Compile Include="Data\Helpers\JsonNonPublicMemberContractResolver.cs" />
@@ -65,19 +64,24 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App_Config\Include\Sitecore.JsonDataProvider.config">
+    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.config">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App_Config\Include\Sitecore.JsonDataProvider.UserTemplates.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="App_Config\Include\Sitecore.JsonDataProvider.ContentItems.config" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="App_Data\content-items.json" />
     <Content Include="App_Data\user-defined-templates.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.Items.Layout.Placeholders.example" />
+    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.Items.Content.example" />
+    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.Items.Layout.Layouts.example" />
+    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.Items.Layout.Renderings.example" />
+    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.Items.System.Aliases.example" />
+    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.Items.System.Workflows.example" />
+    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.Templates.UserDefined.example" />
+    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.IgnoreFields.Statistics.example" />
+    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.IgnoreFields.Workflow.example" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

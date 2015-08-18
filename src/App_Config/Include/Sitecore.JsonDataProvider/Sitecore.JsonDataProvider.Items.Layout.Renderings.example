@@ -1,0 +1,13 @@
+﻿<configuration xmlns:set="http://www.sitecore.net/xmlconfig/set/">
+  <sitecore database="SqlServer">
+    <dataProviders>
+      <jsonMaster>
+        <Segments>
+          <ItemsLayoutRenderings
+            file="/App_Data/items-layout-renderings.json"
+            root="{32566F0E-7686-45F1-A12F-D7260BD78BC3}"/>
+        </Segments>
+      </jsonMaster>
+    </dataProviders>
+  </sitecore>
+</configuration>

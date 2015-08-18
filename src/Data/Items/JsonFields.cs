@@ -1,6 +1,7 @@
 ﻿namespace Sitecore.Data.Items
 {
   using Sitecore.Data.Collections;
+  using Sitecore.Data.Helpers;
 
   public class JsonFields
   {

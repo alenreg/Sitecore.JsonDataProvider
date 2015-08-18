@@ -573,6 +573,8 @@
       Assert.ArgumentNotNull(item, "item");
       this.Items.Add(item);
 
+      item.Fields.Shared[JsonSettings.ItemStyleFieldID] = JsonSettings.ItemStyleValue;
+
       foreach (var child in item.Children)
       {
         if (child == null)
