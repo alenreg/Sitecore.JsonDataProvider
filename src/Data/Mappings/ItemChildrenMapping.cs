@@ -1,45 +1,61 @@
-﻿namespace Sitecore.Data.DataProviders
+﻿namespace Sitecore.Data.Mappings
 {
   using System;
   using System.Collections.Generic;
   using System.IO;
   using System.Linq;
-  using System.Threading;
+  using System.Xml;
 
   using Newtonsoft.Json;
 
   using Sitecore.Collections;
   using Sitecore.Data;
   using Sitecore.Data.Collections;
+  using Sitecore.Data.DataProviders;
   using Sitecore.Data.Helpers;
   using Sitecore.Data.Items;
   using Sitecore.Diagnostics;
   using Sitecore.Globalization;
 
-  public class JsonSegment
+  public class ItemChildrenMapping : IMapping
   {
     [NotNull]
-    public readonly ID RootID;
+    public readonly ID ItemID;
 
     [NotNull]
-    public readonly string FilePath;
+    public readonly string FileMappingPath;
 
     [NotNull]
-    protected readonly List<JsonItem> RootItems = new List<JsonItem>();
+    protected readonly List<JsonItem> ItemChildren = new List<JsonItem>();
 
     [NotNull]
-    protected readonly List<JsonItem> Items = new List<JsonItem>();
+    protected readonly List<JsonItem> ItemsCache = new List<JsonItem>();
 
     [NotNull]
     protected readonly object SyncRoot = new object();
 
-    public JsonSegment([NotNull] ID rootID, [NotNull] string filePath)
+    [UsedImplicitly]
+    public ItemChildrenMapping([NotNull] XmlElement mappingElement)
     {
-      Assert.ArgumentNotNull(rootID, "rootID");
-      Assert.ArgumentNotNull(filePath, "filePath");
+      Assert.ArgumentNotNull(mappingElement, "mappingElement");
 
-      this.RootID = rootID;
-      this.FilePath = filePath;
+      var fileName = mappingElement.GetAttribute("file");
+      Assert.IsNotNullOrEmpty(fileName, "The \"file\" attribute is not specified or has empty string value: " + mappingElement.OuterXml);
+
+      var filePath = MainUtil.MapPath(fileName);
+      Assert.IsNotNullOrEmpty(filePath, "filePath");
+
+      var itemString = mappingElement.GetAttribute("item");
+      Assert.IsNotNull(itemString, "The \"item\" attribute is not specified or has empty string value: " + mappingElement.OuterXml);
+
+      ID itemID;
+      ID.TryParse(itemString, out itemID);
+      Assert.IsNotNull(itemID, "the \"item\" attribute is not a valid GUID value: " + mappingElement.OuterXml);
+
+      this.FileMappingPath = filePath;
+      this.ItemID = itemID;
+
+      Log.Info("Default mapping is constructed for " + itemID + " with " + filePath, this);
 
       if (!File.Exists(filePath))
       {
@@ -51,16 +67,19 @@
         Log.Info("Deserializing items from: " + filePath, this);
 
         var json = File.ReadAllText(filePath);
-        var list = JsonConvert.DeserializeObject<List<JsonItem>>(json, new JsonSerializerSettings { ContractResolver = new JsonNonPublicMemberContractResolver() });
-        if (list == null)
+        var children = JsonConvert.DeserializeObject<List<JsonItem>>(json, new JsonSerializerSettings
+          {
+            ContractResolver = new JsonNonPublicMemberContractResolver()
+          });
+        if (children == null)
         {
           return;
         }
 
-        this.RootItems = list;
-        foreach (var item in list)
+        this.ItemChildren = children;
+        foreach (var item in children)
         {
-          item.ParentID = this.RootID;
+          item.ParentID = this.ItemID;
           this.Initialize(item);
         }
       }
@@ -72,14 +91,13 @@
       }
     }
 
-    [CanBeNull]
-    public IEnumerable<ID> GetChildIDs([NotNull] ID itemId)
+    public IEnumerable<ID> GetChildIDs(ID itemId)
     {
       Assert.ArgumentNotNull(itemId, "itemId");
 
-      if (itemId == this.RootID)
+      if (itemId == this.ItemID)
       {
-        return this.RootItems.Select(x => x.ID);
+        return this.ItemChildren.Select(x => x.ID);
       }
 
       var item = this.GetItem(itemId);
@@ -91,8 +109,7 @@
       return null;
     }
 
-    [CanBeNull]
-    public ItemDefinition GetItemDefinition([NotNull] ID itemID)
+    public ItemDefinition GetItemDefinition(ID itemID)
     {
       Assert.ArgumentNotNull(itemID, "itemID");
 
@@ -105,8 +122,7 @@
       return new ItemDefinition(item.ID, item.Name, item.TemplateID, ID.Null);
     }
 
-    [CanBeNull]
-    public ID GetParentID([NotNull] ID itemID)
+    public ID GetParentID(ID itemID)
     {
       Assert.ArgumentNotNull(itemID, "itemID");
 
@@ -119,8 +135,7 @@
       return item.ParentID;
     }
 
-    [CanBeNull]
-    public VersionUriList GetItemVersiones([NotNull] ID itemID)
+    public VersionUriList GetItemVersiones(ID itemID)
     {
       Assert.ArgumentNotNull(itemID, "itemID");
 
@@ -140,8 +155,7 @@
       return versionUriList;
     }
 
-    [CanBeNull]
-    public FieldList GetItemFields([NotNull] ID itemID, [NotNull] VersionUri versionUri)
+    public FieldList GetItemFields(ID itemID, VersionUri versionUri)
     {
       Assert.ArgumentNotNull(itemID, "itemID");
       Assert.ArgumentNotNull(versionUri, "versionUri");
@@ -190,14 +204,13 @@
 
       return fieldList;
     }
-
-    [CanBeNull]
+    
     public IEnumerable<ID> GetTemplateItemIDs()
     {
-      return this.Items.Where(x => x.TemplateID == TemplateIDs.Template).Select(x => x.ID);
+      return this.ItemsCache.Where(x => x.TemplateID == TemplateIDs.Template).Select(x => x.ID);
     }
 
-    public bool CreateItem([NotNull] ID itemID, [NotNull] string itemName, [NotNull] ID templateID, [NotNull] ID parentID)
+    public bool CreateItem(ID itemID, string itemName, ID templateID, ID parentID)
     {
       Assert.ArgumentNotNull(itemID, "itemID");
       Assert.ArgumentNotNull(itemName, "itemName");
@@ -205,9 +218,9 @@
       Assert.ArgumentNotNull(parentID, "parentID");
 
       JsonItem parent = null;
-      if (this.RootID != parentID)
+      if (this.ItemID != parentID)
       {
-        parent = this.Items.FirstOrDefault(x => x.ID == parentID);
+        parent = this.ItemsCache.FirstOrDefault(x => x.ID == parentID);
         if (parent == null)
         {
           return false;
@@ -222,7 +235,7 @@
 
       lock (this.SyncRoot)
       {
-        this.Items.Add(item);
+        this.ItemsCache.Add(item);
 
         if (parent != null)
         {
@@ -230,7 +243,7 @@
         }
         else
         {
-          this.RootItems.Add(item);
+          this.ItemChildren.Add(item);
         }
 
         this.Commit();
@@ -239,7 +252,7 @@
       return true;
     }
 
-    public bool CopyItem([NotNull] ID sourceItemID, [NotNull] ID destinationItemID, [NotNull] ID copyID, [NotNull] string copyName)
+    public bool CopyItem(ID sourceItemID, ID destinationItemID, ID copyID, string copyName)
     {
       Assert.ArgumentNotNull(sourceItemID, "sourceItemID");
       Assert.ArgumentNotNull(destinationItemID, "destinationItemID");
@@ -252,7 +265,7 @@
         return false;
       }
 
-      if (destinationItemID != this.RootID)
+      if (destinationItemID != this.ItemID)
       {
         var destinationItem = this.GetItem(destinationItemID);
         if (destinationItem == null)
@@ -272,6 +285,7 @@
       var copyUnversioned = copyFields.Unversioned;
       var copyVersioned = copyFields.Versioned;
       var sourceFields = sourceItem.Fields;
+
       lock (this.SyncRoot)
       {
         // copy shared fields
@@ -315,7 +329,7 @@
       return true;
     }
 
-    public int AddVersion([NotNull] ID itemID, [NotNull] VersionUri versionUri)
+    public int AddVersion(ID itemID, VersionUri versionUri)
     {
       Assert.ArgumentNotNull(itemID, "itemID");
       Assert.ArgumentNotNull(versionUri, "versionUri");
@@ -376,7 +390,7 @@
       }
     }
 
-    public bool SaveItem([NotNull] ID itemID, [NotNull] ItemChanges changes)
+    public bool SaveItem(ID itemID, ItemChanges changes)
     {
       Assert.ArgumentNotNull(itemID, "itemID");
       Assert.ArgumentNotNull(changes, "changes");
@@ -475,7 +489,7 @@
       return true;
     }
 
-    public bool RemoveVersion([NotNull] ID itemID, [NotNull] VersionUri versionUri)
+    public bool RemoveVersion(ID itemID, VersionUri versionUri)
     {
       Assert.ArgumentNotNull(itemID, "itemID");
       Assert.ArgumentNotNull(versionUri, "versionUri");
@@ -507,7 +521,7 @@
       return true;
     }
 
-    public bool RemoveVersions([NotNull] ID itemID, [NotNull] Language language)
+    public bool RemoveVersions(ID itemID, Language language)
     {
       Assert.ArgumentNotNull(itemID, "itemID");
       Assert.ArgumentNotNull(language, "language");
@@ -535,7 +549,7 @@
       return true;
     }
 
-    public bool DeleteItem([NotNull] ID itemID)
+    public bool DeleteItem(ID itemID)
     {
       Assert.ArgumentNotNull(itemID, "itemID");
 
@@ -547,9 +561,9 @@
 
       lock (this.SyncRoot)
       {
-        if (item.ParentID == this.RootID)
+        if (item.ParentID == this.ItemID)
         {
-          this.RootItems.Remove(item);
+          this.ItemChildren.Remove(item);
         }
         else
         {
@@ -571,7 +585,8 @@
     private void Initialize([NotNull] JsonItem item)
     {
       Assert.ArgumentNotNull(item, "item");
-      this.Items.Add(item);
+
+      this.ItemsCache.Add(item);
 
       item.Fields.Shared[JsonSettings.ItemStyleFieldID] = JsonSettings.ItemStyleValue;
 
@@ -589,14 +604,14 @@
 
     private void Commit()
     {
-      var filePath = this.FilePath;
+      var filePath = this.FileMappingPath;
       var directory = Path.GetDirectoryName(filePath);
       if (!Directory.Exists(directory))
       {
         Directory.CreateDirectory(directory);
       }
 
-      var json = JsonConvert.SerializeObject(this.RootItems, Formatting.Indented);
+      var json = JsonConvert.SerializeObject(this.ItemChildren, Newtonsoft.Json.Formatting.Indented);
       File.WriteAllText(filePath, json);
     }
 
@@ -605,14 +620,14 @@
     {
       Assert.ArgumentNotNull(itemID, "itemID");
 
-      return this.Items.FirstOrDefault(x => x.ID == itemID);
+      return this.ItemsCache.FirstOrDefault(x => x.ID == itemID);
     }
 
     private void DeleteItem([NotNull] JsonItem item)
     {
       Assert.ArgumentNotNull(item, "item");
 
-      this.Items.Remove(item);
+      this.ItemsCache.Remove(item);
       foreach (var child in item.Children)
       {
         Assert.IsNotNull(child, "child");

@@ -19,13 +19,14 @@ namespace Sitecore.Data.Items
 
     [NotNull]
     [JsonProperty(Order = 5)]
-    public readonly List<JsonItem> Children = new List<JsonItem>();
+    public readonly List<JsonItem> Children;
 
     [UsedImplicitly]
     public JsonItem()
     {
       this.ID = ID.Null;
       this.ParentID = ID.Null;
+      this.Children = new List<JsonItem>();
     }
 
     public JsonItem([NotNull] ID id, [NotNull] ID parentID)
@@ -38,6 +39,17 @@ namespace Sitecore.Data.Items
 
       this.Name = "noname";
       this.TemplateID = ID.Null;
+      this.Children = new List<JsonItem>();
+    }
+
+    public JsonItem([NotNull] ID id, [NotNull] ID parentID, [NotNull] List<JsonItem> children)
+      : this(id, parentID)
+    {
+      Assert.ArgumentNotNull(id, "id");
+      Assert.ArgumentNotNull(parentID, "parentID");
+      Assert.ArgumentNotNull(children, "children");
+
+      this.Children = children;
     }
 
     [NotNull]

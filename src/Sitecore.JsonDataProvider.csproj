@@ -56,7 +56,9 @@
     <Compile Include="Data\Items\JsonFields.cs" />
     <Compile Include="Data\Items\JsonItem.cs" />
     <Compile Include="Data\Helpers\JsonNonPublicMemberContractResolver.cs" />
-    <Compile Include="Data\DataProviders\JsonSegment.cs" />
+    <Compile Include="Data\Mappings\DefaultMapping.cs" />
+    <Compile Include="Data\Mappings\IMapping.cs" />
+    <Compile Include="Data\Mappings\ItemChildrenMapping.cs" />
     <Compile Include="Data\DataProviders\JsonDataProvider.cs" />
     <Compile Include="Data\Collections\JsonLanguageCollection.cs" />
     <Compile Include="Data\Collections\JsonUnversionedFieldsCollection.cs" />
@@ -64,27 +66,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.config">
+    <Content Include="App_Config\Include\Sitecore.JsonDataProvider.config">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="App_Data\content-items.json" />
-    <Content Include="App_Data\user-defined-templates.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.Items.Layout.Placeholders.config.example" />
-    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.Items.Content.config.example" />
-    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.Items.Layout.Layouts.config.example" />
-    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.Items.Layout.Renderings.config.example" />
-    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.Items.System.Aliases.config.example" />
-    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.Items.System.Workflows.config.example" />
-    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.Templates.Root.config.example">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.IgnoreFields.Statistics.config.example" />
-    <Content Include="App_Config\Include\Sitecore.JsonDataProvider\Sitecore.JsonDataProvider.IgnoreFields.Workflow.config.example" />
-  </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

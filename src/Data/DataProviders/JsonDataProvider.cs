@@ -1,24 +1,34 @@
 ﻿namespace Sitecore.Data.DataProviders
 {
+  using System;
   using System.Collections.Generic;
   using System.Linq;
   using System.Xml;
 
   using Sitecore.Collections;
   using Sitecore.Data;
+  using Sitecore.Data.Helpers;
   using Sitecore.Data.Items;
+  using Sitecore.Data.Mappings;
   using Sitecore.Data.SqlServer;
   using Sitecore.Diagnostics;
   using Sitecore.Globalization;
+  using Sitecore.StringExtensions;
 
   [UsedImplicitly]
   public class JsonDataProvider : SqlServerDataProvider
   {
     [NotNull]
+    public static readonly Dictionary<string, Type> MappingTypes = new Dictionary<string, Type>();
+
+    [NotNull]
     public static readonly List<ID> IgnoreFields = new List<ID>();
 
     [NotNull]
-    public readonly List<JsonSegment> Segments = new List<JsonSegment>();
+    public readonly ICollection<IMapping> FileMappings = new List<IMapping>();
+
+    [CanBeNull]
+    private IMapping DefaultMapping;
 
     public JsonDataProvider([NotNull] string connectionString, [NotNull] string databaseName)
       : base(connectionString)
@@ -30,24 +40,23 @@
     }
 
     [UsedImplicitly]
-    public void AddSegment([NotNull] XmlNode componentNode)
+    public void AddFileMappingType([NotNull] XmlNode mappingTypeNode)
     {
-      Assert.ArgumentNotNull(componentNode, "componentNode");
+      Assert.ArgumentNotNull(mappingTypeNode, "mappingTypeNode");
 
-      var segmentElement = (XmlElement)componentNode;
-      var rootString = segmentElement.GetAttribute("root");
-      Assert.IsNotNull(rootString, "root attribute is not specified or has empty string value: " + segmentElement.OuterXml);
+      var mappingElement = (XmlElement)mappingTypeNode;
+      var mappingName = mappingElement.Name;
+      Assert.IsNotNullOrEmpty(mappingName, "mappingName");
 
-      ID root;
-      Assert.IsTrue(ID.TryParse(rootString, out root), "root attribute is not a valid GUID value: " + segmentElement.OuterXml);
+      var typeString = mappingElement.GetAttribute("type");
+      Assert.IsNotNullOrEmpty(typeString, "The \"type\" attribute is not specified: " + mappingElement.OuterXml);
 
-      var file = segmentElement.GetAttribute("file");
-      Assert.IsNotNullOrEmpty(file, "file attribute is not specified or has empty string value: " + segmentElement.OuterXml);
+      var type = Type.GetType(typeString);
+      Assert.IsNotNull(type, "The type cannot be found: " + mappingElement.OuterXml);
 
-      var filePath = MainUtil.MapPath(file);
-      var segment = new JsonSegment(root, filePath);
+      Log.Info("Mapping type is registered: " + mappingName, this);
 
-      this.Segments.Add(segment);
+      MappingTypes.Add(mappingName, type);
     }
 
     [UsedImplicitly]
@@ -61,8 +70,38 @@
 
       ID fieldID;
       Assert.IsTrue(ID.TryParse(idString, out fieldID), "node value is not a valid GUID value: " + fieldElement.OuterXml);
-      
+
+      Log.Info("Ignore field is registered: " + idString, this);
+
       IgnoreFields.Add(fieldID);
+    }
+
+    [UsedImplicitly]
+    public void AddFileMapping([NotNull] XmlNode mappingNode)
+    {
+      Assert.ArgumentNotNull(mappingNode, "mappingNode");
+
+      var mappingElement = (XmlElement)mappingNode;
+      var mappingName = mappingNode.Name;
+      Assert.IsNotNullOrEmpty(mappingName, "mappingName");
+
+      Type mappingType;
+      MappingTypes.TryGetValue(mappingName, out mappingType);
+      Assert.IsNotNull(mappingType, "The {0} mapping type is not registered in <FileMappingTypes> element".FormatWith(mappingName));
+
+      var mapping = (IMapping)Activator.CreateInstance(mappingType, new[] { mappingElement });
+      Assert.IsNotNull(mapping, "mapping");
+
+      Log.Info("Mapping is estabileshed: " + mappingName, this);
+
+      if (mappingType.IsAssignableFrom(typeof(DefaultMapping)))
+      {
+        this.DefaultMapping = mapping;
+
+        return;
+      }
+
+      this.FileMappings.Add(mapping);
     }
 
     [NotNull]
@@ -76,22 +115,37 @@
 
       var childIDs = new IDList();
 
-      // several segments can point to same root so let's collect items from all of them
-      foreach (var segment in this.Segments)
+      // several fileMappings can point to same item so let's collect items from all of them
+      foreach (var file in this.FileMappings)
       {
-        Assert.IsNotNull(segment, "segment");
+        Assert.IsNotNull(file, "file");
 
-        var segmentChildIDs = segment.GetChildIDs(itemId);
-        if (segmentChildIDs == null)
+        var fileChildIDs = file.GetChildIDs(itemId);
+        if (fileChildIDs == null)
         {
           continue;
         }
 
-        foreach (var childID in segmentChildIDs)
+        foreach (var childID in fileChildIDs)
         {
           Assert.IsNotNull(childID, "childID");
 
           childIDs.Add(childID);
+        }
+      }
+
+      var defaultMapping = this.DefaultMapping;
+      if (defaultMapping != null)
+      {
+        var fileChildIDs = defaultMapping.GetChildIDs(itemId);
+        if (fileChildIDs != null)
+        {
+          foreach (var childID in fileChildIDs)
+          {
+            Assert.IsNotNull(childID, "childID");
+
+            childIDs.Add(childID);
+          }
         }
       }
 
@@ -102,7 +156,7 @@
         return childIDs;
       }
 
-      // merge segments' items with ones from SQL
+      // merge fileMappings' items with ones from SQL
       foreach (var id in sqlChildIDs.Cast<ID>())
       {
         childIDs.Add(id);
@@ -117,11 +171,21 @@
       Assert.ArgumentNotNull(itemID, "itemID");
       Assert.ArgumentNotNull(context, "context");
 
-      foreach (var segment in this.Segments)
+      foreach (var file in this.FileMappings)
       {
-        Assert.IsNotNull(segment, "segment");
+        Assert.IsNotNull(file, "file");
 
-        var definition = segment.GetItemDefinition(itemID);
+        var definition = file.GetItemDefinition(itemID);
+        if (definition != null)
+        {
+          return definition;
+        }
+      }
+
+      var defaultMapping = this.DefaultMapping;
+      if (defaultMapping != null)
+      {
+        var definition = defaultMapping.GetItemDefinition(itemID);
         if (definition != null)
         {
           return definition;
@@ -140,11 +204,21 @@
       var itemID = itemDefinition.ID;
       Assert.IsNotNull(itemID, "itemID");
 
-      foreach (var segment in this.Segments)
+      foreach (var file in this.FileMappings)
       {
-        Assert.IsNotNull(segment, "segment");
+        Assert.IsNotNull(file, "file");
 
-        var parentID = segment.GetParentID(itemID);
+        var parentID = file.GetParentID(itemID);
+        if (parentID as object != null)
+        {
+          return parentID;
+        }
+      }
+
+      var defaultMapping = this.DefaultMapping;
+      if (defaultMapping != null)
+      {
+        var parentID = defaultMapping.GetParentID(itemID);
         if (parentID as object != null)
         {
           return parentID;
@@ -163,11 +237,21 @@
       var itemID = itemDefinition.ID;
       Assert.IsNotNull(itemID, "itemID");
 
-      foreach (var segment in this.Segments)
+      foreach (var file in this.FileMappings)
       {
-        Assert.IsNotNull(segment, "segment");
+        Assert.IsNotNull(file, "file");
 
-        var itemVersions = segment.GetItemVersiones(itemID);
+        var itemVersions = file.GetItemVersiones(itemID);
+        if (itemVersions != null)
+        {
+          return itemVersions;
+        }
+      }
+
+      var defaultMapping = this.DefaultMapping;
+      if (defaultMapping != null)
+      {
+        var itemVersions = defaultMapping.GetItemVersiones(itemID);
         if (itemVersions != null)
         {
           return itemVersions;
@@ -187,11 +271,21 @@
       var itemID = itemDefinition.ID;
       Assert.IsNotNull(itemID, "itemID");
 
-      foreach (var segment in this.Segments)
+      foreach (var file in this.FileMappings)
       {
-        Assert.IsNotNull(segment, "segment");
+        Assert.IsNotNull(file, "file");
 
-        var fieldList = segment.GetItemFields(itemID, versionUri);
+        var fieldList = file.GetItemFields(itemID, versionUri);
+        if (fieldList != null)
+        {
+          return fieldList;
+        }
+      }
+
+      var defaultMapping = this.DefaultMapping;
+      if (defaultMapping != null)
+      {
+        var fieldList = defaultMapping.GetItemFields(itemID, versionUri);
         if (fieldList != null)
         {
           return fieldList;
@@ -207,14 +301,27 @@
       Assert.ArgumentNotNull(context, "context");
 
       var templateItemIDs = new IdCollection();
-      foreach (var segment in this.Segments)
+      foreach (var file in this.FileMappings)
       {
-        Assert.IsNotNull(segment, "segment");
+        Assert.IsNotNull(file, "file");
 
-        var segmentTemplateIDs = segment.GetTemplateItemIDs();
-        if (segmentTemplateIDs != null)
+        var fileTemplateIDs = file.GetTemplateItemIDs();
+        if (fileTemplateIDs != null)
         {
-          foreach (var templateID in segmentTemplateIDs)
+          foreach (var templateID in fileTemplateIDs)
+          {
+            templateItemIDs.Add(templateID);
+          }
+        }
+      }
+
+      var defaultMapping = this.DefaultMapping;
+      if (defaultMapping != null)
+      {
+        var fileTemplateIDs = defaultMapping.GetTemplateItemIDs();
+        if (fileTemplateIDs != null)
+        {
+          foreach (var templateID in fileTemplateIDs)
           {
             templateItemIDs.Add(templateID);
           }
@@ -245,11 +352,20 @@
       var parentId = parent.ID;
       Assert.IsNotNull(itemID, "itemID");
 
-      foreach (var segment in this.Segments)
+      foreach (var file in this.FileMappings)
       {
-        Assert.IsNotNull(segment, "segment");
+        Assert.IsNotNull(file, "file");
 
-        if (segment.CreateItem(itemID, itemName, templateID, parentId))
+        if (file.CreateItem(itemID, itemName, templateID, parentId))
+        {
+          return true;
+        }
+      }
+
+      var defaultMapping = this.DefaultMapping;
+      if (defaultMapping != null)
+      {
+        if (defaultMapping.CreateItem(itemID, itemName, templateID, parentId))
         {
           return true;
         }
@@ -272,11 +388,20 @@
       var destinationItemID = destination.ID;
       Assert.IsNotNull(destinationItemID, "destinationItemID");
 
-      foreach (var segment in this.Segments)
+      foreach (var file in this.FileMappings)
       {
-        Assert.IsNotNull(segment, "segment");
+        Assert.IsNotNull(file, "file");
 
-        if (segment.CopyItem(sourceItemID, destinationItemID, copyID, copyName))
+        if (file.CopyItem(sourceItemID, destinationItemID, copyID, copyName))
+        {
+          return true;
+        }
+      }
+
+      var defaultMapping = this.DefaultMapping;
+      if (defaultMapping != null)
+      {
+        if (defaultMapping.CopyItem(sourceItemID, destinationItemID, copyID, copyName))
         {
           return true;
         }
@@ -294,11 +419,21 @@
       var itemID = itemDefinition.ID;
       Assert.IsNotNull(itemID, "itemID");
 
-      foreach (var segment in this.Segments)
+      foreach (var file in this.FileMappings)
       {
-        Assert.IsNotNull(segment, "segment");
+        Assert.IsNotNull(file, "file");
 
-        var versionNumber = segment.AddVersion(itemID, baseVersion);
+        var versionNumber = file.AddVersion(itemID, baseVersion);
+        if (versionNumber != -1)
+        {
+          return versionNumber;
+        }
+      }
+
+      var defaultMapping = this.DefaultMapping;
+      if (defaultMapping != null)
+      {
+        var versionNumber = defaultMapping.AddVersion(itemID, baseVersion);
         if (versionNumber != -1)
         {
           return versionNumber;
@@ -319,11 +454,20 @@
         var itemID = itemDefinition.ID;
         Assert.IsNotNull(itemID, "itemID");
 
-        foreach (var segment in this.Segments)
+        foreach (var file in this.FileMappings)
         {
-          Assert.IsNotNull(segment, "segment");
+          Assert.IsNotNull(file, "file");
 
-          if (segment.SaveItem(itemID, changes))
+          if (file.SaveItem(itemID, changes))
+          {
+            return true;
+          }
+        }
+
+        var defaultMapping = this.DefaultMapping;
+        if (defaultMapping != null)
+        {
+          if (defaultMapping.SaveItem(itemID, changes))
           {
             return true;
           }
@@ -342,11 +486,20 @@
       var itemID = itemDefinition.ID;
       Assert.IsNotNull(itemID, "itemID");
 
-      foreach (var segment in this.Segments)
+      foreach (var file in this.FileMappings)
       {
-        Assert.IsNotNull(segment, "segment");
+        Assert.IsNotNull(file, "file");
 
-        if (segment.RemoveVersion(itemID, versionUri))
+        if (file.RemoveVersion(itemID, versionUri))
+        {
+          return true;
+        }
+      }
+
+      var defaultMapping = this.DefaultMapping;
+      if (defaultMapping != null)
+      {
+        if (defaultMapping.RemoveVersion(itemID, versionUri))
         {
           return true;
         }
@@ -364,11 +517,20 @@
       var itemID = itemDefinition.ID;
       Assert.IsNotNull(itemID, "itemID");
 
-      foreach (var segment in this.Segments)
+      foreach (var file in this.FileMappings)
       {
-        Assert.IsNotNull(segment, "segment");
+        Assert.IsNotNull(file, "file");
 
-        if (segment.RemoveVersions(itemID, language))
+        if (file.RemoveVersions(itemID, language))
+        {
+          return true;
+        }
+      }
+
+      var defaultMapping = this.DefaultMapping;
+      if (defaultMapping != null)
+      {
+        if (defaultMapping.RemoveVersions(itemID, language))
         {
           return true;
         }
@@ -385,11 +547,20 @@
       var itemID = itemDefinition.ID;
       Assert.IsNotNull(itemID, "itemID");
 
-      foreach (var segment in this.Segments)
+      foreach (var file in this.FileMappings)
       {
-        Assert.IsNotNull(segment, "segment");
+        Assert.IsNotNull(file, "file");
 
-        if (segment.DeleteItem(itemID))
+        if (file.DeleteItem(itemID))
+        {
+          return true;
+        }
+      }
+
+      var defaultMapping = this.DefaultMapping;
+      if (defaultMapping != null)
+      {
+        if (defaultMapping.DeleteItem(itemID))
         {
           return true;
         }
