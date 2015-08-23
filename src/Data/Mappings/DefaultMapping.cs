@@ -56,7 +56,7 @@
         Log.Info("Deserializing items from: " + filePath, this);
 
         var json = File.ReadAllText(filePath);
-        var dictionary = JsonConvert.DeserializeObject<Dictionary<ID, List<JsonItem>>>(json, new JsonSerializerSettings { ContractResolver = new JsonNonPublicMemberContractResolver() });
+        var dictionary = JsonConvert.DeserializeObject<IDictionary<string, List<JsonItem>>>(json, new JsonSerializerSettings { ContractResolver = new JsonNonPublicMemberContractResolver() });
         if (dictionary == null)
         {
           return;
@@ -64,7 +64,7 @@
 
         var children = dictionary
           .Where(x => x.Key as object != null && x.Value != null)
-          .Select(x => new JsonItem(x.Key, ID.Null, x.Value))
+          .Select(x => new JsonItem(ID.Parse(x.Key), ID.Null, x.Value))
           .ToList();
 
         this.ItemChildren = children;
@@ -567,6 +567,7 @@
     private void Initialize([NotNull] JsonItem item)
     {
       Assert.ArgumentNotNull(item, "item");
+
       this.ItemsCache.Add(item);
 
       item.Fields.Shared[JsonSettings.ItemStyleFieldID] = JsonSettings.ItemStyleValue;
