@@ -1,4 +1,4 @@
-namespace Sitecore.Data.Helpers
+namespace Sitecore.Data.Converters
 {
   using System;
   using System.Collections.Generic;

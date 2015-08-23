@@ -11,7 +11,6 @@
   using Sitecore.Collections;
   using Sitecore.Data;
   using Sitecore.Data.Collections;
-  using Sitecore.Data.DataProviders;
   using Sitecore.Data.Helpers;
   using Sitecore.Data.Items;
   using Sitecore.Diagnostics;
@@ -67,10 +66,7 @@
         Log.Info("Deserializing items from: " + filePath, this);
 
         var json = File.ReadAllText(filePath);
-        var children = JsonConvert.DeserializeObject<List<JsonItem>>(json, new JsonSerializerSettings
-          {
-            ContractResolver = new JsonNonPublicMemberContractResolver()
-          });
+        var children = JsonHelper.Deserialize<List<JsonItem>>(json);
         if (children == null)
         {
           return;
@@ -204,7 +200,7 @@
 
       return fieldList;
     }
-    
+
     public IEnumerable<ID> GetTemplateItemIDs()
     {
       return this.ItemsCache.Where(x => x.TemplateID == TemplateIDs.Template).Select(x => x.ID);
@@ -588,7 +584,7 @@
 
       this.ItemsCache.Add(item);
 
-      item.Fields.Shared[JsonSettings.ItemStyleFieldID] = JsonSettings.ItemStyleValue;
+      item.Fields.Shared[Settings.ItemStyleFieldID] = Settings.ItemStyleValue;
 
       foreach (var child in item.Children)
       {
@@ -611,7 +607,7 @@
         Directory.CreateDirectory(directory);
       }
 
-      var json = JsonConvert.SerializeObject(this.ItemChildren, Newtonsoft.Json.Formatting.Indented);
+      var json = JsonHelper.Serialize(this.ItemChildren, true);
       File.WriteAllText(filePath, json);
     }
 

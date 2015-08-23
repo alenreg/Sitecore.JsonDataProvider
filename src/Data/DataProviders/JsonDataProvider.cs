@@ -7,7 +7,6 @@
 
   using Sitecore.Collections;
   using Sitecore.Data;
-  using Sitecore.Data.Helpers;
   using Sitecore.Data.Items;
   using Sitecore.Data.Mappings;
   using Sitecore.Data.SqlServer;

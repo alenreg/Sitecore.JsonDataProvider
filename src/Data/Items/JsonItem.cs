@@ -29,7 +29,7 @@ namespace Sitecore.Data.Items
       this.ParentID = ID.Null;
       this.Children = new List<JsonItem>();
 
-      this.Fields.Shared[JsonSettings.ItemStyleFieldID] = JsonSettings.ItemStyleValue;
+      this.Fields.Shared[Settings.ItemStyleFieldID] = Settings.ItemStyleValue;
     }
 
     public JsonItem([NotNull] ID id, [NotNull] ID parentID)
@@ -44,7 +44,7 @@ namespace Sitecore.Data.Items
       this.TemplateID = ID.Null;
       this.Children = new List<JsonItem>();
       
-      this.Fields.Shared[JsonSettings.ItemStyleFieldID] = JsonSettings.ItemStyleValue;
+      this.Fields.Shared[Settings.ItemStyleFieldID] = Settings.ItemStyleValue;
     }
 
     public JsonItem([NotNull] ID id, [NotNull] ID parentID, [NotNull] List<JsonItem> children)

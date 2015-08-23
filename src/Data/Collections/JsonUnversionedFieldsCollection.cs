@@ -8,7 +8,7 @@
   public class JsonUnversionedFieldsCollection : Dictionary<string, JsonFieldsCollection>
   {
     [NotNull]
-    public new JsonFieldsCollection this[Language language]
+    public JsonFieldsCollection this[Language language]
     {
       get
       {

@@ -5,7 +5,7 @@
   using Newtonsoft.Json;
 
   using Sitecore.Data;
-  using Sitecore.Data.Helpers;
+  using Sitecore.Data.Converters;
   using Sitecore.Diagnostics;
 
   [JsonConverter(typeof(JsonFieldsCollectionConverter))]
