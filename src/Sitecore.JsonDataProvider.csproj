@@ -54,6 +54,7 @@
     <Compile Include="Data\Helpers\JsonFieldsCollectionConverter.cs" />
     <Compile Include="Data\Helpers\JsonSettings.cs" />
     <Compile Include="Data\Items\JsonFields.cs" />
+    <Compile Include="Data\Helpers\JsonFieldsConverter.cs" />
     <Compile Include="Data\Items\JsonItem.cs" />
     <Compile Include="Data\Helpers\JsonNonPublicMemberContractResolver.cs" />
     <Compile Include="Data\Mappings\DefaultMapping.cs" />
