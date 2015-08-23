@@ -56,6 +56,11 @@
 
       Log.Info("Mapping type is registered: " + mappingName, this);
 
+      if (MappingTypes.ContainsKey(mappingName))
+      {
+        MappingTypes.Remove(mappingName);
+      }
+
       MappingTypes.Add(mappingName, type);
     }
 
