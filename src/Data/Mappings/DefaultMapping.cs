@@ -593,7 +593,7 @@
         Directory.CreateDirectory(directory);
       }
 
-      var json = JsonConvert.SerializeObject(this.ItemChildren.ToDictionary(x => x.ID, x => x.Children), Newtonsoft.Json.Formatting.Indented);
+      var json = JsonConvert.SerializeObject(this.ItemChildren.ToDictionary(x => x.ID.ToString(), x => x.Children), Newtonsoft.Json.Formatting.Indented);
       File.WriteAllText(filePath, json);
     }
 
