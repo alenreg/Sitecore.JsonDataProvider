@@ -5,6 +5,7 @@ namespace Sitecore.Data.Items
   using Newtonsoft.Json;
 
   using Sitecore.Data;
+  using Sitecore.Data.Helpers;
   using Sitecore.Diagnostics;
 
   public class JsonItem
@@ -27,6 +28,8 @@ namespace Sitecore.Data.Items
       this.ID = ID.Null;
       this.ParentID = ID.Null;
       this.Children = new List<JsonItem>();
+
+      this.Fields.Shared[JsonSettings.ItemStyleFieldID] = JsonSettings.ItemStyleValue;
     }
 
     public JsonItem([NotNull] ID id, [NotNull] ID parentID)
@@ -40,6 +43,8 @@ namespace Sitecore.Data.Items
       this.Name = "noname";
       this.TemplateID = ID.Null;
       this.Children = new List<JsonItem>();
+      
+      this.Fields.Shared[JsonSettings.ItemStyleFieldID] = JsonSettings.ItemStyleValue;
     }
 
     public JsonItem([NotNull] ID id, [NotNull] ID parentID, [NotNull] List<JsonItem> children)
