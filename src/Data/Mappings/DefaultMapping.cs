@@ -216,12 +216,7 @@
       if (parent == null)
       {
         // return false;
-        parent = new JsonItem(parentID, ID.Null)
-          {
-            Name = "$default-mapping"
-          };
-        this.ItemChildren.Add(parent);
-        this.ItemsCache.Add(parent);
+        parent = this.AddRootItem(parentID);
       }
 
       var item = new JsonItem(itemID, parentID)
@@ -601,6 +596,22 @@
     {
       Assert.ArgumentNotNull(itemID, "itemID");
       return this.ItemsCache.FirstOrDefault(x => x.ID == itemID);
+    }
+
+    [NotNull]
+    private JsonItem AddRootItem([NotNull] ID itemID)
+    {
+      Assert.ArgumentNotNull(itemID, "itemID");
+
+      var rootItem = new JsonItem(itemID, ID.Null)
+        {
+          Name = "$default-mapping"
+        };
+      
+      this.ItemChildren.Add(rootItem);
+      this.ItemsCache.Add(rootItem);
+
+      return rootItem;
     }
 
     private void DeleteItem([NotNull] JsonItem item)
