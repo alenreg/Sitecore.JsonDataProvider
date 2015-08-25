@@ -6,8 +6,6 @@
   using System.Linq;
   using System.Xml;
 
-  using Newtonsoft.Json;
-
   using Sitecore.Collections;
   using Sitecore.Data;
   using Sitecore.Data.Collections;
