@@ -34,6 +34,8 @@ namespace Sitecore.Data.Mappings
 
     bool SaveItem([NotNull] ID itemID, [NotNull] ItemChanges changes);
 
+    bool MoveItem([NotNull] ID itemID, [NotNull] ID targetID);
+
     bool RemoveVersion([NotNull] ID itemID, [NotNull] VersionUri versionUri);
 
     bool RemoveVersions([NotNull] ID itemID, [NotNull] Language language);

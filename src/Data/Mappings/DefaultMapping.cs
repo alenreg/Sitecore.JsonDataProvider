@@ -472,6 +472,37 @@
       return true;
     }
 
+    public bool MoveItem(ID itemID, ID targetID)
+    {
+      Assert.ArgumentNotNull(itemID, "itemID");
+      Assert.ArgumentNotNull(targetID, "targetID");
+
+      var item = this.GetItem(itemID);
+      if (item == null || item.ParentID == ID.Null)
+      {
+        return false;
+      }
+
+      var target = this.GetItem(targetID);
+      if (target == null)
+      {
+        target = this.AddRootItem(targetID);
+      }
+
+      var parent = this.GetItem(item.ParentID);
+      Assert.IsNotNull(parent, "Cannot find {0} item", item.ParentID);
+      
+      lock (this.SyncRoot)
+      {
+        parent.Children.Remove(item);
+        target.Children.Add(item);
+
+        this.Commit();
+      }
+
+      return true;
+    }
+
     public bool RemoveVersion(ID itemID, VersionUri versionUri)
     {
       Assert.ArgumentNotNull(itemID, "itemID");

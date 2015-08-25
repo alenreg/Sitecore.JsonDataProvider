@@ -485,6 +485,59 @@
       return true;
     }
 
+    public bool MoveItem(ID itemID, ID targetID)
+    {
+      Assert.ArgumentNotNull(itemID, "itemID");
+      Assert.ArgumentNotNull(targetID, "targetID");
+
+      var item = this.GetItem(itemID);
+      if (item == null)
+      {
+        return false;
+      }
+
+      var parentID = item.ParentID;
+      if (parentID == targetID)
+      {
+        return true;
+      }
+
+      lock (this.SyncRoot)
+      {
+        if (parentID == this.ItemID)
+        {
+          var target = this.GetItem(targetID);
+          Assert.IsNotNull(target, "Moving item outside of ItemChildrenMapping ({0}, {1}) is not supported", this.ItemID, this.FileMappingPath);
+
+          this.ItemChildren.Remove(item);
+          target.Children.Add(item);
+        }
+        else if (targetID == this.ItemID)
+        {
+          var parent = this.GetItem(parentID);
+          Assert.IsNotNull(parent, "Cannot find {0} item", parentID);
+
+          parent.Children.Remove(item);
+          this.ItemChildren.Add(item);
+        }
+        else
+        {
+          var parent = this.GetItem(parentID);
+          Assert.IsNotNull(parent, "Cannot find {0} item", parentID);
+
+          var target = this.GetItem(targetID);
+          Assert.IsNotNull(targetID, "Moving item outside of ItemChildrenMapping ({0}, {1}) is not supported", this.ItemID, this.FileMappingPath);
+
+          parent.Children.Remove(item);
+          target.Children.Add(item);
+        }
+
+        this.Commit();
+      }
+
+      return true;
+    }
+
     public bool RemoveVersion(ID itemID, VersionUri versionUri)
     {
       Assert.ArgumentNotNull(itemID, "itemID");

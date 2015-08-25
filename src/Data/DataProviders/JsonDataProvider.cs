@@ -481,6 +481,36 @@
       return base.SaveItem(itemDefinition, changes, context);
     }
 
+    public override bool MoveItem([NotNull] ItemDefinition itemDefinition, [NotNull] ItemDefinition destination, [NotNull] CallContext context)
+    {
+      Assert.ArgumentNotNull(itemDefinition, "itemDefinition");
+      Assert.ArgumentNotNull(destination, "destination");
+      Assert.ArgumentNotNull(context, "context");
+
+      var itemID = itemDefinition.ID;
+      var targetID = destination.ID;
+      foreach (var file in this.FileMappings)
+      {
+        Assert.IsNotNull(file, "file");
+
+        if (file.MoveItem(itemID, targetID))
+        {
+          return true;
+        }
+      }
+
+      var defaultMapping = this.DefaultMapping;
+      if (defaultMapping != null)
+      {
+        if (defaultMapping.MoveItem(itemID, targetID))
+        {
+          return true;
+        }
+      }
+
+      return base.MoveItem(itemDefinition, destination, context);
+    }
+
     public override bool RemoveVersion([NotNull] ItemDefinition itemDefinition, [NotNull] VersionUri versionUri, [NotNull] CallContext context)
     {
       Assert.ArgumentNotNull(itemDefinition, "itemDefinition");
