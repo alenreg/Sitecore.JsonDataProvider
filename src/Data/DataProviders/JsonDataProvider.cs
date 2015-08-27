@@ -22,13 +22,10 @@
     public static readonly Dictionary<string, Type> MappingTypes = new Dictionary<string, Type>();
 
     [NotNull]
-    public static readonly List<ID> IgnoreFields = new List<ID>();
+    public static readonly IList<ID> IgnoreFields = new List<ID>();
 
     [NotNull]
-    public readonly ICollection<IMapping> FileMappings = new List<IMapping>();
-
-    [CanBeNull]
-    private IMapping DefaultMapping;
+    public readonly IList<IMapping> FileMappings = new List<IMapping>();
 
     public JsonDataProvider([NotNull] string connectionString, [NotNull] string databaseName)
       : base(connectionString)
@@ -98,15 +95,7 @@
       Assert.IsNotNull(mapping, "mapping");
 
       Log.Info("Mapping is estabileshed: " + mappingName, this);
-
-      if (mappingType.IsAssignableFrom(typeof(DefaultMapping)))
-      {
-        this.DefaultMapping = mapping;
-
-        return;
-      }
-
-      this.FileMappings.Add(mapping);
+      this.FileMappings.Insert(0, mapping);
     }
 
     [NotNull]
@@ -136,21 +125,6 @@
           Assert.IsNotNull(childID, "childID");
 
           childIDs.Add(childID);
-        }
-      }
-
-      var defaultMapping = this.DefaultMapping;
-      if (defaultMapping != null)
-      {
-        var fileChildIDs = defaultMapping.GetChildIDs(itemId);
-        if (fileChildIDs != null)
-        {
-          foreach (var childID in fileChildIDs)
-          {
-            Assert.IsNotNull(childID, "childID");
-
-            childIDs.Add(childID);
-          }
         }
       }
 
@@ -187,16 +161,6 @@
         }
       }
 
-      var defaultMapping = this.DefaultMapping;
-      if (defaultMapping != null)
-      {
-        var definition = defaultMapping.GetItemDefinition(itemID);
-        if (definition != null)
-        {
-          return definition;
-        }
-      }
-
       return base.GetItemDefinition(itemID, context);
     }
 
@@ -220,16 +184,6 @@
         }
       }
 
-      var defaultMapping = this.DefaultMapping;
-      if (defaultMapping != null)
-      {
-        var parentID = defaultMapping.GetParentID(itemID);
-        if (parentID as object != null)
-        {
-          return parentID;
-        }
-      }
-
       return base.GetParentID(itemDefinition, context);
     }
 
@@ -247,16 +201,6 @@
         Assert.IsNotNull(file, "file");
 
         var itemVersions = file.GetItemVersiones(itemID);
-        if (itemVersions != null)
-        {
-          return itemVersions;
-        }
-      }
-
-      var defaultMapping = this.DefaultMapping;
-      if (defaultMapping != null)
-      {
-        var itemVersions = defaultMapping.GetItemVersiones(itemID);
         if (itemVersions != null)
         {
           return itemVersions;
@@ -287,16 +231,6 @@
         }
       }
 
-      var defaultMapping = this.DefaultMapping;
-      if (defaultMapping != null)
-      {
-        var fieldList = defaultMapping.GetItemFields(itemID, versionUri);
-        if (fieldList != null)
-        {
-          return fieldList;
-        }
-      }
-
       return base.GetItemFields(itemDefinition, versionUri, context);
     }
 
@@ -311,19 +245,6 @@
         Assert.IsNotNull(file, "file");
 
         var fileTemplateIDs = file.GetTemplateItemIDs();
-        if (fileTemplateIDs != null)
-        {
-          foreach (var templateID in fileTemplateIDs)
-          {
-            templateItemIDs.Add(templateID);
-          }
-        }
-      }
-
-      var defaultMapping = this.DefaultMapping;
-      if (defaultMapping != null)
-      {
-        var fileTemplateIDs = defaultMapping.GetTemplateItemIDs();
         if (fileTemplateIDs != null)
         {
           foreach (var templateID in fileTemplateIDs)
@@ -355,20 +276,6 @@
       foreach (var mapping in this.FileMappings)
       {
         var jsonLanguages = mapping.GetLanguages();
-        foreach (var jsonLanguage in jsonLanguages)
-        {
-          var language = Language.Parse(jsonLanguage);
-          if (!languages.Contains(language))
-          {
-            languages.Add(language);
-          }
-        }
-      }
-
-      var defaultMapping = this.DefaultMapping;
-      if (defaultMapping != null)
-      {
-        var jsonLanguages = defaultMapping.GetLanguages();
         foreach (var jsonLanguage in jsonLanguages)
         {
           var language = Language.Parse(jsonLanguage);
@@ -415,15 +322,6 @@
         }
       }
 
-      var defaultMapping = this.DefaultMapping;
-      if (defaultMapping != null)
-      {
-        if (defaultMapping.CreateItem(itemID, itemName, templateID, parentId))
-        {
-          return true;
-        }
-      }
-
       return base.CreateItem(itemID, itemName, templateID, parent, context);
     }
 
@@ -451,15 +349,6 @@
         }
       }
 
-      var defaultMapping = this.DefaultMapping;
-      if (defaultMapping != null)
-      {
-        if (defaultMapping.CopyItem(sourceItemID, destinationItemID, copyID, copyName))
-        {
-          return true;
-        }
-      }
-
       return base.CopyItem(source, destination, copyName, copyID, context);
     }
 
@@ -477,16 +366,6 @@
         Assert.IsNotNull(file, "file");
 
         var versionNumber = file.AddVersion(itemID, baseVersion);
-        if (versionNumber != -1)
-        {
-          return versionNumber;
-        }
-      }
-
-      var defaultMapping = this.DefaultMapping;
-      if (defaultMapping != null)
-      {
-        var versionNumber = defaultMapping.AddVersion(itemID, baseVersion);
         if (versionNumber != -1)
         {
           return versionNumber;
@@ -516,15 +395,6 @@
             return true;
           }
         }
-
-        var defaultMapping = this.DefaultMapping;
-        if (defaultMapping != null)
-        {
-          if (defaultMapping.SaveItem(itemID, changes))
-          {
-            return true;
-          }
-        }
       }
 
       return base.SaveItem(itemDefinition, changes, context);
@@ -543,15 +413,6 @@
         Assert.IsNotNull(file, "file");
 
         if (file.MoveItem(itemID, targetID))
-        {
-          return true;
-        }
-      }
-
-      var defaultMapping = this.DefaultMapping;
-      if (defaultMapping != null)
-      {
-        if (defaultMapping.MoveItem(itemID, targetID))
         {
           return true;
         }
@@ -579,15 +440,6 @@
         }
       }
 
-      var defaultMapping = this.DefaultMapping;
-      if (defaultMapping != null)
-      {
-        if (defaultMapping.RemoveVersion(itemID, versionUri))
-        {
-          return true;
-        }
-      }
-
       return base.RemoveVersion(itemDefinition, versionUri, context);
     }
 
@@ -610,15 +462,6 @@
         }
       }
 
-      var defaultMapping = this.DefaultMapping;
-      if (defaultMapping != null)
-      {
-        if (defaultMapping.RemoveVersions(itemID, language))
-        {
-          return true;
-        }
-      }
-
       return base.RemoveVersions(itemDefinition, language, removeSharedData, context);
     }
 
@@ -635,15 +478,6 @@
         Assert.IsNotNull(file, "file");
 
         if (file.DeleteItem(itemID))
-        {
-          return true;
-        }
-      }
-
-      var defaultMapping = this.DefaultMapping;
-      if (defaultMapping != null)
-      {
-        if (defaultMapping.DeleteItem(itemID))
         {
           return true;
         }
