@@ -201,6 +201,11 @@
       return this.ItemsCache.Where(x => x.TemplateID == TemplateIDs.Template).Select(x => x.ID);
     }
 
+    public IEnumerable<string> GetLanguages()
+    {
+      return this.ItemsCache.Where(x => x.TemplateID == TemplateIDs.Language).Select(x => x.Name).Distinct();
+    }
+
     public bool CreateItem(ID itemID, string itemName, ID templateID, ID parentID)
     {
       Assert.ArgumentNotNull(itemID, "itemID");

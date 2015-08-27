@@ -10,6 +10,7 @@
   using Sitecore.Data.Items;
   using Sitecore.Data.Mappings;
   using Sitecore.Data.SqlServer;
+  using Sitecore.Data.Templates;
   using Sitecore.Diagnostics;
   using Sitecore.Globalization;
   using Sitecore.StringExtensions;
@@ -343,6 +344,54 @@
       }
 
       return templateItemIDs;
+    }
+
+    [NotNull]
+    public override LanguageCollection GetLanguages([NotNull] CallContext context)
+    {
+      Assert.ArgumentNotNull(context, "context");
+
+      var languages = new LanguageCollection();
+      foreach (var mapping in this.FileMappings)
+      {
+        var jsonLanguages = mapping.GetLanguages();
+        foreach (var jsonLanguage in jsonLanguages)
+        {
+          var language = Language.Parse(jsonLanguage);
+          if (!languages.Contains(language))
+          {
+            languages.Add(language);
+          }
+        }
+      }
+
+      var defaultMapping = this.DefaultMapping;
+      if (defaultMapping != null)
+      {
+        var jsonLanguages = defaultMapping.GetLanguages();
+        foreach (var jsonLanguage in jsonLanguages)
+        {
+          var language = Language.Parse(jsonLanguage);
+          if (!languages.Contains(language))
+          {
+            languages.Add(language);
+          }
+        }
+      }
+
+      var sqlLanguages = base.GetLanguages(context);
+      if (sqlLanguages != null)
+      {
+        foreach (var language in sqlLanguages)
+        {
+          if (!languages.Contains(language))
+          {
+            languages.Add(language);
+          }
+        }
+      }
+
+      return languages;
     }
 
     public override bool CreateItem([NotNull] ID itemID, [NotNull] string itemName, [NotNull] ID templateID, [NotNull] ItemDefinition parent, [NotNull] CallContext context)

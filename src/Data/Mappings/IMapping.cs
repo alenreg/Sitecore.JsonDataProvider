@@ -26,6 +26,9 @@ namespace Sitecore.Data.Mappings
     [CanBeNull]
     IEnumerable<ID> GetTemplateItemIDs();
 
+    [NotNull]
+    IEnumerable<string> GetLanguages();
+
     bool CreateItem([NotNull] ID itemID, [NotNull] string itemName, [NotNull] ID templateID, [NotNull] ID parentID);
 
     bool CopyItem([NotNull] ID sourceItemID, [NotNull] ID destinationItemID, [NotNull] ID copyID, [NotNull] string copyName);
