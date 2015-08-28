@@ -9,6 +9,7 @@
   using Sitecore.Collections;
   using Sitecore.Data;
   using Sitecore.Data.Collections;
+  using Sitecore.Data.DataProviders;
   using Sitecore.Data.Helpers;
   using Sitecore.Data.Items;
   using Sitecore.Diagnostics;
@@ -59,10 +60,7 @@
           return;
         }
 
-        var children = dictionary
-          .Where(x => x.Key as object != null && x.Value != null)
-          .Select(x => new JsonItem(ID.Parse(x.Key), ID.Null, x.Value))
-          .ToList();
+        var children = dictionary.Where(x => x.Key as object != null && x.Value != null).Select(x => new JsonItem(ID.Parse(x.Key), ID.Null, x.Value)).ToList();
 
         this.ItemChildren = children;
         foreach (var item in children)
@@ -78,7 +76,6 @@
         throw;
       }
     }
-
 
     public IEnumerable<ID> GetChildIDs(ID itemId)
     {
@@ -598,7 +595,7 @@
 
       this.ItemsCache.Add(item);
 
-      item.Fields.Shared[Settings.ItemStyleFieldID] = Settings.ItemStyleValue;
+      JsonDataProvider.InitializeDefaultValues(item.Fields);
 
       foreach (var child in item.Children)
       {

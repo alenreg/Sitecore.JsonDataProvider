@@ -52,8 +52,8 @@
   <ItemGroup>
     <Compile Include="Data\Collections\JsonFieldsCollection.cs" />
     <Compile Include="Data\Converters\JsonFieldsCollectionConverter.cs" />
+    <Compile Include="Data\DataProviders\DefaultFieldValue.cs" />
     <Compile Include="Data\Helpers\JsonHelper.cs" />
-    <Compile Include="Data\Helpers\Settings.cs" />
     <Compile Include="Data\Items\JsonFields.cs" />
     <Compile Include="Data\Converters\JsonFieldsConverter.cs" />
     <Compile Include="Data\Items\JsonItem.cs" />
@@ -72,7 +72,6 @@
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
-  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

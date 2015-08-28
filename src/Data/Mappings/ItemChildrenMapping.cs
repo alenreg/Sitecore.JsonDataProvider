@@ -9,6 +9,7 @@
   using Sitecore.Collections;
   using Sitecore.Data;
   using Sitecore.Data.Collections;
+  using Sitecore.Data.DataProviders;
   using Sitecore.Data.Helpers;
   using Sitecore.Data.Items;
   using Sitecore.Diagnostics;
@@ -640,7 +641,7 @@
 
       this.ItemsCache.Add(item);
 
-      item.Fields.Shared[Settings.ItemStyleFieldID] = Settings.ItemStyleValue;
+      JsonDataProvider.InitializeDefaultValues(item.Fields);
 
       foreach (var child in item.Children)
       {

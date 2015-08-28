@@ -24,7 +24,7 @@ namespace Sitecore.Data.Converters
       foreach (var field in dictionary)
       {
         var id = field.Key;
-        if (JsonDataProvider.IgnoreFields.Any(x => x == id))
+        if (JsonDataProvider.IgnoreFields.ContainsKey(id))
         {
           continue;
         }

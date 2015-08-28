@@ -7,10 +7,10 @@
 
   using Sitecore.Collections;
   using Sitecore.Data;
+  using Sitecore.Data.Helpers;
   using Sitecore.Data.Items;
   using Sitecore.Data.Mappings;
   using Sitecore.Data.SqlServer;
-  using Sitecore.Data.Templates;
   using Sitecore.Diagnostics;
   using Sitecore.Globalization;
   using Sitecore.StringExtensions;
@@ -22,7 +22,7 @@
     public static readonly Dictionary<string, Type> MappingTypes = new Dictionary<string, Type>();
 
     [NotNull]
-    public static readonly IList<ID> IgnoreFields = new List<ID>();
+    public static readonly IDictionary<ID, DefaultFieldValue> IgnoreFields = new Dictionary<ID, DefaultFieldValue>();
 
     [NotNull]
     public readonly IList<IMapping> FileMappings = new List<IMapping>();
@@ -67,15 +67,15 @@
       Assert.ArgumentNotNull(fieldNode, "fieldNode");
 
       var fieldElement = (XmlElement)fieldNode;
-      var idString = fieldElement.InnerText;
-      Assert.IsNotNull(idString, "node value is not specified or has empty string value: " + fieldElement.OuterXml);
+
+      var idString = StringUtil.GetString(fieldElement.GetAttribute("fieldID"), fieldElement.InnerText);
+      Assert.IsNotNull(idString, "Neither fieldID attribute nor node inner text is not specified or has empty string value: " + fieldElement.OuterXml);
 
       ID fieldID;
-      Assert.IsTrue(ID.TryParse(idString, out fieldID), "node value is not a valid GUID value: " + fieldElement.OuterXml);
+      Assert.IsTrue(ID.TryParse(idString, out fieldID), "Neither fieldID attribute nor node inner text value is a valid GUID value: " + fieldElement.OuterXml);
 
       Log.Info("Ignore field is registered: " + idString, this);
-
-      IgnoreFields.Add(fieldID);
+      IgnoreFields[fieldID] = DefaultFieldValue.Parse(fieldElement);
     }
 
     [UsedImplicitly]
@@ -484,6 +484,48 @@
       }
 
       return base.DeleteItem(itemDefinition, context);
+    }
+
+    public static void InitializeDefaultValues([NotNull] JsonFields fields)
+    {
+      Assert.ArgumentNotNull(fields, "fields");
+
+      foreach (var pair in IgnoreFields)
+      {
+        var fieldID = pair.Key;
+        var field = pair.Value;
+        if (field == null)
+        {
+          continue;
+        }
+
+        var fieldValue = field.DefaultValue;
+        if (field.IsShared)
+        {
+          fields.Shared[fieldID] = fieldValue;
+        }
+        else if (field.IsUnversioned)
+        {
+          foreach (var langGroup in fields.Unversioned)
+          {
+            langGroup.Value[fieldID] = fieldValue;
+          }
+        }
+        else if (field.IsVersioned)
+        {
+          foreach (var langGroup in fields.Versioned)
+          {
+            foreach (var verGroup in langGroup.Value)
+            {
+              verGroup.Value[fieldID] = fieldValue;
+            }
+          }
+        }
+        else
+        {
+          throw new NotImplementedException();
+        }
+      }
     }
   }
 }
