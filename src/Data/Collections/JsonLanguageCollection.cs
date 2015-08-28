@@ -2,9 +2,13 @@
 {
   using System.Collections.Generic;
 
+  using Newtonsoft.Json;
+
+  using Sitecore.Data.Converters;
   using Sitecore.Diagnostics;
   using Sitecore.Globalization;
 
+  [JsonConverter(typeof(JsonLanguageCollectionConverter))]
   public class JsonLanguageCollection : Dictionary<string, JsonVersionCollection>
   {
     [NotNull]

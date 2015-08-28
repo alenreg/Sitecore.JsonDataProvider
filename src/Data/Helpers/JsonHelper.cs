@@ -1,5 +1,7 @@
 ﻿namespace Sitecore.Data.Helpers
 {
+  using System.Linq;
+
   using Newtonsoft.Json;
 
   using Sitecore.Diagnostics;
@@ -29,6 +31,15 @@
       Assert.IsNotNull(json, "json");
 
       return json;
+    }
+
+    public static void WriteLineBreak([NotNull] JsonWriter writer)
+    {
+      Assert.ArgumentNotNull(writer, "writer");
+
+      writer.WriteRaw("\r\n");
+      var depths = writer.Path.Count(x => x == '{' || x == '[' || x == '.');
+      writer.WriteRaw(string.Concat(Enumerable.Repeat('\t', depths)));
     }
   }
 }

@@ -51,9 +51,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\Collections\JsonFieldsCollection.cs" />
+    <Compile Include="Data\Converters\JsonVersionCollectionConverter.cs" />
+    <Compile Include="Data\Converters\JsonUnversionedFieldsCollectionConverter.cs" />
+    <Compile Include="Data\Converters\JsonLanguageCollectionConverter.cs" />
     <Compile Include="Data\Converters\JsonFieldsCollectionConverter.cs" />
-    <Compile Include="Data\DataProviders\DefaultFieldValue.cs" />
+    <Compile Include="Data\Helpers\DefaultFieldValue.cs" />
     <Compile Include="Data\Helpers\JsonHelper.cs" />
+    <Compile Include="Data\Converters\JsonChildrenConverter.cs" />
+    <Compile Include="Data\Items\JsonChildren.cs" />
     <Compile Include="Data\Items\JsonFields.cs" />
     <Compile Include="Data\Converters\JsonFieldsConverter.cs" />
     <Compile Include="Data\Items\JsonItem.cs" />

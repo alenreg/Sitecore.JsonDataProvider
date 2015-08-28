@@ -1,13 +1,11 @@
 namespace Sitecore.Data.Items
 {
-  using System;
   using System.Collections.Generic;
 
   using Newtonsoft.Json;
 
   using Sitecore.Data;
   using Sitecore.Data.DataProviders;
-  using Sitecore.Data.Helpers;
   using Sitecore.Diagnostics;
 
   public class JsonItem
@@ -22,7 +20,7 @@ namespace Sitecore.Data.Items
 
     [NotNull]
     [JsonProperty(Order = 5)]
-    public readonly List<JsonItem> Children = new List<JsonItem>();
+    public readonly JsonChildren Children = new JsonChildren();
 
     [UsedImplicitly]
     public JsonItem()
@@ -48,7 +46,7 @@ namespace Sitecore.Data.Items
       JsonDataProvider.InitializeDefaultValues(jsonFields);
     }
 
-    public JsonItem([NotNull] ID id, [NotNull] ID parentID, [NotNull] List<JsonItem> children)
+    public JsonItem([NotNull] ID id, [NotNull] ID parentID, [NotNull] JsonChildren children)
       : this(id, parentID)
     {
       Assert.ArgumentNotNull(id, "id");

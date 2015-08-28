@@ -1,11 +1,7 @@
 ﻿namespace Sitecore.Data.Items
 {
-  using Newtonsoft.Json;
-
   using Sitecore.Data.Collections;
-  using Sitecore.Data.Converters;
 
-  [JsonConverter(typeof(JsonFieldsConverter))]
   public class JsonFields
   {
     [NotNull]

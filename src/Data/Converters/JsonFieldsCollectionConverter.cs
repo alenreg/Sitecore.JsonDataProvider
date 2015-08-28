@@ -9,6 +9,7 @@ namespace Sitecore.Data.Converters
   using Sitecore.Data;
   using Sitecore.Data.Collections;
   using Sitecore.Data.DataProviders;
+  using Sitecore.Data.Helpers;
   using Sitecore.Diagnostics;
 
   public class JsonFieldsCollectionConverter : JsonConverter
@@ -21,6 +22,7 @@ namespace Sitecore.Data.Converters
 
       var dictionary = (IDictionary<ID, string>)value;
       writer.WriteStartObject();
+      var any = false;
       foreach (var field in dictionary)
       {
         var id = field.Key;
@@ -29,8 +31,21 @@ namespace Sitecore.Data.Converters
           continue;
         }
 
+        any = true;
         writer.WritePropertyName(id.ToString());
         writer.WriteValue(field.Value);
+      }
+
+      if (JsonDataProvider.BetterMerging)
+      {
+        if (any)
+        {
+          writer.WriteRaw(",");
+        }
+        else
+        {
+          JsonHelper.WriteLineBreak(writer);
+        }
       }
 
       writer.WriteEndObject();

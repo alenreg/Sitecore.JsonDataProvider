@@ -25,15 +25,27 @@
     public static readonly IDictionary<ID, DefaultFieldValue> IgnoreFields = new Dictionary<ID, DefaultFieldValue>();
 
     [NotNull]
-    public readonly IList<IMapping> FileMappings = new List<IMapping>();
+    protected readonly IList<IMapping> FileMappings = new List<IMapping>();
 
-    public JsonDataProvider([NotNull] string connectionString, [NotNull] string databaseName)
+    public static bool BetterMerging { get; private set; }
+
+    public JsonDataProvider([NotNull] string connectionString, [NotNull] string databaseName, [NotNull] string betterMerging)
       : base(connectionString)
     {
       Assert.ArgumentNotNull(connectionString, "connectionString");
       Assert.ArgumentNotNull(databaseName, "databaseName");
+      Assert.ArgumentNotNull(betterMerging, "betterMerging");
+
+      BetterMerging = bool.Parse(betterMerging);
 
       Log.Info(string.Format("JsonDataProvider is being initialized for \"{0}\" database", databaseName), this);
+    }
+
+    public JsonDataProvider([NotNull] string connectionString, [NotNull] string databaseName)
+      : this(connectionString, databaseName, "true")
+    {
+      Assert.ArgumentNotNull(connectionString, "connectionString");
+      Assert.ArgumentNotNull(databaseName, "databaseName");
     }
 
     [UsedImplicitly]

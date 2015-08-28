@@ -60,7 +60,7 @@
           return;
         }
 
-        var children = dictionary.Where(x => x.Key as object != null && x.Value != null).Select(x => new JsonItem(ID.Parse(x.Key), ID.Null, x.Value)).ToList();
+        var children = dictionary.Where(x => x.Key as object != null && x.Value != null).Select(x => new JsonItem(ID.Parse(x.Key), ID.Null, new JsonChildren(x.Value))).ToList();
 
         this.ItemChildren = children;
         foreach (var item in children)

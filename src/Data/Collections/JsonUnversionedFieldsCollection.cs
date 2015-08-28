@@ -2,9 +2,13 @@
 {
   using System.Collections.Generic;
 
+  using Newtonsoft.Json;
+
+  using Sitecore.Data.Converters;
   using Sitecore.Diagnostics;
   using Sitecore.Globalization;
 
+  [JsonConverter(typeof(JsonUnversionedFieldsCollectionConverter))]
   public class JsonUnversionedFieldsCollection : Dictionary<string, JsonFieldsCollection>
   {
     [NotNull]

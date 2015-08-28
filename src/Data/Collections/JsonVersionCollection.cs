@@ -2,8 +2,12 @@
 {
   using System.Collections.Generic;
 
+  using Newtonsoft.Json;
+
+  using Sitecore.Data.Converters;
   using Sitecore.Diagnostics;
 
+  [JsonConverter(typeof(JsonVersionCollectionConverter))]
   public class JsonVersionCollection : Dictionary<int, JsonFieldsCollection>
   { 
     [CanBeNull]
