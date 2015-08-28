@@ -108,6 +108,7 @@
 
       Log.Info("Mapping is estabileshed: " + mappingName, this);
       this.FileMappings.Insert(0, mapping);
+      mapping.Initialize();
     }
 
     [NotNull]

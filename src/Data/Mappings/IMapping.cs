@@ -8,6 +8,8 @@ namespace Sitecore.Data.Mappings
 
   public interface IMapping
   {
+    void Initialize();
+
     [CanBeNull]
     IEnumerable<ID> GetChildIDs([NotNull] ID itemId);
 
