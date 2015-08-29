@@ -11,6 +11,7 @@
   using Sitecore.Data.DataProviders;
   using Sitecore.Data.Helpers;
   using Sitecore.Data.Items;
+  using Sitecore.Data.Templates;
   using Sitecore.Diagnostics;
   using Sitecore.Globalization;
 
@@ -334,6 +335,39 @@
       return true;
     }
 
+    public void ChangeFieldSharing(ID fieldID, TemplateFieldSharing sharing)
+    {
+      Assert.ArgumentNotNull(fieldID, "fieldID");
+
+      lock (this.SyncRoot)
+      {
+        foreach (var item in this.ItemsCache)
+        {
+          if (item == null)
+          {
+            continue;
+          }
+
+          switch (sharing)
+          {
+            case TemplateFieldSharing.None:
+              this.ChangeFieldSharingToVersioned(item, fieldID);
+              break;
+
+            case TemplateFieldSharing.Unversioned:
+              this.ChangeFieldSharingToUnversioned(item, fieldID);
+              break;
+
+            case TemplateFieldSharing.Shared:
+              this.ChangeFieldSharingToShared(item, fieldID);
+              break;
+          }
+        }
+      }
+
+      this.Commit();
+    }
+
     public abstract bool MoveItem(ID itemID, ID targetID);
 
     public bool RemoveVersion(ID itemID, VersionUri versionUri)
@@ -416,6 +450,19 @@
       }
 
       return true;
+    }
+
+    public void Commit()
+    {
+      var filePath = this.FileMappingPath;
+      var directory = Path.GetDirectoryName(filePath);
+      if (!Directory.Exists(directory))
+      {
+        Directory.CreateDirectory(directory);
+      }
+
+      var json = JsonHelper.Serialize(this.GetCommitObject(), true);
+      File.WriteAllText(filePath, json);
     }
 
     [NotNull]
@@ -515,21 +562,141 @@
       return this.ItemsCache.FirstOrDefault(x => x.ID == itemID);
     }
 
-    protected void Commit()
-    {
-      var filePath = this.FileMappingPath;
-      var directory = Path.GetDirectoryName(filePath);
-      if (!Directory.Exists(directory))
-      {
-        Directory.CreateDirectory(directory);
-      }
-
-      var json = JsonHelper.Serialize(this.GetCommitObject(), true);
-      File.WriteAllText(filePath, json);
-    }
-
     [NotNull]
     protected abstract object GetCommitObject();
+
+    private void ChangeFieldSharingToShared([NotNull] JsonItem item, [NotNull] ID fieldID)
+    {
+      Assert.ArgumentNotNull(item, "item");
+      Assert.ArgumentNotNull(fieldID, "fieldID");
+
+      var fields = item.Fields;
+      var fieldValue = Null.String;
+      var allLanguages = fields.GetAllLanguages();
+      foreach (var language in allLanguages)
+      {
+        if (fields.Unversioned.ContainsKey(language))
+        {
+          fieldValue = fields.Unversioned[language][fieldID];
+        }
+
+        if (fieldValue == null)
+        {
+          fieldValue = fields.Versioned.GetFieldValue(language, fieldID);
+        }
+
+        // if value was found then 
+        if (fieldValue != null)
+        {
+          // set shared value
+          fields.Shared[fieldID] = fieldValue;
+        }
+      }
+
+      fields.Unversioned.RemoveField(fieldID);
+      fields.Versioned.RemoveField(fieldID);
+    }
+
+    private void ChangeFieldSharingToUnversioned([NotNull] JsonItem item, [NotNull] ID fieldID)
+    {
+      Assert.ArgumentNotNull(item, "item");
+      Assert.ArgumentNotNull(fieldID, "fieldID");
+
+      // find value among shared
+      var fields = item.Fields;
+      var fieldValue = fields.Shared[fieldID];
+
+      // if found among shared
+      if (fieldValue != null)
+      {
+        // set same "shared" value in all languages
+        foreach (var langGroup in fields.Unversioned)
+        {
+          var targetFields = langGroup.Value;
+          if (targetFields != null)
+          {
+            targetFields[fieldID] = fieldValue;
+          }
+        }
+      }
+      else
+      {
+        // for all languages in versioned fields
+        foreach (var langGroup in fields.Versioned)
+        {
+          var language = langGroup.Key;
+          fieldValue = langGroup.Value.GetFieldValue(fieldID);
+
+          // if value was found then 
+          if (fieldValue != null)
+          {
+            // set unversioned value
+            fields.Unversioned[language][fieldID] = fieldValue;
+          }
+        }
+      }
+
+      // remove value from shared fields
+      fields.Shared.Remove(fieldID);
+      fields.Versioned.RemoveField(fieldID);
+    }
+
+    private void ChangeFieldSharingToVersioned([NotNull] JsonItem item, [NotNull] ID fieldID)
+    {
+      Assert.ArgumentNotNull(item, "item");
+      Assert.ArgumentNotNull(fieldID, "fieldID");
+
+      // find value among shared
+      var fields = item.Fields;
+      var fieldValue = fields.Shared[fieldID];
+
+      // if found among shared
+      if (fieldValue != null)
+      {
+        // set same "shared" value in all versions of all languages
+        foreach (var languageVersions in fields.Versioned.Values)
+        {
+          if (languageVersions == null)
+          {
+            continue;
+          }
+
+          foreach (var versionFields in languageVersions.Values)
+          {
+            if (versionFields != null)
+            {
+              versionFields[fieldID] = fieldValue;
+            }
+          }
+        }
+      }
+      else // find value among unversioned
+      {
+        var allLanguages = fields.GetAllLanguages();
+        foreach (var language in allLanguages)
+        {
+          if (fields.Unversioned.ContainsKey(language))
+          {
+            fieldValue = fields.Unversioned[language][fieldID];
+          }
+
+          // if value was found then 
+          if (fieldValue != null)
+          {
+            // set unversioned value in all versions
+            var versions = fields.Versioned[language];
+            foreach (var versionFields in versions.Values)
+            {
+              versionFields[fieldID] = fieldValue;
+            }
+          }
+        }
+      }
+
+      // remove invalid values
+      fields.Shared.Remove(fieldID);
+      fields.Unversioned.RemoveField(fieldID);
+    }
 
     private void DeleteItemTreeFromItemsCache([NotNull] JsonItem item)
     {

@@ -4,6 +4,7 @@ namespace Sitecore.Data.Mappings
 
   using Sitecore.Collections;
   using Sitecore.Data.Items;
+  using Sitecore.Data.Templates;
   using Sitecore.Globalization;
 
   public interface IMapping
@@ -39,6 +40,8 @@ namespace Sitecore.Data.Mappings
 
     bool SaveItem([NotNull] ID itemID, [NotNull] ItemChanges changes);
 
+    void ChangeFieldSharing([NotNull] ID fieldID, TemplateFieldSharing sharing);
+
     bool MoveItem([NotNull] ID itemID, [NotNull] ID targetID);
 
     bool RemoveVersion([NotNull] ID itemID, [NotNull] VersionUri versionUri);
@@ -46,5 +49,7 @@ namespace Sitecore.Data.Mappings
     bool RemoveVersions([NotNull] ID itemID, [NotNull] Language language);
 
     bool DeleteItem([NotNull] ID itemID);
+
+    void Commit();
   }
 }

@@ -1,6 +1,7 @@
 ﻿namespace Sitecore.Data.Collections
 {
   using System.Collections.Generic;
+  using System.Linq;
 
   using Newtonsoft.Json;
 
@@ -56,6 +57,41 @@
 
         base[language] = value;
       }
+    }
+
+    public void RemoveField([NotNull] ID fieldID)
+    {
+      Assert.ArgumentNotNull(fieldID, "fieldID");
+
+      foreach (var languageVersions in this.Values)
+      {
+        if (languageVersions == null)
+        {
+          continue;
+        }
+
+        foreach (var versionFields in languageVersions.Values)
+        {
+          if (versionFields != null)
+          {
+            versionFields.Remove(fieldID);
+          }
+        }
+      }
+    }
+
+    [CanBeNull]
+    public string GetFieldValue([NotNull] string language, [NotNull] ID fieldID)
+    {
+      Assert.ArgumentNotNull(language, "language");
+      Assert.ArgumentNotNull(fieldID, "fieldID");
+
+      if (!this.ContainsKey(language))
+      {
+        return null;
+      }
+
+      return this[language].OrderByDescending(x => x.Key).Select(x => x.Value[fieldID]).FirstOrDefault();
     }
   }
 }

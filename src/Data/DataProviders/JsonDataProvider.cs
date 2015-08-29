@@ -11,6 +11,7 @@
   using Sitecore.Data.Items;
   using Sitecore.Data.Mappings;
   using Sitecore.Data.SqlServer;
+  using Sitecore.Data.Templates;
   using Sitecore.Diagnostics;
   using Sitecore.Globalization;
   using Sitecore.StringExtensions;
@@ -411,6 +412,19 @@
       }
 
       return base.SaveItem(itemDefinition, changes, context);
+    }
+
+    public override bool ChangeFieldSharing([NotNull] TemplateField fieldDefinition, TemplateFieldSharing sharing, [NotNull] CallContext context)
+    {
+      Assert.ArgumentNotNull(fieldDefinition, "fieldDefinition");
+      Assert.ArgumentNotNull(context, "context");
+
+      foreach (var mapping in this.FileMappings)
+      {
+        mapping.ChangeFieldSharing(fieldDefinition.ID, sharing);
+      }
+
+      return base.ChangeFieldSharing(fieldDefinition, sharing, context);
     }
 
     public override bool MoveItem([NotNull] ItemDefinition itemDefinition, [NotNull] ItemDefinition destination, [NotNull] CallContext context)

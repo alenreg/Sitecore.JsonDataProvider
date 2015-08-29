@@ -1,6 +1,7 @@
 ﻿namespace Sitecore.Data.Collections
 {
   using System.Collections.Generic;
+  using System.Linq;
 
   using Newtonsoft.Json;
 
@@ -30,6 +31,14 @@
 
         base[number] = value;
       }
+    }
+
+    [CanBeNull]
+    public string GetFieldValue([NotNull] ID fieldID)
+    {
+      Assert.ArgumentNotNull(fieldID, "fieldID");
+
+      return this.OrderByDescending(x => x.Key).Select(x => x.Value[fieldID]).FirstOrDefault();
     }
   }
 }

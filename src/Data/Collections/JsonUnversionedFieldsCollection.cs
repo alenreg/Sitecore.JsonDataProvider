@@ -57,5 +57,20 @@
         base[language] = value;
       }
     }
+
+    public void RemoveField([NotNull] ID fieldID)
+    {
+      Assert.ArgumentNotNull(fieldID, "fieldID");
+
+      foreach (var languageFields in this.Values)
+      {
+        if (languageFields == null)
+        {
+          continue;
+        }
+
+        languageFields.Remove(fieldID);
+      }
+    }
   }
 }

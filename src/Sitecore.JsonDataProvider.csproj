@@ -60,9 +60,9 @@
     <Compile Include="Data\Converters\JsonChildrenConverter.cs" />
     <Compile Include="Data\Items\JsonChildren.cs" />
     <Compile Include="Data\Items\JsonFields.cs" />
-    <Compile Include="Data\Converters\JsonFieldsConverter.cs" />
     <Compile Include="Data\Items\JsonItem.cs" />
     <Compile Include="Data\Helpers\JsonNonPublicMemberContractResolver.cs" />
+    <Compile Include="Data\Mappings\AbstractMapping.cs" />
     <Compile Include="Data\Mappings\DefaultMapping.cs" />
     <Compile Include="Data\Mappings\IMapping.cs" />
     <Compile Include="Data\Mappings\ItemChildrenMapping.cs" />
@@ -70,6 +70,7 @@
     <Compile Include="Data\Collections\JsonLanguageCollection.cs" />
     <Compile Include="Data\Collections\JsonUnversionedFieldsCollection.cs" />
     <Compile Include="Data\Collections\JsonVersionCollection.cs" />
+    <Compile Include="Data\Helpers\Null.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
