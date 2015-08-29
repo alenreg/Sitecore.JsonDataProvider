@@ -11,5 +11,5 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTrademark("Sitecore® is a registered trademark of Sitecore Corporation")]
 [assembly: ComVisible(false)]
 
-[assembly: AssemblyFileVersion("1.0.3.0")]
-[assembly: AssemblyVersion("1.0.3.0")]
+[assembly: AssemblyFileVersion("1.0.4.0")]
+[assembly: AssemblyVersion("1.0.4.0")]
