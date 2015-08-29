@@ -26,7 +26,19 @@
     public static readonly IDictionary<ID, DefaultFieldValue> IgnoreFields = new Dictionary<ID, DefaultFieldValue>();
 
     [NotNull]
-    protected readonly IList<IMapping> FileMappings = new List<IMapping>();
+    public readonly IList<IMapping> FileMappings = new List<IMapping>();
+
+    [NotNull]
+    private static readonly List<JsonDataProvider> instances = new List<JsonDataProvider>();
+
+    [NotNull]
+    public static IReadOnlyCollection<JsonDataProvider> Instances
+    {
+      get
+      {
+        return instances;
+      }
+    }
 
     public static bool BetterMerging { get; private set; }
 
@@ -36,6 +48,8 @@
       Assert.ArgumentNotNull(connectionString, "connectionString");
       Assert.ArgumentNotNull(databaseName, "databaseName");
       Assert.ArgumentNotNull(betterMerging, "betterMerging");
+
+      instances.Add(this);
 
       BetterMerging = bool.Parse(betterMerging);
 
