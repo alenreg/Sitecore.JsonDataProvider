@@ -1,7 +1,5 @@
 namespace Sitecore.Data.Items
 {
-  using System.Collections.Generic;
-
   using Newtonsoft.Json;
 
   using Sitecore.Data;

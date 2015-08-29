@@ -1,19 +1,13 @@
 ﻿namespace Sitecore.Data.Mappings
 {
-  using System;
   using System.Collections.Generic;
-  using System.IO;
   using System.Linq;
   using System.Xml;
 
-  using Sitecore.Collections;
   using Sitecore.Data;
-  using Sitecore.Data.Collections;
-  using Sitecore.Data.DataProviders;
   using Sitecore.Data.Helpers;
   using Sitecore.Data.Items;
   using Sitecore.Diagnostics;
-  using Sitecore.Globalization;
 
   public class DefaultMapping : AbstractMapping
   {
