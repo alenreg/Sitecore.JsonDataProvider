@@ -14,6 +14,7 @@
   using Sitecore.Data.Templates;
   using Sitecore.Diagnostics;
   using Sitecore.Globalization;
+  using Sitecore.Workflows.Simple;
 
   public abstract class AbstractMapping : IMapping
   {
@@ -235,9 +236,9 @@
         }
 
         var newVersion = new JsonFieldsCollection
-          {
-            [FieldIDs.Created] = DateUtil.IsoNowWithTicks
-          };
+        {
+          [FieldIDs.Created] = DateUtil.IsoNowWithTicks
+        };
 
         versions.Add(newNumber, newVersion);
 
