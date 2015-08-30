@@ -2,10 +2,12 @@
 {
   using System;
   using System.Collections.Generic;
+  using System.IO;
   using System.Linq;
   using System.Xml;
 
   using Sitecore.Collections;
+  using Sitecore.Configuration;
   using Sitecore.Data;
   using Sitecore.Data.Helpers;
   using Sitecore.Data.Items;
@@ -14,6 +16,7 @@
   using Sitecore.Data.Templates;
   using Sitecore.Diagnostics;
   using Sitecore.Globalization;
+  using Sitecore.Resources.Media;
   using Sitecore.StringExtensions;
 
   [UsedImplicitly]
@@ -329,6 +332,34 @@
       return languages;
     }
 
+    public override Stream GetBlobStream(Guid blobId, CallContext context)
+    {
+      var filePath = GetBlobFilePath(blobId);
+      if (File.Exists(filePath))
+      {
+        return File.OpenRead(filePath);
+      }      
+
+      return base.GetBlobStream(blobId, context);
+    }
+
+    public override bool SetBlobStream(Stream stream, Guid blobId, CallContext context)
+    {
+      var filePath = GetBlobFilePath(blobId);
+      var folderPath = Path.GetDirectoryName(filePath);
+      if (!Directory.Exists(folderPath))
+      {
+        Directory.CreateDirectory(folderPath);
+      }
+
+      using (var outputStream = File.OpenWrite(filePath))
+      {
+        stream.CopyTo(outputStream);
+      }
+
+      return true;
+    }
+
     public override bool CreateItem([NotNull] ID itemID, [NotNull] string itemName, [NotNull] ID templateID, [NotNull] ItemDefinition parent, [NotNull] CallContext context)
     {
       Assert.ArgumentNotNull(itemID, nameof(itemID));
@@ -567,6 +598,15 @@
           throw new NotImplementedException();
         }
       }
+    }
+
+    private static string GetBlobFilePath(Guid blobId)
+    {
+      var blob = blobId.ToString();
+      var blobFolder = Settings.GetSetting("Media.BlobFolder", "/App_Data/MediaBlobs");
+      var virtualPath = Path.Combine(blobFolder, blob.Substring(0, 1), blob.Substring(1, 1), blob.Substring(2, 1), blob + ".bin");
+      var physicalPath = MainUtil.MapPath(virtualPath);
+      return physicalPath;
     }
   }
 }
