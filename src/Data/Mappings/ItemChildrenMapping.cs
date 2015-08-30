@@ -134,11 +134,6 @@
         }
       }
 
-      if (!this.CreateItem(copyID, copyName, sourceItem.TemplateID, destinationItemID))
-      {
-        return false;
-      }
-
       return this.DoCopyItem(destinationItemID, copyID, copyName, sourceItem);
     }
 

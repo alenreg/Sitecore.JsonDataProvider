@@ -55,7 +55,10 @@
 
       try
       {
-        this.ItemChildren.AddRange(this.Initialize(json));
+        lock (this.SyncRoot)
+        {
+          this.ItemChildren.AddRange(this.Initialize(json));
+        }
       }
       catch (Exception ex)
       {
@@ -190,10 +193,16 @@
       var number = versionUri.Version.Number;
       var language = versionUri.Language;
 
-      var versions = item.Fields.Versioned[language];
-
       lock (this.SyncRoot)
       {
+        item = this.GetItem(itemID);
+        if (item == null || this.IgnoreItem(item))
+        {
+          return -1;
+        }
+
+        var versions = item.Fields.Versioned[language];
+
         if (number > 0)
         {
           // command to try to copy existing version
@@ -251,6 +260,12 @@
 
       lock (this.SyncRoot)
       {
+        item = this.GetItem(itemID);
+        if (item == null)
+        {
+          return false;
+        }
+
         if (changes.HasPropertiesChanged)
         {
           var name = changes.GetPropertyValue("name") as string;
@@ -386,10 +401,16 @@
       var version = versionUri.Version;
       Assert.IsNotNull(version, "version");
 
-      var versions = item.Fields.Versioned[language];
-
       lock (this.SyncRoot)
       {
+        item = this.GetItem(itemID);
+        if (item == null)
+        {
+          return false;
+        }
+
+        var versions = item.Fields.Versioned[language];
+
         if (!versions.Remove(version.Number))
         {
           return false;
@@ -414,6 +435,12 @@
 
       lock (this.SyncRoot)
       {
+        item = this.GetItem(itemID);
+        if (item == null)
+        {
+          return false;
+        }
+
         if (language == Language.Invariant)
         {
           item.Fields.Versioned.Clear();
@@ -441,6 +468,12 @@
 
       lock (this.SyncRoot)
       {
+        item = this.GetItem(itemID);
+        if (item == null)
+        {
+          return false;
+        }
+
         this.DoDeleteItem(item);
 
         this.DeleteItemTreeFromItemsCache(item);

@@ -17,26 +17,26 @@
       Assert.ArgumentNotNull(mappingElement, nameof(mappingElement));
     }
 
-    protected override IEnumerable<JsonItem> Initialize([NotNull] string json)
+    protected override IEnumerable<JsonItem> Initialize(string json)
     {
       Assert.ArgumentNotNull(json, nameof(json));
 
-        var dictionary = JsonHelper.Deserialize<IDictionary<string, List<JsonItem>>>(json);
-        if (dictionary == null)
-        {
-          return new List<JsonItem>();
-        }
+      var dictionary = JsonHelper.Deserialize<IDictionary<string, List<JsonItem>>>(json);
+      if (dictionary == null)
+      {
+        return new List<JsonItem>();
+      }
 
-        var children = dictionary.Select(x => new JsonItem(ID.Parse(x.Key), ID.Null, new JsonChildren(x.Value))).ToList();
+      var children = dictionary.Select(x => new JsonItem(ID.Parse(x.Key), ID.Null, new JsonChildren(x.Value))).ToList();
 
-        foreach (var item in children)
-        {
-          item.ParentID = ID.Null;
+      foreach (var item in children)
+      {
+        item.ParentID = ID.Null;
 
-          this.InitializeItemTree(item);
-        }
+        this.InitializeItemTree(item);
+      }
 
-        return children;
+      return children;
     }
 
     public override IEnumerable<ID> GetChildIDs(ID itemId)
@@ -72,10 +72,10 @@
       }
 
       var item = new JsonItem(itemID, parentID)
-        {
-          Name = itemName,
-          TemplateID = templateID
-        };
+      {
+        Name = itemName,
+        TemplateID = templateID
+      };
 
       lock (this.SyncRoot)
       {
@@ -132,7 +132,7 @@
 
       var parent = this.GetItem(item.ParentID);
       Assert.IsNotNull(parent, "Cannot find {0} item", item.ParentID);
-      
+
       lock (this.SyncRoot)
       {
         parent.Children.Remove(item);
@@ -154,6 +154,7 @@
 
       parent.Children.Remove(item);
     }
+
     protected override object GetCommitObject()
     {
       return this.ItemChildren.ToDictionary(x => x.ID.ToString(), x => x.Children);
@@ -165,10 +166,10 @@
       Assert.ArgumentNotNull(itemID, nameof(itemID));
 
       var rootItem = new JsonItem(itemID, ID.Null)
-        {
-          Name = "$default-mapping"
-        };
-      
+      {
+        Name = "$default-mapping"
+      };
+
       this.ItemChildren.Add(rootItem);
       this.ItemsCache.Add(rootItem);
 
