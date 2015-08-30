@@ -554,11 +554,13 @@
           {
             var number = versionGroup.Key;
             var fields = new JsonFieldsCollection();
-            versions.Add(number, fields);
             foreach (var sourceField in versionGroup.Value)
             {
               fields.Add(sourceField.Key, sourceField.Value);
             }
+
+            fields[FieldIDs.Created] = DateUtil.IsoNowWithTicks;
+            versions.Add(number, fields);
           }
         }
 
