@@ -16,7 +16,7 @@ namespace Sitecore.Data.Items
 
     public JsonChildren([NotNull] IEnumerable<JsonItem> collection) : base(collection)
     {
-      Assert.ArgumentNotNull(collection, "collection");
+      Assert.ArgumentNotNull(collection, nameof(collection));
     }
   }
 }

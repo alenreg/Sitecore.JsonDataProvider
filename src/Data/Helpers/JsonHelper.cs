@@ -17,7 +17,7 @@
     [CanBeNull]
     public static T Deserialize<T>([NotNull] string json)
     {
-      Assert.ArgumentNotNull(json, "json");
+      Assert.ArgumentNotNull(json, nameof(json));
 
       return JsonConvert.DeserializeObject<T>(json, JsonSettings);
     }
@@ -25,7 +25,7 @@
     [NotNull]
     public static string Serialize([NotNull] object obj, bool indented)
     {
-      Assert.ArgumentNotNull(obj, "obj");
+      Assert.ArgumentNotNull(obj, nameof(obj));
 
       var json = JsonConvert.SerializeObject(obj, indented ? Formatting.Indented : Formatting.None);
       Assert.IsNotNull(json, "json");
@@ -35,7 +35,7 @@
 
     public static void WriteLineBreak([NotNull] JsonWriter writer)
     {
-      Assert.ArgumentNotNull(writer, "writer");
+      Assert.ArgumentNotNull(writer, nameof(writer));
 
       writer.WriteRaw("\r\n");
       var depths = writer.Path.Count(x => x == '{' || x == '[' || x == '.');

@@ -7,7 +7,7 @@ namespace Sitecore.Data.Helpers
 
   public class DefaultFieldValue
   {
-    [NotNull]
+    [CanBeNull]
     public string DefaultValuePattern { get; set; }
 
     public bool IsShared { get; private set; }
@@ -17,20 +17,14 @@ namespace Sitecore.Data.Helpers
     public bool IsVersioned { get; private set; }
 
     [NotNull]
-    public string DefaultValue
-    {
-      get
-      {
-        return this.DefaultValuePattern
-          .Replace("$(now)", DateUtil.IsoNow)
-          .Replace("$(guid)", Guid.NewGuid().ToString());
-      }
-    }
+    public string DefaultValue => this.DefaultValuePattern
+      .Replace("$(now)", DateUtil.IsoNow)
+      .Replace("$(guid)", Guid.NewGuid().ToString());
 
     [CanBeNull]
     public static DefaultFieldValue Parse([NotNull] XmlElement fieldElement)
     {
-      Assert.ArgumentNotNull(fieldElement, "fieldElement");
+      Assert.ArgumentNotNull(fieldElement, nameof(fieldElement));
 
       var defaultValue = fieldElement.Attributes["defaultValue"];
       if (defaultValue == null)

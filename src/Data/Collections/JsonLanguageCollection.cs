@@ -17,15 +17,15 @@
     {
       get
       {
-        Assert.ArgumentNotNull(language, "language");
+        Assert.ArgumentNotNull(language, nameof(language));
 
         return this[language.Name];
       }
 
       set
       {
-        Assert.ArgumentNotNull(language, "language");
-        Assert.ArgumentNotNull(value, "value");
+        Assert.ArgumentNotNull(language, nameof(language));
+        Assert.ArgumentNotNull(value, nameof(value));
 
         this[language.Name] = value;
       }
@@ -36,7 +36,7 @@
     {
       get
       {
-        Assert.ArgumentNotNullOrEmpty(language, "language");
+        Assert.ArgumentNotNullOrEmpty(language, nameof(language));
 
         JsonVersionCollection value;
         if (this.TryGetValue(language, out value))
@@ -52,8 +52,8 @@
 
       set
       {
-        Assert.ArgumentNotNullOrEmpty(language, "language");
-        Assert.ArgumentNotNull(value, "value");
+        Assert.ArgumentNotNullOrEmpty(language, nameof(language));
+        Assert.ArgumentNotNull(value, nameof(value));
 
         base[language] = value;
       }
@@ -61,7 +61,7 @@
 
     public void RemoveField([NotNull] ID fieldID)
     {
-      Assert.ArgumentNotNull(fieldID, "fieldID");
+      Assert.ArgumentNotNull(fieldID, nameof(fieldID));
 
       foreach (var languageVersions in this.Values)
       {
@@ -72,10 +72,7 @@
 
         foreach (var versionFields in languageVersions.Values)
         {
-          if (versionFields != null)
-          {
-            versionFields.Remove(fieldID);
-          }
+          versionFields?.Remove(fieldID);
         }
       }
     }
@@ -83,8 +80,8 @@
     [CanBeNull]
     public string GetFieldValue([NotNull] string language, [NotNull] ID fieldID)
     {
-      Assert.ArgumentNotNull(language, "language");
-      Assert.ArgumentNotNull(fieldID, "fieldID");
+      Assert.ArgumentNotNull(language, nameof(language));
+      Assert.ArgumentNotNull(fieldID, nameof(fieldID));
 
       if (!this.ContainsKey(language))
       {

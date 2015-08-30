@@ -31,14 +31,11 @@ namespace Sitecore.Data.Items
 
     public JsonItem([NotNull] ID id, [NotNull] ID parentID)
     {
-      Assert.ArgumentNotNull(id, "id");
-      Assert.ArgumentNotNull(parentID, "parentID");
+      Assert.ArgumentNotNull(id, nameof(id));
+      Assert.ArgumentNotNull(parentID, nameof(parentID));
 
       this.ID = id;
       this.ParentID = parentID;
-
-      this.Name = "noname";
-      this.TemplateID = ID.Null;
 
       var jsonFields = this.Fields;
       JsonDataProvider.InitializeDefaultValues(jsonFields);
@@ -47,22 +44,20 @@ namespace Sitecore.Data.Items
     public JsonItem([NotNull] ID id, [NotNull] ID parentID, [NotNull] JsonChildren children)
       : this(id, parentID)
     {
-      Assert.ArgumentNotNull(id, "id");
-      Assert.ArgumentNotNull(parentID, "parentID");
-      Assert.ArgumentNotNull(children, "children");
+      Assert.ArgumentNotNull(id, nameof(id));
+      Assert.ArgumentNotNull(parentID, nameof(parentID));
+      Assert.ArgumentNotNull(children, nameof(children));
 
       this.Children = children;
     }
 
-    [NotNull]
-    [JsonProperty(Order = 2)]
-    public string Name { get; set; }
+    [NotNull, JsonProperty(Order = 2)]
+    public string Name { get; set; } = "noname";
 
     [NotNull, JsonIgnore]
     public ID ParentID { get; set; }
 
-    [NotNull]
-    [JsonProperty(Order = 3)]
-    public ID TemplateID { get; set; }
+    [NotNull, JsonProperty(Order = 3)]
+    public ID TemplateID { get; set; } = ID.Null;
   }
 }

@@ -18,42 +18,42 @@
     [UsedImplicitly]
     public ItemChildrenMapping([NotNull] XmlElement mappingElement) : base(mappingElement)
     {
-      Assert.ArgumentNotNull(mappingElement, "mappingElement");
+      Assert.ArgumentNotNull(mappingElement, nameof(mappingElement));
 
       var itemString = mappingElement.GetAttribute("item");
-      Assert.IsNotNull(itemString, "The \"item\" attribute is not specified or has empty string value: " + mappingElement.OuterXml);
+      Assert.IsNotNull(itemString, $"The \"item\" attribute is not specified or has empty string value: {mappingElement.OuterXml}");
 
       ID itemID;
       ID.TryParse(itemString, out itemID);
-      Assert.IsNotNull(itemID, "the \"item\" attribute is not a valid GUID value: " + mappingElement.OuterXml);
+      Assert.IsNotNull(itemID, $"the \"item\" attribute is not a valid GUID value: {mappingElement.OuterXml}");
 
-      
-this.ItemID = itemID;
+
+      this.ItemID = itemID;
     }
 
     [NotNull]
     protected override IEnumerable<JsonItem> Initialize([NotNull] string json)
     {
-      Assert.ArgumentNotNull(json, "json");
+      Assert.ArgumentNotNull(json, nameof(json));
 
-        var children = JsonHelper.Deserialize<List<JsonItem>>(json);
-        if (children == null)
-        {
-          return new List<JsonItem>();
-        }
+      var children = JsonHelper.Deserialize<List<JsonItem>>(json);
+      if (children == null)
+      {
+        return new List<JsonItem>();
+      }
 
-        foreach (var item in children)
-        {
-          item.ParentID = this.ItemID;
-          this.InitializeItemTree(item);
-        }
+      foreach (var item in children)
+      {
+        item.ParentID = this.ItemID;
+        this.InitializeItemTree(item);
+      }
 
-        return children;
+      return children;
     }
 
     public override IEnumerable<ID> GetChildIDs(ID itemId)
     {
-      Assert.ArgumentNotNull(itemId, "itemId");
+      Assert.ArgumentNotNull(itemId, nameof(itemId));
 
       if (itemId == this.ItemID)
       {
@@ -61,12 +61,7 @@ this.ItemID = itemID;
       }
 
       var item = this.GetItem(itemId);
-      if (item != null)
-      {
-        return item.Children.Select(x => x.ID);
-      }
-
-      return null;
+      return item?.Children.Select(x => x.ID);
     }
 
     protected override bool IgnoreItem(JsonItem item)
@@ -77,10 +72,10 @@ this.ItemID = itemID;
 
     public override bool CreateItem(ID itemID, string itemName, ID templateID, ID parentID)
     {
-      Assert.ArgumentNotNull(itemID, "itemID");
-      Assert.ArgumentNotNull(itemName, "itemName");
-      Assert.ArgumentNotNull(templateID, "templateID");
-      Assert.ArgumentNotNull(parentID, "parentID");
+      Assert.ArgumentNotNull(itemID, nameof(itemID));
+      Assert.ArgumentNotNull(itemName, nameof(itemName));
+      Assert.ArgumentNotNull(templateID, nameof(templateID));
+      Assert.ArgumentNotNull(parentID, nameof(parentID));
 
       JsonItem parent = null;
       if (this.ItemID != parentID)
@@ -93,10 +88,10 @@ this.ItemID = itemID;
       }
 
       var item = new JsonItem(itemID, parentID)
-        {
-          Name = itemName,
-          TemplateID = templateID
-        };
+      {
+        Name = itemName,
+        TemplateID = templateID
+      };
 
       lock (this.SyncRoot)
       {
@@ -119,10 +114,10 @@ this.ItemID = itemID;
 
     public override bool CopyItem(ID sourceItemID, ID destinationItemID, ID copyID, string copyName)
     {
-      Assert.ArgumentNotNull(sourceItemID, "sourceItemID");
-      Assert.ArgumentNotNull(destinationItemID, "destinationItemID");
-      Assert.ArgumentNotNull(copyID, "copyID");
-      Assert.ArgumentNotNull(copyName, "copyName");
+      Assert.ArgumentNotNull(sourceItemID, nameof(sourceItemID));
+      Assert.ArgumentNotNull(destinationItemID, nameof(destinationItemID));
+      Assert.ArgumentNotNull(copyID, nameof(copyID));
+      Assert.ArgumentNotNull(copyName, nameof(copyName));
 
       var sourceItem = this.GetItem(sourceItemID);
       if (sourceItem == null)
@@ -149,8 +144,8 @@ this.ItemID = itemID;
 
     public override bool MoveItem(ID itemID, ID targetID)
     {
-      Assert.ArgumentNotNull(itemID, "itemID");
-      Assert.ArgumentNotNull(targetID, "targetID");
+      Assert.ArgumentNotNull(itemID, nameof(itemID));
+      Assert.ArgumentNotNull(targetID, nameof(targetID));
 
       var item = this.GetItem(itemID);
       if (item == null)
@@ -169,7 +164,7 @@ this.ItemID = itemID;
         if (parentID == this.ItemID)
         {
           var target = this.GetItem(targetID);
-          Assert.IsNotNull(target, "Moving item outside of ItemChildrenMapping ({0}, {1}) is not supported", this.ItemID, this.FileMappingPath);
+          Assert.IsNotNull(target, $"Moving item outside of ItemChildrenMapping ({this.ItemID}, {this.FileMappingPath}) is not supported");
 
           this.ItemChildren.Remove(item);
           target.Children.Add(item);
@@ -177,7 +172,7 @@ this.ItemID = itemID;
         else if (targetID == this.ItemID)
         {
           var parent = this.GetItem(parentID);
-          Assert.IsNotNull(parent, "Cannot find {0} item", parentID);
+          Assert.IsNotNull(parent, $"Cannot find {parentID} item");
 
           parent.Children.Remove(item);
           this.ItemChildren.Add(item);
@@ -185,10 +180,10 @@ this.ItemID = itemID;
         else
         {
           var parent = this.GetItem(parentID);
-          Assert.IsNotNull(parent, "Cannot find {0} item", parentID);
+          Assert.IsNotNull(parent, $"Cannot find {parentID} item");
 
           var target = this.GetItem(targetID);
-          Assert.IsNotNull(targetID, "Moving item outside of ItemChildrenMapping ({0}, {1}) is not supported", this.ItemID, this.FileMappingPath);
+          Assert.IsNotNull(targetID, $"Moving item outside of ItemChildrenMapping ({this.ItemID}, {this.FileMappingPath}) is not supported");
 
           parent.Children.Remove(item);
           target.Children.Add(item);
@@ -202,7 +197,7 @@ this.ItemID = itemID;
 
     protected override void DoDeleteItem(JsonItem item)
     {
-      Assert.ArgumentNotNull(item, "item");
+      Assert.ArgumentNotNull(item, nameof(item));
 
       if (item.ParentID == this.ItemID)
       {
@@ -222,6 +217,5 @@ this.ItemID = itemID;
     {
       return this.ItemChildren;
     }
-
   }
 }

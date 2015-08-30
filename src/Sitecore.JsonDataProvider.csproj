@@ -58,6 +58,7 @@
     <Compile Include="Data\Helpers\DefaultFieldValue.cs" />
     <Compile Include="Data\Helpers\JsonHelper.cs" />
     <Compile Include="Data\Converters\JsonChildrenConverter.cs" />
+    <Compile Include="Data\Helpers\Throw.cs" />
     <Compile Include="Data\Items\JsonChildren.cs" />
     <Compile Include="Data\Items\JsonFields.cs" />
     <Compile Include="Data\Items\JsonItem.cs" />

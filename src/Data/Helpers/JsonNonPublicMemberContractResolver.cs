@@ -15,7 +15,7 @@
     [NotNull]
     protected override List<MemberInfo> GetSerializableMembers([NotNull] Type objectType)
     {
-      Assert.ArgumentNotNull(objectType, "objectType");
+      Assert.ArgumentNotNull(objectType, nameof(objectType));
 
       var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
@@ -34,7 +34,7 @@
 
     private static int GetOrder([NotNull] MemberInfo memberInfo)
     {
-      Assert.ArgumentNotNull(memberInfo, "memberInfo");
+      Assert.ArgumentNotNull(memberInfo, nameof(memberInfo));
 
       var attribute = memberInfo.GetCustomAttributes().OfType<JsonPropertyAttribute>().FirstOrDefault();
       if (attribute == null)

@@ -16,15 +16,15 @@
     {
       get
       {
-        Assert.ArgumentNotNull(language, "language");
+        Assert.ArgumentNotNull(language, nameof(language));
 
         return this[language.Name];
       }
 
       set
       {
-        Assert.ArgumentNotNull(language, "language");
-        Assert.ArgumentNotNull(value, "value");
+        Assert.ArgumentNotNull(language, nameof(language));
+        Assert.ArgumentNotNull(value, nameof(value));
 
         this[language.Name] = value;
       }
@@ -35,7 +35,7 @@
     {
       get
       {
-        Assert.ArgumentNotNullOrEmpty(language, "language");
+        Assert.ArgumentNotNullOrEmpty(language, nameof(language));
 
         JsonFieldsCollection value;
         if (this.TryGetValue(language, out value))
@@ -51,8 +51,8 @@
 
       set
       {
-        Assert.ArgumentNotNullOrEmpty(language, "language");
-        Assert.ArgumentNotNull(value, "value");
+        Assert.ArgumentNotNullOrEmpty(language, nameof(language));
+        Assert.ArgumentNotNull(value, nameof(value));
 
         base[language] = value;
       }
@@ -60,16 +60,11 @@
 
     public void RemoveField([NotNull] ID fieldID)
     {
-      Assert.ArgumentNotNull(fieldID, "fieldID");
+      Assert.ArgumentNotNull(fieldID, nameof(fieldID));
 
       foreach (var languageFields in this.Values)
       {
-        if (languageFields == null)
-        {
-          continue;
-        }
-
-        languageFields.Remove(fieldID);
+        languageFields?.Remove(fieldID);
       }
     }
   }

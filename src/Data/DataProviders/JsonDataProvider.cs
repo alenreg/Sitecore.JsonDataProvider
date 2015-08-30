@@ -45,9 +45,9 @@
     public JsonDataProvider([NotNull] string connectionString, [NotNull] string databaseName, [NotNull] string betterMerging)
       : base(connectionString)
     {
-      Assert.ArgumentNotNull(connectionString, "connectionString");
-      Assert.ArgumentNotNull(databaseName, "databaseName");
-      Assert.ArgumentNotNull(betterMerging, "betterMerging");
+      Assert.ArgumentNotNull(connectionString, nameof(connectionString));
+      Assert.ArgumentNotNull(databaseName, nameof(databaseName));
+      Assert.ArgumentNotNull(betterMerging, nameof(betterMerging));
 
       instances.Add(this);
 
@@ -59,14 +59,14 @@
     public JsonDataProvider([NotNull] string connectionString, [NotNull] string databaseName)
       : this(connectionString, databaseName, "true")
     {
-      Assert.ArgumentNotNull(connectionString, "connectionString");
-      Assert.ArgumentNotNull(databaseName, "databaseName");
+      Assert.ArgumentNotNull(connectionString, nameof(connectionString));
+      Assert.ArgumentNotNull(databaseName, nameof(databaseName));
     }
 
     [UsedImplicitly]
     public void AddFileMappingType([NotNull] XmlNode mappingTypeNode)
     {
-      Assert.ArgumentNotNull(mappingTypeNode, "mappingTypeNode");
+      Assert.ArgumentNotNull(mappingTypeNode, nameof(mappingTypeNode));
 
       var mappingElement = (XmlElement)mappingTypeNode;
       var mappingName = mappingElement.Name;
@@ -91,7 +91,7 @@
     [UsedImplicitly]
     public void AddIgnoreField([NotNull] XmlNode fieldNode)
     {
-      Assert.ArgumentNotNull(fieldNode, "fieldNode");
+      Assert.ArgumentNotNull(fieldNode, nameof(fieldNode));
 
       var fieldElement = (XmlElement)fieldNode;
 
@@ -108,7 +108,7 @@
     [UsedImplicitly]
     public void AddFileMapping([NotNull] XmlNode mappingNode)
     {
-      Assert.ArgumentNotNull(mappingNode, "mappingNode");
+      Assert.ArgumentNotNull(mappingNode, nameof(mappingNode));
 
       var mappingElement = (XmlElement)mappingNode;
       var mappingName = mappingNode.Name;
@@ -129,8 +129,8 @@
     [NotNull]
     public override IDList GetChildIDs([NotNull] ItemDefinition itemDefinition, [NotNull] CallContext context)
     {
-      Assert.ArgumentNotNull(itemDefinition, "itemDefinition");
-      Assert.ArgumentNotNull(context, "context");
+      Assert.ArgumentNotNull(itemDefinition, nameof(itemDefinition));
+      Assert.ArgumentNotNull(context, nameof(context));
 
       var itemId = itemDefinition.ID;
       Assert.IsNotNull(itemId, "itemId");
@@ -175,8 +175,8 @@
     [CanBeNull]
     public override ItemDefinition GetItemDefinition([NotNull] ID itemID, [NotNull] CallContext context)
     {
-      Assert.ArgumentNotNull(itemID, "itemID");
-      Assert.ArgumentNotNull(context, "context");
+      Assert.ArgumentNotNull(itemID, nameof(itemID));
+      Assert.ArgumentNotNull(context, nameof(context));
 
       foreach (var file in this.FileMappings)
       {
@@ -195,8 +195,8 @@
     [CanBeNull]
     public override ID GetParentID([NotNull] ItemDefinition itemDefinition, [NotNull] CallContext context)
     {
-      Assert.ArgumentNotNull(itemDefinition, "itemDefinition");
-      Assert.ArgumentNotNull(context, "context");
+      Assert.ArgumentNotNull(itemDefinition, nameof(itemDefinition));
+      Assert.ArgumentNotNull(context, nameof(context));
 
       var itemID = itemDefinition.ID;
       Assert.IsNotNull(itemID, "itemID");
@@ -218,8 +218,8 @@
     [CanBeNull]
     public override VersionUriList GetItemVersions([NotNull] ItemDefinition itemDefinition, [NotNull] CallContext context)
     {
-      Assert.ArgumentNotNull(itemDefinition, "itemDefinition");
-      Assert.ArgumentNotNull(context, "context");
+      Assert.ArgumentNotNull(itemDefinition, nameof(itemDefinition));
+      Assert.ArgumentNotNull(context, nameof(context));
 
       var itemID = itemDefinition.ID;
       Assert.IsNotNull(itemID, "itemID");
@@ -241,9 +241,9 @@
     [NotNull]
     public override FieldList GetItemFields([NotNull] ItemDefinition itemDefinition, [NotNull] VersionUri versionUri, [NotNull] CallContext context)
     {
-      Assert.ArgumentNotNull(itemDefinition, "itemDefinition");
-      Assert.ArgumentNotNull(versionUri, "versionUri");
-      Assert.ArgumentNotNull(context, "context");
+      Assert.ArgumentNotNull(itemDefinition, nameof(itemDefinition));
+      Assert.ArgumentNotNull(versionUri, nameof(versionUri));
+      Assert.ArgumentNotNull(context, nameof(context));
 
       var itemID = itemDefinition.ID;
       Assert.IsNotNull(itemID, "itemID");
@@ -265,7 +265,7 @@
     [NotNull]
     public override IdCollection GetTemplateItemIds([NotNull] CallContext context)
     {
-      Assert.ArgumentNotNull(context, "context");
+      Assert.ArgumentNotNull(context, nameof(context));
 
       var templateItemIDs = new IdCollection();
       foreach (var file in this.FileMappings)
@@ -298,7 +298,7 @@
     [NotNull]
     public override LanguageCollection GetLanguages([NotNull] CallContext context)
     {
-      Assert.ArgumentNotNull(context, "context");
+      Assert.ArgumentNotNull(context, nameof(context));
 
       var languages = new LanguageCollection();
       foreach (var mapping in this.FileMappings)
@@ -331,11 +331,11 @@
 
     public override bool CreateItem([NotNull] ID itemID, [NotNull] string itemName, [NotNull] ID templateID, [NotNull] ItemDefinition parent, [NotNull] CallContext context)
     {
-      Assert.ArgumentNotNull(itemID, "itemID");
-      Assert.ArgumentNotNull(itemName, "itemName");
-      Assert.ArgumentNotNull(templateID, "templateID");
-      Assert.ArgumentNotNull(parent, "parent");
-      Assert.ArgumentNotNull(context, "context");
+      Assert.ArgumentNotNull(itemID, nameof(itemID));
+      Assert.ArgumentNotNull(itemName, nameof(itemName));
+      Assert.ArgumentNotNull(templateID, nameof(templateID));
+      Assert.ArgumentNotNull(parent, nameof(parent));
+      Assert.ArgumentNotNull(context, nameof(context));
 
       var parentId = parent.ID;
       Assert.IsNotNull(itemID, "itemID");
@@ -355,11 +355,11 @@
 
     public override bool CopyItem([NotNull] ItemDefinition source, [NotNull] ItemDefinition destination, [NotNull] string copyName, [NotNull] ID copyID, [NotNull] CallContext context)
     {
-      Assert.ArgumentNotNull(source, "source");
-      Assert.ArgumentNotNull(destination, "destination");
-      Assert.ArgumentNotNull(copyName, "copyName");
-      Assert.ArgumentNotNull(copyID, "copyID");
-      Assert.ArgumentNotNull(context, "context");
+      Assert.ArgumentNotNull(source, nameof(source));
+      Assert.ArgumentNotNull(destination, nameof(destination));
+      Assert.ArgumentNotNull(copyName, nameof(copyName));
+      Assert.ArgumentNotNull(copyID, nameof(copyID));
+      Assert.ArgumentNotNull(context, nameof(context));
 
       var sourceItemID = source.ID;
       Assert.IsNotNull(sourceItemID, "sourceItemID");
@@ -382,9 +382,9 @@
 
     public override int AddVersion([NotNull] ItemDefinition itemDefinition, [NotNull] VersionUri baseVersion, [NotNull] CallContext context)
     {
-      Assert.ArgumentNotNull(itemDefinition, "itemDefinition");
-      Assert.ArgumentNotNull(baseVersion, "baseVersion");
-      Assert.ArgumentNotNull(context, "context");
+      Assert.ArgumentNotNull(itemDefinition, nameof(itemDefinition));
+      Assert.ArgumentNotNull(baseVersion, nameof(baseVersion));
+      Assert.ArgumentNotNull(context, nameof(context));
 
       var itemID = itemDefinition.ID;
       Assert.IsNotNull(itemID, "itemID");
@@ -405,9 +405,9 @@
 
     public override bool SaveItem([NotNull] ItemDefinition itemDefinition, [NotNull] ItemChanges changes, [NotNull] CallContext context)
     {
-      Assert.ArgumentNotNull(itemDefinition, "itemDefinition");
-      Assert.ArgumentNotNull(changes, "changes");
-      Assert.ArgumentNotNull(context, "context");
+      Assert.ArgumentNotNull(itemDefinition, nameof(itemDefinition));
+      Assert.ArgumentNotNull(changes, nameof(changes));
+      Assert.ArgumentNotNull(context, nameof(context));
 
       if (changes.HasPropertiesChanged || changes.HasFieldsChanged)
       {
@@ -430,8 +430,8 @@
 
     public override bool ChangeFieldSharing([NotNull] TemplateField fieldDefinition, TemplateFieldSharing sharing, [NotNull] CallContext context)
     {
-      Assert.ArgumentNotNull(fieldDefinition, "fieldDefinition");
-      Assert.ArgumentNotNull(context, "context");
+      Assert.ArgumentNotNull(fieldDefinition, nameof(fieldDefinition));
+      Assert.ArgumentNotNull(context, nameof(context));
 
       foreach (var mapping in this.FileMappings)
       {
@@ -443,9 +443,9 @@
 
     public override bool MoveItem([NotNull] ItemDefinition itemDefinition, [NotNull] ItemDefinition destination, [NotNull] CallContext context)
     {
-      Assert.ArgumentNotNull(itemDefinition, "itemDefinition");
-      Assert.ArgumentNotNull(destination, "destination");
-      Assert.ArgumentNotNull(context, "context");
+      Assert.ArgumentNotNull(itemDefinition, nameof(itemDefinition));
+      Assert.ArgumentNotNull(destination, nameof(destination));
+      Assert.ArgumentNotNull(context, nameof(context));
 
       var itemID = itemDefinition.ID;
       var targetID = destination.ID;
@@ -464,9 +464,9 @@
 
     public override bool RemoveVersion([NotNull] ItemDefinition itemDefinition, [NotNull] VersionUri versionUri, [NotNull] CallContext context)
     {
-      Assert.ArgumentNotNull(itemDefinition, "itemDefinition");
-      Assert.ArgumentNotNull(versionUri, "versionUri");
-      Assert.ArgumentNotNull(context, "context");
+      Assert.ArgumentNotNull(itemDefinition, nameof(itemDefinition));
+      Assert.ArgumentNotNull(versionUri, nameof(versionUri));
+      Assert.ArgumentNotNull(context, nameof(context));
 
       var itemID = itemDefinition.ID;
       Assert.IsNotNull(itemID, "itemID");
@@ -486,9 +486,9 @@
 
     public override bool RemoveVersions([NotNull] ItemDefinition itemDefinition, [NotNull] Language language, bool removeSharedData, [NotNull] CallContext context)
     {
-      Assert.ArgumentNotNull(itemDefinition, "itemDefinition");
-      Assert.ArgumentNotNull(language, "language");
-      Assert.ArgumentNotNull(context, "context");
+      Assert.ArgumentNotNull(itemDefinition, nameof(itemDefinition));
+      Assert.ArgumentNotNull(language, nameof(language));
+      Assert.ArgumentNotNull(context, nameof(context));
 
       var itemID = itemDefinition.ID;
       Assert.IsNotNull(itemID, "itemID");
@@ -508,8 +508,8 @@
 
     public override bool DeleteItem([NotNull] ItemDefinition itemDefinition, [NotNull] CallContext context)
     {
-      Assert.ArgumentNotNull(itemDefinition, "itemDefinition");
-      Assert.ArgumentNotNull(context, "context");
+      Assert.ArgumentNotNull(itemDefinition, nameof(itemDefinition));
+      Assert.ArgumentNotNull(context, nameof(context));
 
       var itemID = itemDefinition.ID;
       Assert.IsNotNull(itemID, "itemID");
@@ -529,7 +529,7 @@
 
     public static void InitializeDefaultValues([NotNull] JsonFields fields)
     {
-      Assert.ArgumentNotNull(fields, "fields");
+      Assert.ArgumentNotNull(fields, nameof(fields));
 
       foreach (var pair in IgnoreFields)
       {

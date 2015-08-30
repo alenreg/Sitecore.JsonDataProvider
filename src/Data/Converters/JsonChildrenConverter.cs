@@ -11,24 +11,15 @@ namespace Sitecore.Data.Converters
 
   public class JsonChildrenConverter : JsonConverter
   {
-    public override bool CanRead
-    {
-      get
-      {
-        return false;
-      }
-    }
+    public override bool CanRead => false;
 
-    public override bool CanConvert([CanBeNull] Type objectType)
-    {
-      return false;
-    }
+    public override bool CanConvert(Type objectType) => false;
 
     public override void WriteJson([NotNull] JsonWriter writer, [NotNull] object value, [NotNull] JsonSerializer serializer)
     {
-      Assert.ArgumentNotNull(writer, "writer");
-      Assert.ArgumentNotNull(value, "value");
-      Assert.ArgumentNotNull(serializer, "serializer");
+      Assert.ArgumentNotNull(writer, nameof(writer));
+      Assert.ArgumentNotNull(value, nameof(value));
+      Assert.ArgumentNotNull(serializer, nameof(serializer));
 
       writer.WriteStartArray();
 
@@ -53,9 +44,6 @@ namespace Sitecore.Data.Converters
       writer.WriteEndArray();
     }
 
-    public override object ReadJson([CanBeNull] JsonReader reader, [CanBeNull] Type objectType, [CanBeNull] object existingValue, [CanBeNull] JsonSerializer serializer)
-    {
-      throw new NotImplementedException();
-    }
+    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) => Throw.NotImplementedException();
   }
 }

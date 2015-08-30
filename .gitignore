@@ -1,3 +1,5 @@
 src/obj/
 *.pubxml
 src/bin/
+src/.vs/
+src/Sitecore.JsonDataProvider.zip

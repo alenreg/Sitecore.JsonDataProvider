@@ -14,11 +14,13 @@ namespace Sitecore.Data.Converters
 
   public class JsonFieldsCollectionConverter : JsonConverter
   {
+    public override bool CanConvert(Type objectType) => false;
+
     public override void WriteJson([NotNull] JsonWriter writer, [NotNull] object value, [NotNull] JsonSerializer serializer)
     {
-      Assert.ArgumentNotNull(writer, "writer");
-      Assert.ArgumentNotNull(value, "value");
-      Assert.ArgumentNotNull(serializer, "serializer");
+      Assert.ArgumentNotNull(writer, nameof(writer));
+      Assert.ArgumentNotNull(value, nameof(value));
+      Assert.ArgumentNotNull(serializer, nameof(serializer));
 
       var dictionary = (IDictionary<ID, string>)value;
       writer.WriteStartObject();
@@ -54,8 +56,8 @@ namespace Sitecore.Data.Converters
     [CanBeNull]
     public override object ReadJson([NotNull] JsonReader reader, [CanBeNull] Type objectType, [CanBeNull] object existingValue, [NotNull] JsonSerializer serializer)
     {
-      Assert.ArgumentNotNull(reader, "reader");
-      Assert.ArgumentNotNull(serializer, "serializer");
+      Assert.ArgumentNotNull(reader, nameof(reader));
+      Assert.ArgumentNotNull(serializer, nameof(serializer));
 
       try
       {
@@ -73,11 +75,6 @@ namespace Sitecore.Data.Converters
 
         return null;
       }
-    }
-
-    public override bool CanConvert([CanBeNull] Type objectType)
-    {
-      return false;
     }
   }
 }

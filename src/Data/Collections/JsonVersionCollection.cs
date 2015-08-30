@@ -27,7 +27,7 @@
 
       set
       {
-        Assert.ArgumentNotNull(value, "value");
+        Assert.ArgumentNotNull(value, nameof(value));
 
         base[number] = value;
       }
@@ -36,7 +36,7 @@
     [CanBeNull]
     public string GetFieldValue([NotNull] ID fieldID)
     {
-      Assert.ArgumentNotNull(fieldID, "fieldID");
+      Assert.ArgumentNotNull(fieldID, nameof(fieldID));
 
       return this.OrderByDescending(x => x.Key).Select(x => x.Value[fieldID]).FirstOrDefault();
     }

@@ -31,13 +31,13 @@
 
     protected AbstractMapping([NotNull] XmlElement mappingElement)
     {
-      Assert.ArgumentNotNull(mappingElement, "mappingElement");
+      Assert.ArgumentNotNull(mappingElement, nameof(mappingElement));
 
       var fileName = mappingElement.GetAttribute("file");
-      Assert.IsNotNullOrEmpty(fileName, "The \"file\" attribute is not specified or has empty string value: " + mappingElement.OuterXml);
+      Assert.IsNotNullOrEmpty(fileName, $"The \"file\" attribute is not specified or has empty string value: {mappingElement.OuterXml}");
 
       var filePath = MainUtil.MapPath(fileName);
-      Assert.IsNotNullOrEmpty(filePath, "filePath");
+      Assert.IsNotNullOrEmpty(filePath, nameof(filePath));
 
       this.FileMappingPath = filePath;
     }
@@ -50,7 +50,7 @@
         return;
       }
 
-      Log.Info("Deserializing items from: " + filePath, this);
+      Log.Info($"Deserializing items from: {filePath}", this);
       var json = File.ReadAllText(filePath);
 
       try
@@ -59,7 +59,7 @@
       }
       catch (Exception ex)
       {
-        throw new InvalidOperationException("Cannot deserialize json file: " + this.FileMappingPath, ex);
+        throw new InvalidOperationException($"Cannot deserialize json file: {this.FileMappingPath}", ex);
       }
     }
 
@@ -67,7 +67,7 @@
 
     public ItemDefinition GetItemDefinition(ID itemID)
     {
-      Assert.ArgumentNotNull(itemID, "itemID");
+      Assert.ArgumentNotNull(itemID, nameof(itemID));
 
       var item = this.GetItem(itemID);
       if (item == null || this.IgnoreItem(item))
@@ -80,7 +80,7 @@
 
     public ID GetParentID(ID itemID)
     {
-      Assert.ArgumentNotNull(itemID, "itemID");
+      Assert.ArgumentNotNull(itemID, nameof(itemID));
 
       var item = this.GetItem(itemID);
       if (item == null || this.IgnoreItem(item))
@@ -93,7 +93,7 @@
 
     public VersionUriList GetItemVersiones(ID itemID)
     {
-      Assert.ArgumentNotNull(itemID, "itemID");
+      Assert.ArgumentNotNull(itemID, nameof(itemID));
 
       var item = this.GetItem(itemID);
       if (item == null || this.IgnoreItem(item))
@@ -113,8 +113,8 @@
 
     public FieldList GetItemFields(ID itemID, VersionUri versionUri)
     {
-      Assert.ArgumentNotNull(itemID, "itemID");
-      Assert.ArgumentNotNull(versionUri, "versionUri");
+      Assert.ArgumentNotNull(itemID, nameof(itemID));
+      Assert.ArgumentNotNull(versionUri, nameof(versionUri));
 
       var item = this.GetItem(itemID);
       if (item == null || this.IgnoreItem(item))
@@ -177,8 +177,8 @@
 
     public int AddVersion(ID itemID, VersionUri versionUri)
     {
-      Assert.ArgumentNotNull(itemID, "itemID");
-      Assert.ArgumentNotNull(versionUri, "versionUri");
+      Assert.ArgumentNotNull(itemID, nameof(itemID));
+      Assert.ArgumentNotNull(versionUri, nameof(versionUri));
 
       var item = this.GetItem(itemID);
       if (item == null || this.IgnoreItem(item))
@@ -225,8 +225,10 @@
           newNumber = versions.Max(x => x.Key) + 1;
         }
 
-        var newVersion = new JsonFieldsCollection();
-        newVersion[FieldIDs.Created] = DateUtil.IsoNowWithTicks;
+        var newVersion = new JsonFieldsCollection
+          {
+            [FieldIDs.Created] = DateUtil.IsoNowWithTicks
+          };
 
         versions.Add(newNumber, newVersion);
 
@@ -238,8 +240,8 @@
 
     public bool SaveItem(ID itemID, ItemChanges changes)
     {
-      Assert.ArgumentNotNull(itemID, "itemID");
-      Assert.ArgumentNotNull(changes, "changes");
+      Assert.ArgumentNotNull(itemID, nameof(itemID));
+      Assert.ArgumentNotNull(changes, nameof(changes));
 
       var item = this.GetItem(itemID);
       if (item == null)
@@ -273,7 +275,7 @@
             var language = fieldChange.Language;
             var number = fieldChange.Version.Number;
             var fieldID = fieldChange.FieldID;
-            if (fieldID as object == null)
+            if (fieldID == Null.Object)
             {
               continue;
             }
@@ -299,10 +301,7 @@
 
               shared.Remove(fieldID);
               unversioned.Remove(fieldID);
-              if (versioned != null)
-              {
-                versioned.Remove(fieldID);
-              }
+              versioned?.Remove(fieldID);
             }
             else if (definition.IsShared)
             {
@@ -337,7 +336,7 @@
 
     public void ChangeFieldSharing(ID fieldID, TemplateFieldSharing sharing)
     {
-      Assert.ArgumentNotNull(fieldID, "fieldID");
+      Assert.ArgumentNotNull(fieldID, nameof(fieldID));
 
       lock (this.SyncRoot)
       {
@@ -372,8 +371,8 @@
 
     public bool RemoveVersion(ID itemID, VersionUri versionUri)
     {
-      Assert.ArgumentNotNull(itemID, "itemID");
-      Assert.ArgumentNotNull(versionUri, "versionUri");
+      Assert.ArgumentNotNull(itemID, nameof(itemID));
+      Assert.ArgumentNotNull(versionUri, nameof(versionUri));
 
       var item = this.GetItem(itemID);
       if (item == null)
@@ -404,8 +403,8 @@
 
     public bool RemoveVersions(ID itemID, Language language)
     {
-      Assert.ArgumentNotNull(itemID, "itemID");
-      Assert.ArgumentNotNull(language, "language");
+      Assert.ArgumentNotNull(itemID, nameof(itemID));
+      Assert.ArgumentNotNull(language, nameof(language));
 
       var item = this.GetItem(itemID);
       if (item == null)
@@ -432,7 +431,7 @@
 
     public bool DeleteItem(ID itemID)
     {
-      Assert.ArgumentNotNull(itemID, "itemID");
+      Assert.ArgumentNotNull(itemID, nameof(itemID));
 
       var item = this.GetItem(itemID);
       if (item == null)
@@ -472,10 +471,10 @@
 
     protected bool DoCopyItem([NotNull] ID destinationItemID, [NotNull] ID copyID, [NotNull] string copyName, [NotNull] JsonItem sourceItem)
     {
-      Assert.ArgumentNotNull(destinationItemID, "destinationItemID");
-      Assert.ArgumentNotNull(copyID, "copyID");
-      Assert.ArgumentNotNull(copyName, "copyName");
-      Assert.ArgumentNotNull(sourceItem, "sourceItem");
+      Assert.ArgumentNotNull(destinationItemID, nameof(destinationItemID));
+      Assert.ArgumentNotNull(copyID, nameof(copyID));
+      Assert.ArgumentNotNull(copyName, nameof(copyName));
+      Assert.ArgumentNotNull(sourceItem, nameof(sourceItem));
 
       if (!this.CreateItem(copyID, copyName, sourceItem.TemplateID, destinationItemID))
       {
@@ -536,7 +535,7 @@
 
     protected void InitializeItemTree([NotNull] JsonItem item)
     {
-      Assert.ArgumentNotNull(item, "item");
+      Assert.ArgumentNotNull(item, nameof(item));
 
       this.ItemsCache.Add(item);
 
@@ -557,7 +556,7 @@
     [CanBeNull]
     protected JsonItem GetItem([NotNull] ID itemID)
     {
-      Assert.ArgumentNotNull(itemID, "itemID");
+      Assert.ArgumentNotNull(itemID, nameof(itemID));
 
       return this.ItemsCache.FirstOrDefault(x => x.ID == itemID);
     }
@@ -567,8 +566,8 @@
 
     private void ChangeFieldSharingToShared([NotNull] JsonItem item, [NotNull] ID fieldID)
     {
-      Assert.ArgumentNotNull(item, "item");
-      Assert.ArgumentNotNull(fieldID, "fieldID");
+      Assert.ArgumentNotNull(item, nameof(item));
+      Assert.ArgumentNotNull(fieldID, nameof(fieldID));
 
       var fields = item.Fields;
       var fieldValue = Null.String;
@@ -599,8 +598,8 @@
 
     private void ChangeFieldSharingToUnversioned([NotNull] JsonItem item, [NotNull] ID fieldID)
     {
-      Assert.ArgumentNotNull(item, "item");
-      Assert.ArgumentNotNull(fieldID, "fieldID");
+      Assert.ArgumentNotNull(item, nameof(item));
+      Assert.ArgumentNotNull(fieldID, nameof(fieldID));
 
       // find value among shared
       var fields = item.Fields;
@@ -643,8 +642,8 @@
 
     private void ChangeFieldSharingToVersioned([NotNull] JsonItem item, [NotNull] ID fieldID)
     {
-      Assert.ArgumentNotNull(item, "item");
-      Assert.ArgumentNotNull(fieldID, "fieldID");
+      Assert.ArgumentNotNull(item, nameof(item));
+      Assert.ArgumentNotNull(fieldID, nameof(fieldID));
 
       // find value among shared
       var fields = item.Fields;
@@ -700,7 +699,7 @@
 
     private void DeleteItemTreeFromItemsCache([NotNull] JsonItem item)
     {
-      Assert.ArgumentNotNull(item, "item");
+      Assert.ArgumentNotNull(item, nameof(item));
 
       this.ItemsCache.Remove(item);
       foreach (var child in item.Children)

@@ -18,7 +18,7 @@
     public JsonFieldsCollection([NotNull] IDictionary<ID, string> dictionary)
       : base(dictionary)
     {
-      Assert.ArgumentNotNull(dictionary, "dictionary");
+      Assert.ArgumentNotNull(dictionary, nameof(dictionary));
     }
 
     [CanBeNull]
@@ -26,7 +26,7 @@
     {
       get
       {
-        Assert.ArgumentNotNull(id, "id");
+        Assert.ArgumentNotNull(id, nameof(id));
 
         string value;
         if (this.TryGetValue(id, out value))
@@ -39,8 +39,8 @@
 
       set
       {
-        Assert.ArgumentNotNull(id, "id");
-        Assert.ArgumentNotNull(value, "value");
+        Assert.ArgumentNotNull(id, nameof(id));
+        Assert.ArgumentNotNull(value, nameof(value));
 
         base[id] = value;
       }
