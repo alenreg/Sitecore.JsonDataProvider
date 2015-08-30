@@ -16,7 +16,6 @@
   using Sitecore.Data.Templates;
   using Sitecore.Diagnostics;
   using Sitecore.Globalization;
-  using Sitecore.Resources.Media;
   using Sitecore.StringExtensions;
 
   [UsedImplicitly]
@@ -35,13 +34,7 @@
     private static readonly List<JsonDataProvider> instances = new List<JsonDataProvider>();
 
     [NotNull]
-    public static IReadOnlyCollection<JsonDataProvider> Instances
-    {
-      get
-      {
-        return instances;
-      }
-    }
+    public static IReadOnlyCollection<JsonDataProvider> Instances => instances;
 
     public static bool BetterMerging { get; private set; }
 
@@ -56,7 +49,7 @@
 
       BetterMerging = bool.Parse(betterMerging);
 
-      Log.Info(string.Format("JsonDataProvider is being initialized for \"{0}\" database", databaseName), this);
+      Log.Info($"JsonDataProvider is being initialized for \"{databaseName}\" database", this);
     }
 
     public JsonDataProvider([NotNull] string connectionString, [NotNull] string databaseName)
@@ -121,7 +114,7 @@
       MappingTypes.TryGetValue(mappingName, out mappingType);
       Assert.IsNotNull(mappingType, "The {0} mapping type is not registered in <FileMappingTypes> element".FormatWith(mappingName));
 
-      var mapping = (IMapping)Activator.CreateInstance(mappingType, new[] { mappingElement });
+      var mapping = (IMapping)Activator.CreateInstance(mappingType, mappingElement);
       Assert.IsNotNull(mapping, "mapping");
 
       Log.Info("Mapping is estabileshed: " + mappingName, this);
@@ -209,7 +202,7 @@
         Assert.IsNotNull(file, "file");
 
         var parentID = file.GetParentID(itemID);
-        if (parentID as object != null)
+        if (parentID.IsNull())
         {
           return parentID;
         }
