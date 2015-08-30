@@ -330,7 +330,11 @@
             {
               if (versioned == null)
               {
-                versioned = new JsonFieldsCollection();
+                versioned = new JsonFieldsCollection
+                {
+                  [FieldIDs.Created] = DateUtil.IsoNowWithTicks
+                };
+
                 versions.Add(number, versioned);
               }
 
@@ -717,6 +721,16 @@
           {
             // set unversioned value in all versions
             var versions = fields.Versioned[language];
+            if (versions.Count == 0)
+            {
+              var fieldCollection = new JsonFieldsCollection
+                {
+                  [FieldIDs.Created] = DateUtil.IsoNowWithTicks
+                };
+
+              versions.Add(1, fieldCollection);
+            }
+
             foreach (var versionFields in versions.Values)
             {
               versionFields[fieldID] = fieldValue;
