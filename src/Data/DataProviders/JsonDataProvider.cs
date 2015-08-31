@@ -202,7 +202,7 @@
         Assert.IsNotNull(file, "file");
 
         var parentID = file.GetParentID(itemID);
-        if (parentID.IsNull())
+        if (parentID as object != null)
         {
           return parentID;
         }
