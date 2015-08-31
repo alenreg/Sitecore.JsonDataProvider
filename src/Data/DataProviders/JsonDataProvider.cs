@@ -31,6 +31,9 @@
     public readonly IList<IMapping> FileMappings = new List<IMapping>();
 
     [NotNull]
+    public readonly string DatabaseName;
+
+    [NotNull]
     private static readonly List<JsonDataProvider> instances = new List<JsonDataProvider>();
 
     [NotNull]
@@ -50,6 +53,8 @@
       BetterMerging = bool.Parse(betterMerging);
 
       Log.Info($"JsonDataProvider is being initialized for \"{databaseName}\" database", this);
+
+      this.DatabaseName = databaseName;
     }
 
     public JsonDataProvider([NotNull] string connectionString, [NotNull] string databaseName)
@@ -114,7 +119,7 @@
       MappingTypes.TryGetValue(mappingName, out mappingType);
       Assert.IsNotNull(mappingType, "The {0} mapping type is not registered in <FileMappingTypes> element".FormatWith(mappingName));
 
-      var mapping = (IMapping)Activator.CreateInstance(mappingType, mappingElement);
+      var mapping = (IMapping)Activator.CreateInstance(mappingType, mappingElement, this.DatabaseName);
       Assert.IsNotNull(mapping, "mapping");
 
       Log.Info("Mapping is estabileshed: " + mappingName, this);

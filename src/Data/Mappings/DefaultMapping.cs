@@ -12,9 +12,11 @@
   public class DefaultMapping : AbstractMapping
   {
     [UsedImplicitly]
-    public DefaultMapping([NotNull] XmlElement mappingElement) : base(mappingElement)
+    public DefaultMapping([NotNull] XmlElement mappingElement, [NotNull] string databaseName)
+      : base(mappingElement, databaseName)
     {
       Assert.ArgumentNotNull(mappingElement, nameof(mappingElement));
+      Assert.ArgumentNotNull(databaseName, nameof(databaseName));
     }
 
     protected override IEnumerable<JsonItem> Initialize(string json)

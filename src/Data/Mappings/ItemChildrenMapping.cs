@@ -16,9 +16,11 @@
 
 
     [UsedImplicitly]
-    public ItemChildrenMapping([NotNull] XmlElement mappingElement) : base(mappingElement)
+    public ItemChildrenMapping([NotNull] XmlElement mappingElement, [NotNull] string databaseName) 
+      : base(mappingElement, databaseName)
     {
       Assert.ArgumentNotNull(mappingElement, nameof(mappingElement));
+      Assert.ArgumentNotNull(databaseName, nameof(databaseName));
 
       var itemString = mappingElement.GetAttribute("item");
       Assert.IsNotNull(itemString, $"The \"item\" attribute is not specified or has empty string value: {mappingElement.OuterXml}");
@@ -26,8 +28,7 @@
       ID itemID;
       ID.TryParse(itemString, out itemID);
       Assert.IsNotNull(itemID, $"the \"item\" attribute is not a valid GUID value: {mappingElement.OuterXml}");
-
-
+      
       this.ItemID = itemID;
     }
 

@@ -7,6 +7,7 @@
   using System.Xml;
 
   using Sitecore.Collections;
+  using Sitecore.Configuration;
   using Sitecore.Data.Collections;
   using Sitecore.Data.DataProviders;
   using Sitecore.Data.Helpers;
@@ -14,7 +15,6 @@
   using Sitecore.Data.Templates;
   using Sitecore.Diagnostics;
   using Sitecore.Globalization;
-  using Sitecore.Workflows.Simple;
 
   public abstract class AbstractMapping : IMapping
   {
@@ -30,9 +30,12 @@
     [NotNull]
     protected readonly object SyncRoot = new object();
 
-    protected AbstractMapping([NotNull] XmlElement mappingElement)
+    protected readonly string DatabaseName;
+
+    protected AbstractMapping([NotNull] XmlElement mappingElement, [NotNull] string databaseName)
     {
       Assert.ArgumentNotNull(mappingElement, nameof(mappingElement));
+      Assert.ArgumentNotNull(databaseName, nameof(databaseName));
 
       var fileName = mappingElement.GetAttribute("file");
       Assert.IsNotNullOrEmpty(fileName, $"The \"file\" attribute is not specified or has empty string value: {mappingElement.OuterXml}");
@@ -41,6 +44,7 @@
       Assert.IsNotNullOrEmpty(filePath, nameof(filePath));
 
       this.FileMappingPath = filePath;
+      this.DatabaseName = databaseName;
     }
 
     public void Initialize()
@@ -60,6 +64,8 @@
         {
           this.ItemChildren.AddRange(this.Initialize(json));
         }
+
+        this.GeneratePackageDesignerProject();
       }
       catch (Exception ex)
       {
@@ -68,6 +74,8 @@
     }
 
     public abstract IEnumerable<ID> GetChildIDs(ID itemId);
+
+    public IEnumerable<ID> GetAllItemsIDs() => this.ItemsCache.Select(x => x.ID);
 
     public ItemDefinition GetItemDefinition(ID itemID)
     {
@@ -500,6 +508,8 @@
 
       var json = JsonHelper.Serialize(this.GetCommitObject(), true);
       File.WriteAllText(filePath, json);
+
+      this.GeneratePackageDesignerProject();
     }
 
     [NotNull]
@@ -757,6 +767,24 @@
         Assert.IsNotNull(child, "child");
 
         this.DeleteItemTreeFromItemsCache(child);
+      }
+    }
+
+    private void GeneratePackageDesignerProject()
+    {
+      var name = Path.GetFileNameWithoutExtension(this.FileMappingPath);
+      var items = this.ItemsCache;
+
+      if (JsonDataProvider.Instances.Count(x => x.DatabaseName == this.DatabaseName) > 1)
+      {
+        PackageDesignerHeper.GenerateProject(this.DatabaseName, "auto-generated-for-mapping-" + name, items.Select(x => x.ID));
+      }
+
+      foreach (var databaseGroup in JsonDataProvider.Instances.GroupBy(x => x.DatabaseName))
+      {
+        var databaseName = databaseGroup.Key;
+        var ids = databaseGroup.SelectMany(x => x.FileMappings.SelectMany(z => z.GetAllItemsIDs()).Distinct());
+        PackageDesignerHeper.GenerateProject(databaseName, "auto-generated-for-database-" + databaseName, ids);
       }
     }
   }
