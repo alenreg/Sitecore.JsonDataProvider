@@ -9,8 +9,10 @@
   using Sitecore.Collections;
   using Sitecore.Configuration;
   using Sitecore.Data;
+  using Sitecore.Data.DataProviders.Sql;
   using Sitecore.Data.Helpers;
   using Sitecore.Data.Items;
+  using Sitecore.Data.Managers;
   using Sitecore.Data.Mappings;
   using Sitecore.Data.SqlServer;
   using Sitecore.Data.Templates;
@@ -26,6 +28,9 @@
 
     [NotNull]
     public static readonly IDictionary<ID, DefaultFieldValue> IgnoreFields = new Dictionary<ID, DefaultFieldValue>();
+
+    [NotNull]
+    public static readonly string BlobFolder = Settings.GetSetting("Media.BlobFolder", "/App_Data/MediaBlobs");
 
     [NotNull]
     public readonly IList<IMapping> FileMappings = new List<IMapping>();
@@ -358,6 +363,51 @@
       return true;
     }
 
+    protected override void CleanupBlobs(CallContext context)
+    {
+      var blobFieldIDs = TemplateManager
+        .GetTemplates(context.DataManager.Database).Values
+        .SelectMany(t => t.GetFields()
+        .Where(x => x.IsBlob)
+        .Select(x => x.ID))
+        .ToArray();
+
+      var guidLength = Guid.Empty.ToString().Length;
+      var blobFolder = MainUtil.MapPath(BlobFolder);
+      var blobs = Directory.GetFiles(blobFolder, "*-*-*-*-*.bin", SearchOption.AllDirectories);
+      var blobsInUse = new List<ID>();
+      foreach (var mapping in this.FileMappings)
+      {
+        ID tmp;
+        var mappingBlobs = blobFieldIDs
+          .SelectMany(x => mapping.GetFieldValues(x)
+            .Select(z => ID.TryParse(z, out tmp) ? tmp : ID.Null)
+            .Where(z => z != ID.Null));
+
+        blobsInUse.AddRange(mappingBlobs);
+      }
+
+      foreach (var blob in blobs)
+      {
+        var blobID = new ID(Guid.Parse(blob.Substring(Path.GetDirectoryName(blob).Length + 1, guidLength)));
+        if (blobsInUse.Contains(blobID))
+        {
+          continue;
+        }
+
+        try
+        {
+          File.Delete(blob);
+        }
+        catch (Exception ex)
+        {
+          Log.Error($"Failed to delete file during blob cleanup operation: {blob}", ex, this);
+        }
+      }
+
+      base.CleanupBlobs(context);
+    }
+
     public override bool CreateItem([NotNull] ID itemID, [NotNull] string itemName, [NotNull] ID templateID, [NotNull] ItemDefinition parent, [NotNull] CallContext context)
     {
       Assert.ArgumentNotNull(itemID, nameof(itemID));
@@ -598,10 +648,10 @@
       }
     }
 
-    private static string GetBlobFilePath(Guid blobId)
+    public static string GetBlobFilePath(Guid blobId)
     {
       var blob = blobId.ToString();
-      var blobFolder = Settings.GetSetting("Media.BlobFolder", "/App_Data/MediaBlobs");
+      var blobFolder = BlobFolder;
       var virtualPath = Path.Combine(blobFolder, blob.Substring(0, 1), blob.Substring(1, 1), blob.Substring(2, 1), blob + ".bin");
       var physicalPath = MainUtil.MapPath(virtualPath);
       return physicalPath;

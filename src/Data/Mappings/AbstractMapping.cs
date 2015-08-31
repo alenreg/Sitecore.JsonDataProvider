@@ -12,6 +12,7 @@
   using Sitecore.Data.DataProviders;
   using Sitecore.Data.Helpers;
   using Sitecore.Data.Items;
+  using Sitecore.Data.Managers;
   using Sitecore.Data.Templates;
   using Sitecore.Diagnostics;
   using Sitecore.Globalization;
@@ -171,6 +172,13 @@
       }
 
       return fieldList;
+    }
+
+    public IEnumerable<string> GetFieldValues(ID fieldID)
+    {
+      Assert.ArgumentNotNull(fieldID, nameof(fieldID));
+
+      return this.ItemsCache.SelectMany(x => x.Fields.GetFieldValues(fieldID));
     }
 
     public IEnumerable<ID> GetTemplateItemIDs()
@@ -491,6 +499,8 @@
 
         this.DeleteItemTreeFromItemsCache(item);
 
+        this.DeleteBlobs(item);
+
         this.Commit();
       }
 
@@ -785,6 +795,37 @@
         var databaseName = databaseGroup.Key;
         var ids = databaseGroup.SelectMany(x => x.FileMappings.SelectMany(z => z.GetAllItemsIDs()).Distinct());
         PackageDesignerHeper.GenerateProject(databaseName, "auto-generated-for-database-" + databaseName, ids);
+      }
+    }
+
+    private void DeleteBlobs(JsonItem item)
+    {
+      var blobFieldIDs = TemplateManager.GetTemplate(item.TemplateID, Database.GetDatabase(this.DatabaseName))
+        .GetFields()
+        .Where(x => x.IsBlob)
+        .Select(x => x.ID);
+
+      foreach (var blobFieldID in blobFieldIDs)
+      {
+        foreach (var fieldValue in item.Fields.GetFieldValues(blobFieldID))
+        {
+          Guid blobID;
+          if (Guid.TryParse(fieldValue, out blobID))
+          {
+            var blobFilePath = JsonDataProvider.GetBlobFilePath(blobID);
+            if (File.Exists(blobFilePath))
+            {
+              try
+              {
+                File.Delete(blobFilePath);
+              }
+              catch (Exception ex)
+              {
+                Log.Error($"Failed to delete blob file during media item delete operation: {blobFilePath}", ex, this);
+              }
+            }
+          }
+        }
       }
     }
   }
