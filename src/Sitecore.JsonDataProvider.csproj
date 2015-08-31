@@ -81,6 +81,9 @@
     </Content>
     <Content Include="sitecore\admin\json-data-provider.aspx" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Sitecore.JsonDataProvider.nuspec" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
