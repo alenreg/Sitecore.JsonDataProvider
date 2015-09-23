@@ -82,6 +82,9 @@
     <Content Include="sitecore\admin\json-data-provider.aspx" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Config\Include\Sitecore.JsonDataProvider.Master.config">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="Sitecore.JsonDataProvider.nuspec" />
   </ItemGroup>
   <PropertyGroup>
