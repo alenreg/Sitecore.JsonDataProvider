@@ -9,7 +9,6 @@
   using Sitecore.Collections;
   using Sitecore.Configuration;
   using Sitecore.Data;
-  using Sitecore.Data.DataProviders.Sql;
   using Sitecore.Data.Helpers;
   using Sitecore.Data.Items;
   using Sitecore.Data.Managers;
@@ -212,7 +211,7 @@
         Assert.IsNotNull(file, "file");
 
         var parentID = file.GetParentID(itemID);
-        if (parentID as object != null)
+        if (!Equals(parentID, null))
         {
           return parentID;
         }
