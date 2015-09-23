@@ -159,7 +159,7 @@
 
     protected override object GetCommitObject()
     {
-      return this.ItemChildren.ToDictionary(x => x.ID.ToString(), x => x.Children);
+      return this.ItemChildren.Where(x => x.Children.Count > 0).ToDictionary(x => x.ID.ToString(), x => x.Children);
     }
 
     [NotNull]
