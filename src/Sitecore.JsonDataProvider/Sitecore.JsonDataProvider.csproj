@@ -19,6 +19,7 @@
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -43,6 +44,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="Sitecore.Kernel">
+      <HintPath>..\..\..\wwwroot\sc81rev150915\Website\bin\Sitecore.Kernel.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -85,6 +87,7 @@
     <Content Include="App_Config\Include\Sitecore.JsonDataProvider.Master.config">
       <SubType>Designer</SubType>
     </Content>
+    <None Include="Properties\PublishProfiles\x.pubxml" />
     <None Include="Sitecore.JsonDataProvider.nuspec" />
   </ItemGroup>
   <PropertyGroup>
