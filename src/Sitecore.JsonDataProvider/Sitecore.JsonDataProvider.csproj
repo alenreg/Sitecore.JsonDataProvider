@@ -87,6 +87,9 @@
     <Content Include="App_Config\Include\Sitecore.JsonDataProvider.Master.config">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="App_Config\Include\Sitecore.JsonDataProvider.Core.config">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="Properties\PublishProfiles\x.pubxml" />
     <None Include="Sitecore.JsonDataProvider.nuspec" />
   </ItemGroup>
