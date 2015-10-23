@@ -1,6 +1,5 @@
 src/Sitecore.JsonDataProvider/obj/
 src/Sitecore.JsonDataProvider/bin/
 src/Sitecore.JsonDataProvider/.vs/
-*.pubxml
 src/.vs/
 src/packages/
