@@ -74,6 +74,8 @@
       }
     }
 
+    public string FilePath => this.FileMappingPath;
+
     public abstract IEnumerable<ID> GetChildIDs(ID itemId);
 
     public IEnumerable<ID> GetAllItemsIDs() => this.ItemsCache.Select(x => x.ID);

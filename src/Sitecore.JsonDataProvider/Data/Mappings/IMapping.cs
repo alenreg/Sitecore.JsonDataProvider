@@ -11,6 +11,9 @@ namespace Sitecore.Data.Mappings
   {
     void Initialize();
 
+    [NotNull]
+    string FilePath { get; }
+
     [CanBeNull]
     IEnumerable<ID> GetChildIDs([NotNull] ID itemId);
 

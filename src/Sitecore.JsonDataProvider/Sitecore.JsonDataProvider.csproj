@@ -75,6 +75,7 @@
     <Compile Include="Data\Collections\JsonUnversionedFieldsCollection.cs" />
     <Compile Include="Data\Collections\JsonVersionCollection.cs" />
     <Compile Include="Data\Helpers\Null.cs" />
+    <Compile Include="Pipelines\GetContentEditorWarnings\JsonItemInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
