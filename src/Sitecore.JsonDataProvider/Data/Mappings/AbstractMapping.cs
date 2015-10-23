@@ -785,15 +785,15 @@
       var name = Path.GetFileNameWithoutExtension(this.FileMappingPath);
       var items = this.ItemsCache;
 
-      if (JsonDataProvider.Instances.Count(x => x.DatabaseName == this.DatabaseName) > 1)
+      if (JsonDataProvider.Instances[this.DatabaseName].FileMappings.Count > 1)
       {
         PackageDesignerHeper.GenerateProject(this.DatabaseName, "auto-generated-for-mapping-" + name, items.Select(x => x.ID));
       }
 
-      foreach (var databaseGroup in JsonDataProvider.Instances.GroupBy(x => x.DatabaseName))
+      foreach (var pair in JsonDataProvider.Instances)
       {
-        var databaseName = databaseGroup.Key;
-        var ids = databaseGroup.SelectMany(x => x.FileMappings.SelectMany(z => z.GetAllItemsIDs()).Distinct());
+        var databaseName = pair.Key;
+        var ids = pair.Value.FileMappings.SelectMany(z => z.GetAllItemsIDs()).Distinct();
         PackageDesignerHeper.GenerateProject(databaseName, "auto-generated-for-database-" + databaseName, ids);
       }
     }
