@@ -20,16 +20,13 @@
   using Sitecore.StringExtensions;
 
   [UsedImplicitly]
-  public class JsonDataProvider : SqlServerDataProvider
+  public class JsonDataProvider : DataProvider
   {
     [NotNull]
     public static readonly Dictionary<string, Type> MappingTypes = new Dictionary<string, Type>();
 
     [NotNull]
     public static readonly IDictionary<ID, DefaultFieldValue> IgnoreFields = new Dictionary<ID, DefaultFieldValue>();
-
-    [NotNull]
-    public static readonly string BlobFolder = Settings.GetSetting("Media.BlobFolder", "/App_Data/MediaBlobs");
 
     [NotNull]
     public readonly IList<IMapping> FileMappings = new List<IMapping>();
@@ -45,10 +42,8 @@
 
     public static bool BetterMerging { get; private set; }
 
-    public JsonDataProvider([NotNull] string connectionString, [NotNull] string databaseName, [NotNull] string betterMerging)
-      : base(connectionString)
+    public JsonDataProvider([NotNull] string databaseName, [NotNull] string betterMerging)
     {
-      Assert.ArgumentNotNull(connectionString, nameof(connectionString));
       Assert.ArgumentNotNull(databaseName, nameof(databaseName));
       Assert.ArgumentNotNull(betterMerging, nameof(betterMerging));
 
@@ -64,10 +59,9 @@
       this.DatabaseName = databaseName;
     }
 
-    public JsonDataProvider([NotNull] string connectionString, [NotNull] string databaseName)
-      : this(connectionString, databaseName, "true")
+    public JsonDataProvider([NotNull] string databaseName)
+      : this( databaseName, "true")
     {
-      Assert.ArgumentNotNull(connectionString, nameof(connectionString));
       Assert.ArgumentNotNull(databaseName, nameof(databaseName));
     }
 
@@ -143,22 +137,7 @@
       var itemId = itemDefinition.ID;
       Assert.IsNotNull(itemId, "itemId");
 
-      var childIDs = this.GetChildIDsInternal(itemId);
-
-      // check if SQL has items too
-      var sqlChildIDs = base.GetChildIDs(itemDefinition, context);
-      if (sqlChildIDs == null)
-      {
-        return childIDs;
-      }
-
-      // merge fileMappings' items with ones from SQL
-      foreach (var id in sqlChildIDs.Cast<ID>())
-      {
-        childIDs.Add(id);
-      }
-
-      return childIDs;
+      return this.GetChildIDsInternal(itemId);
     }
 
     [CanBeNull]
@@ -167,7 +146,7 @@
       Assert.ArgumentNotNull(itemID, nameof(itemID));
       Assert.ArgumentNotNull(context, nameof(context));
 
-      return this.GetItemDefinitionInternal(itemID) ?? base.GetItemDefinition(itemID, context);
+      return Abort(context, this.GetItemDefinitionInternal(itemID));
     }
 
     [CanBeNull]
@@ -176,7 +155,7 @@
       Assert.ArgumentNotNull(itemDefinition, nameof(itemDefinition));
       Assert.ArgumentNotNull(context, nameof(context));
 
-      return this.GetParentIDInternal(itemDefinition) ?? base.GetParentID(itemDefinition, context);
+      return Abort(context, this.GetParentIDInternal(itemDefinition));
     }
 
     [CanBeNull]
@@ -185,7 +164,7 @@
       Assert.ArgumentNotNull(itemDefinition, nameof(itemDefinition));
       Assert.ArgumentNotNull(context, nameof(context));
 
-      return this.GetItemVersionsInternal(itemDefinition) ?? base.GetItemVersions(itemDefinition, context);
+      return Abort(context, this.GetItemVersionsInternal(itemDefinition));
     }
 
     [NotNull]
@@ -195,27 +174,15 @@
       Assert.ArgumentNotNull(versionUri, nameof(versionUri));
       Assert.ArgumentNotNull(context, nameof(context));
 
-      return this.GetItemFieldsInternal(itemDefinition, versionUri) ?? base.GetItemFields(itemDefinition, versionUri, context);
+      return Abort(context, this.GetItemFieldsInternal(itemDefinition, versionUri));
     }
 
     [NotNull]
     public override IdCollection GetTemplateItemIds([NotNull] CallContext context)
     {
       Assert.ArgumentNotNull(context, nameof(context));
-
-      var templateItemIDs = this.TemplateItemIDsInternal();
-
-      // merge json template IDs with sql template IDs
-      var sqlTemplateItemIDs = base.GetTemplateItemIds(context);
-      if (sqlTemplateItemIDs != null)
-      {
-        foreach (var templateID in sqlTemplateItemIDs)
-        {
-          templateItemIDs.Add(templateID);
-        }
-      }
-
-      return templateItemIDs;
+      
+      return this.TemplateItemIDsInternal();
     }
 
     [NotNull]
@@ -223,38 +190,7 @@
     {
       Assert.ArgumentNotNull(context, nameof(context));
 
-      var languages = this.GetLanguagesInternal();
-
-      var sqlLanguages = base.GetLanguages(context);
-      if (sqlLanguages != null)
-      {
-        foreach (var language in sqlLanguages)
-        {
-          if (!languages.Contains(language))
-          {
-            languages.Add(language);
-          }
-        }
-      }
-
-      return languages;
-    }
-
-    public override Stream GetBlobStream(Guid blobId, CallContext context)
-    {
-      return this.GetBlobStreamInternal(blobId) ?? base.GetBlobStream(blobId, context);
-    }
-
-    public override bool SetBlobStream(Stream stream, Guid blobId, CallContext context)
-    {
-      return this.SetBlobStreamInternal(stream, blobId);
-    }
-
-    protected override void CleanupBlobs(CallContext context)
-    {
-      this.CleanupBlobsInternal(context);
-
-      base.CleanupBlobs(context);
+      return this.GetLanguagesInternal();
     }
 
     public override bool CreateItem([NotNull] ID itemID, [NotNull] string itemName, [NotNull] ID templateID, [NotNull] ItemDefinition parent, [NotNull] CallContext context)
@@ -265,7 +201,7 @@
       Assert.ArgumentNotNull(parent, nameof(parent));
       Assert.ArgumentNotNull(context, nameof(context));
 
-      return this.CreateItemInternal(itemID, itemName, templateID, parent) || base.CreateItem(itemID, itemName, templateID, parent, context);
+      return Abort(context, this.CreateItemInternal(itemID, itemName, templateID, parent));
     }
 
     public override bool CopyItem([NotNull] ItemDefinition source, [NotNull] ItemDefinition destination, [NotNull] string copyName, [NotNull] ID copyID, [NotNull] CallContext context)
@@ -276,7 +212,7 @@
       Assert.ArgumentNotNull(copyID, nameof(copyID));
       Assert.ArgumentNotNull(context, nameof(context));
 
-      return this.CopyItemInternal(source, destination, copyName, copyID) || base.CopyItem(source, destination, copyName, copyID, context);
+      return Abort(context, this.CopyItemInternal(source, destination, copyName, copyID));
     }
 
     public override int AddVersion([NotNull] ItemDefinition itemDefinition, [NotNull] VersionUri baseVersion, [NotNull] CallContext context)
@@ -285,13 +221,7 @@
       Assert.ArgumentNotNull(baseVersion, nameof(baseVersion));
       Assert.ArgumentNotNull(context, nameof(context));
 
-      var version = this.AddVersionInternal(itemDefinition, baseVersion);
-      if (version != -1)
-      {
-        return version;
-      }
-
-      return base.AddVersion(itemDefinition, baseVersion, context);
+      return Abort(context, this.AddVersionInternal(itemDefinition, baseVersion));
     }
 
     public override bool SaveItem([NotNull] ItemDefinition itemDefinition, [NotNull] ItemChanges changes, [NotNull] CallContext context)
@@ -300,7 +230,7 @@
       Assert.ArgumentNotNull(changes, nameof(changes));
       Assert.ArgumentNotNull(context, nameof(context));
 
-      return this.SaveItemInternal(itemDefinition, changes) || base.SaveItem(itemDefinition, changes, context);
+      return Abort(context, this.SaveItemInternal(itemDefinition, changes));
     }
 
     public override bool ChangeFieldSharing([NotNull] TemplateField fieldDefinition, TemplateFieldSharing sharing, [NotNull] CallContext context)
@@ -322,7 +252,7 @@
       Assert.ArgumentNotNull(destination, nameof(destination));
       Assert.ArgumentNotNull(context, nameof(context));
 
-      return this.MoveItemInternal(itemDefinition, destination) || base.MoveItem(itemDefinition, destination, context);
+      return Abort(context, this.MoveItemInternal(itemDefinition, destination));
     }
 
     public override bool RemoveVersion([NotNull] ItemDefinition itemDefinition, [NotNull] VersionUri versionUri, [NotNull] CallContext context)
@@ -331,7 +261,7 @@
       Assert.ArgumentNotNull(versionUri, nameof(versionUri));
       Assert.ArgumentNotNull(context, nameof(context));
 
-      return this.RemoveVersionInternal(itemDefinition, versionUri) || base.RemoveVersion(itemDefinition, versionUri, context);
+      return Abort(context, this.RemoveVersionInternal(itemDefinition, versionUri));
     }
 
     public override bool RemoveVersions([NotNull] ItemDefinition itemDefinition, [NotNull] Language language, bool removeSharedData, [NotNull] CallContext context)
@@ -340,7 +270,7 @@
       Assert.ArgumentNotNull(language, nameof(language));
       Assert.ArgumentNotNull(context, nameof(context));
 
-      return this.RemoveVersionsInternal(itemDefinition, language, removeSharedData) || base.RemoveVersions(itemDefinition, language, removeSharedData, context);
+      return Abort(context, this.RemoveVersionsInternal(itemDefinition, language, removeSharedData));
     }
 
     public override bool DeleteItem([NotNull] ItemDefinition itemDefinition, [NotNull] CallContext context)
@@ -348,7 +278,7 @@
       Assert.ArgumentNotNull(itemDefinition, nameof(itemDefinition));
       Assert.ArgumentNotNull(context, nameof(context));
 
-      return this.DeleteItemInternal(itemDefinition) || base.DeleteItem(itemDefinition, context);
+      return Abort(context, this.DeleteItemInternal(itemDefinition));
     }
 
     public static void InitializeDefaultValues([NotNull] JsonFields fields)
@@ -391,15 +321,6 @@
           throw new NotImplementedException();
         }
       }
-    }
-
-    public static string GetBlobFilePath(Guid blobId)
-    {
-      var blob = blobId.ToString();
-      var blobFolder = BlobFolder;
-      var virtualPath = Path.Combine(blobFolder, blob.Substring(0, 1), blob.Substring(1, 1), blob.Substring(2, 1), blob + ".bin");
-      var physicalPath = MainUtil.MapPath(virtualPath);
-      return physicalPath;
     }
 
     private IDList GetChildIDsInternal(ID itemId)
@@ -537,60 +458,6 @@
       return languages;
     }
 
-    private Stream GetBlobStreamInternal(Guid blobId)
-    {
-      var filePath = GetBlobFilePath(blobId);
-      if (File.Exists(filePath))
-      {
-        return File.OpenRead(filePath);
-      }
-
-      return null;
-    }
-
-    private void CleanupBlobsInternal(CallContext context)
-    {
-      var blobFieldIDs = TemplateManager
-        .GetTemplates(context.DataManager.Database).Values
-        .SelectMany(t => t.GetFields()
-          .Where(x => x.IsBlob)
-          .Select(x => x.ID))
-        .ToArray();
-
-      var guidLength = Guid.Empty.ToString().Length;
-      var blobFolder = MainUtil.MapPath(BlobFolder);
-      var blobs = Directory.GetFiles(blobFolder, "*-*-*-*-*.bin", SearchOption.AllDirectories);
-      var blobsInUse = new List<ID>();
-      foreach (var mapping in this.FileMappings)
-      {
-        ID tmp;
-        var mappingBlobs = blobFieldIDs
-          .SelectMany(x => mapping.GetFieldValues(x)
-            .Select(z => ID.TryParse(z, out tmp) ? tmp : ID.Null)
-            .Where(z => z != ID.Null));
-
-        blobsInUse.AddRange(mappingBlobs);
-      }
-
-      foreach (var blob in blobs)
-      {
-        var blobID = new ID(Guid.Parse(blob.Substring(Path.GetDirectoryName(blob).Length + 1, guidLength)));
-        if (blobsInUse.Contains(blobID))
-        {
-          continue;
-        }
-
-        try
-        {
-          File.Delete(blob);
-        }
-        catch (Exception ex)
-        {
-          Log.Error($"Failed to delete file during blob cleanup operation: {blob}", ex, this);
-        }
-      }
-    }
-
     private bool CreateItemInternal(ID itemID, string itemName, ID templateID, ItemDefinition parent)
     {
       var parentId = parent.ID;
@@ -647,23 +514,6 @@
       }
 
       return -1;
-    }
-
-    private bool SetBlobStreamInternal(Stream stream, Guid blobId)
-    {
-      var filePath = GetBlobFilePath(blobId);
-      var folderPath = Path.GetDirectoryName(filePath);
-      if (!Directory.Exists(folderPath))
-      {
-        Directory.CreateDirectory(folderPath);
-      }
-
-      using (var outputStream = File.OpenWrite(filePath))
-      {
-        stream.CopyTo(outputStream);
-      }
-
-      return true;
     }
 
     private bool SaveItemInternal(ItemDefinition itemDefinition, ItemChanges changes)
@@ -758,6 +608,39 @@
       }
 
       return false;
+    }
+
+    private static T Abort<T>(CallContext context, T obj) where T: class
+    {
+      if (obj == null)
+      {
+        return null;
+      }
+
+      context.Abort();
+      return obj;
+    }
+
+    private static int Abort(CallContext context, int obj) 
+    {
+      if (obj == -1)
+      {
+        return -1;
+      }
+
+      context.Abort();
+      return obj;
+    }
+
+    private static bool Abort(CallContext context, bool result)
+    {
+      if (!result)
+      {
+        return false;
+      }
+
+      context.Abort();
+      return true;
     }
   }
 }
