@@ -23,6 +23,8 @@ namespace Sitecore.Data.Mappings
     [CanBeNull]
     string MediaFolderPath { get; }
 
+    int ItemsCount { get; }
+
     [CanBeNull]
     IEnumerable<ID> GetChildIDs([NotNull] ID itemId);
 

@@ -11,7 +11,7 @@
 
     private void Reload([CanBeNull] object sender, [CanBeNull] EventArgs e)
     {
-      foreach (var mapping in JsonDataProvider.Instances.SelectMany(x => x.FileMappings))
+      foreach (var mapping in JsonDataProvider.Instances.Values.SelectMany(x => x.FileMappings))
       {
         mapping.Initialize();
       }
@@ -19,7 +19,7 @@
 
     private void Commit([CanBeNull] object sender, [CanBeNull] EventArgs e)
     {
-      foreach (var mapping in JsonDataProvider.Instances.SelectMany(x => x.FileMappings))
+      foreach (var mapping in JsonDataProvider.Instances.Values.SelectMany(x => x.FileMappings))
       {
         mapping.Commit();
       }
@@ -32,7 +32,24 @@
     <div>
       <h1>Sitecore.JsonDataProvider</h1>
       
-      <span>JsonDataProvider.Instances: <%= JsonDataProvider.Instances.Count %></span>
+      <% foreach (var pair in JsonDataProvider.Instances)
+         {
+           %><div><h3><%= pair.Key %></h3>
+             <table cellspacing="4px" cellpadding="8px" style="background: lightgrey">
+               <thead>
+               <tr style="font-weight: bold;">
+                 <td>Type</td><td>Items</td><td>ReadOnly</td><td>FilePath</td><td>MediaFolder</td>
+               </tr>
+               </thead>
+               <tbody>
+        <% foreach (var mapping in pair.Value.FileMappings)
+           {
+             %><tr><td><%= mapping.GetType().Name %></td><td><%= mapping.ItemsCount %></td><td><%= mapping.ReadOnly ? "ReadOnly" : "ReadWrite" %></td><td><%= mapping.FilePath %></td><td><%= mapping.MediaFolderPath %></td></tr>
+        <% } %>
+      </tbody></table></div>
+      <% } %>
+      <br />
+      <h3>Control Panel</h3>
       <asp:Button runat="server" OnClick="Reload" Text="Reload"/>
       <asp:Button runat="server" OnClick="Commit" Text="Commit" />
     </div>

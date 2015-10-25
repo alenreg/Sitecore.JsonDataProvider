@@ -39,6 +39,8 @@
 
     public bool ReadOnly { get; }
 
+    public int ItemsCount => ItemsCache.Count;
+
     protected AbstractMapping([NotNull] XmlElement mappingElement, [NotNull] string databaseName)
     {
       Assert.ArgumentNotNull(mappingElement, nameof(mappingElement));
@@ -52,7 +54,7 @@
 
       var readOnly = mappingElement.GetAttribute("readOnly") == "true";
       var media = mappingElement.GetAttribute("media");
-      
+
       this.FileMappingPath = filePath;
       this.ReadOnly = readOnly;
       this.DatabaseName = databaseName;
@@ -74,6 +76,8 @@
       {
         lock (this.SyncRoot)
         {
+          this.ItemsCache.Clear();
+          this.ItemChildren.Clear();
           this.ItemChildren.AddRange(this.Initialize(json));
         }
 
