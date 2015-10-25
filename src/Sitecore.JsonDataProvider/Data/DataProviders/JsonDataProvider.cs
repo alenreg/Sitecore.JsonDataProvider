@@ -233,7 +233,7 @@
       Assert.ArgumentNotNull(copyID, nameof(copyID));
       Assert.ArgumentNotNull(context, nameof(context));
 
-      return Abort(context, this.CopyItemInternal(source, destination, copyName, copyID));
+      return Abort(context, this.CopyItemInternal(source, destination, copyName, copyID, context));
     }
 
     public override int AddVersion([NotNull] ItemDefinition itemDefinition, [NotNull] VersionUri baseVersion, [NotNull] CallContext context)
@@ -497,7 +497,7 @@
       return false;
     }
 
-    private bool CopyItemInternal(ItemDefinition source, ItemDefinition destination, string copyName, ID copyID)
+    private bool CopyItemInternal(ItemDefinition source, ItemDefinition destination, string copyName, ID copyID, CallContext context)
     {
       var sourceItemID = source.ID;
       Assert.IsNotNull(sourceItemID, "sourceItemID");
@@ -509,7 +509,7 @@
       {
         Assert.IsNotNull(file, "file");
 
-        if (file.CopyItem(sourceItemID, destinationItemID, copyID, copyName))
+        if (file.CopyItem(sourceItemID, destinationItemID, copyID, copyName, context))
         {
           return true;
         }

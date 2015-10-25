@@ -3,6 +3,7 @@ namespace Sitecore.Data.Mappings
   using System.Collections.Generic;
 
   using Sitecore.Collections;
+  using Sitecore.Data.DataProviders;
   using Sitecore.Data.Items;
   using Sitecore.Data.Templates;
   using Sitecore.Globalization;
@@ -47,7 +48,7 @@ namespace Sitecore.Data.Mappings
 
     bool CreateItem([NotNull] ID itemID, [NotNull] string itemName, [NotNull] ID templateID, [NotNull] ID parentID);
 
-    bool CopyItem([NotNull] ID sourceItemID, [NotNull] ID destinationItemID, [NotNull] ID copyID, [NotNull] string copyName);
+    bool CopyItem([NotNull] ID sourceItemID, [NotNull] ID destinationItemID, [NotNull] ID copyID, [NotNull] string copyName, CallContext context);
 
     int AddVersion([NotNull] ID itemID, [NotNull] VersionUri versionUri);
 

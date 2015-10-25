@@ -10,6 +10,7 @@
   using Sitecore.Configuration;
   using Sitecore.Data.Collections;
   using Sitecore.Data.DataProviders;
+  using Sitecore.Data.Fields;
   using Sitecore.Data.Helpers;
   using Sitecore.Data.Items;
   using Sitecore.Data.Managers;
@@ -200,7 +201,7 @@
 
     public abstract bool CreateItem(ID itemID, string itemName, ID templateID, ID parentID);
 
-    public abstract bool CopyItem(ID sourceItemID, ID destinationItemID, ID copyID, string copyName);
+    public abstract bool CopyItem(ID sourceItemID, ID destinationItemID, ID copyID, string copyName, CallContext context);
 
     public int AddVersion(ID itemID, VersionUri versionUri)
     {
@@ -564,68 +565,86 @@
 
     protected abstract bool IgnoreItem([NotNull] JsonItem item);
 
-    protected bool DoCopyItem([NotNull] ID destinationItemID, [NotNull] ID copyID, [NotNull] string copyName, [NotNull] JsonItem sourceItem)
+    protected JsonItem DoCopy(ID sourceItemID, ID destinationItemID, ID copyID, string copyName, CallContext context)
     {
-      Assert.ArgumentNotNull(destinationItemID, nameof(destinationItemID));
-      Assert.ArgumentNotNull(copyID, nameof(copyID));
-      Assert.ArgumentNotNull(copyName, nameof(copyName));
-      Assert.ArgumentNotNull(sourceItem, nameof(sourceItem));
-
-      if (!this.CreateItem(copyID, copyName, sourceItem.TemplateID, destinationItemID))
+      var source = context.DataManager.Database.GetItem(sourceItemID);
+      var item = new JsonItem(copyID, destinationItemID)
       {
-        return false;
+        Name = copyName,
+        TemplateID = source.TemplateID
+      };
+
+      var sharedIds = source.Template.Fields.Where(x => x.IsShared).Select(x => x.ID).ToArray();
+      foreach (var fieldId in sharedIds)
+      {
+        if (JsonDataProvider.IgnoreFields.Keys.Contains(fieldId))
+        {
+          continue;
+        }
+
+        var field = source.Fields[fieldId];
+        var value = field.GetValue(false, false, false, false);
+        if (value == null)
+        {
+          continue;
+        }
+
+        item.Fields.Shared[fieldId] = value;
       }
 
-      var copyItem = this.GetItem(copyID);
-      var copyFields = copyItem.Fields;
-      var copyShared = copyFields.Shared;
-      var copyUnversioned = copyFields.Unversioned;
-      var copyVersioned = copyFields.Versioned;
-      var sourceFields = sourceItem.Fields;
-
-      lock (this.SyncRoot)
+      var unversionedIds = source.Template.Fields.Where(x => x.IsUnversioned).Select(x => x.ID).ToArray();
+      foreach (var language in source.Languages)
       {
-        // copy shared fields
-        copyShared.Clear();
-        foreach (var sourceField in sourceFields.Shared)
+        var version = source.Versions.GetLatestVersion(language);
+        var json = item.Fields.Unversioned[language];
+        foreach (var fieldId in unversionedIds)
         {
-          copyShared.Add(sourceField.Key, sourceField.Value);
-        }
-
-        // copy unversioned fields
-        foreach (var languageGroup in sourceFields.Unversioned)
-        {
-          var language = languageGroup.Key;
-          var fields = copyUnversioned[language];
-          foreach (var sourceField in languageGroup.Value)
+          if (JsonDataProvider.IgnoreFields.Keys.Contains(fieldId))
           {
-            fields.Add(sourceField.Key, sourceField.Value);
+            continue;
           }
-        }
 
-        // copy versioned
-        foreach (var languageGroup in sourceFields.Versioned)
-        {
-          var language = languageGroup.Key;
-          var versions = copyVersioned[language];
-          foreach (var versionGroup in languageGroup.Value)
+          var field = version.Fields[fieldId];
+          var value = field.GetValue(false, false, false, false);
+          if (value == null)
           {
-            var number = versionGroup.Key;
-            var fields = new JsonFieldsCollection();
-            foreach (var sourceField in versionGroup.Value)
+            continue;
+          }
+
+          json[fieldId] = value;
+        }
+      }
+
+      var versionedIds = source.Template.Fields.Where(x => !x.IsShared && !x.IsUnversioned).Select(x => x.ID).ToArray();
+      foreach (var language in source.Languages)
+      {
+        var sourceVersion = source.Versions.GetLatestVersion(language);
+        var jsonVersions = item.Fields.Versioned[language];
+        foreach (var version in sourceVersion.Versions.GetVersions())
+        {
+          var json = new JsonFieldsCollection();
+          foreach (var fieldId in versionedIds)
+          {
+            if (JsonDataProvider.IgnoreFields.Keys.Contains(fieldId))
             {
-              fields.Add(sourceField.Key, sourceField.Value);
+              continue;
+            }
+            
+            var field = version.Fields[fieldId];
+            var value = field.GetValue(false, false, false, false);
+            if (value == null)
+            {
+              continue;
             }
 
-            fields[FieldIDs.Created] = DateUtil.IsoNowWithTicks;
-            versions.Add(number, fields);
+            json[fieldId] = value;
           }
-        }
 
-        this.Commit();
+          jsonVersions.Add(version.Version.Number, json);
+        }
       }
 
-      return true;
+      return item;
     }
 
     protected abstract void DoDeleteItem([NotNull] JsonItem item);

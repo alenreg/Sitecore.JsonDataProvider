@@ -5,6 +5,7 @@
   using System.Xml;
 
   using Sitecore.Data;
+  using Sitecore.Data.DataProviders;
   using Sitecore.Data.Helpers;
   using Sitecore.Data.Items;
   using Sitecore.Diagnostics;
@@ -123,7 +124,7 @@
       return true;
     }
 
-    public override bool CopyItem(ID sourceItemID, ID destinationItemID, ID copyID, string copyName)
+    public override bool CopyItem(ID sourceItemID, ID destinationItemID, ID copyID, string copyName, CallContext context)
     {
       Assert.ArgumentNotNull(sourceItemID, nameof(sourceItemID));
       Assert.ArgumentNotNull(destinationItemID, nameof(destinationItemID));
@@ -134,13 +135,8 @@
       {
         return false;
       }
-
-      var sourceItem = this.GetItem(sourceItemID);
-      if (sourceItem == null)
-      {
-        return false;
-      }
-
+      
+      var children = this.ItemChildren;
       if (destinationItemID != this.ItemID)
       {
         var destinationItem = this.GetItem(destinationItemID);
@@ -148,9 +144,22 @@
         {
           return false;
         }
+
+        children = destinationItem.Children;
       }
 
-      return this.DoCopyItem(destinationItemID, copyID, copyName, sourceItem);
+      var item = DoCopy(sourceItemID, destinationItemID, copyID, copyName, context);
+
+      lock (this.SyncRoot)
+      {
+        this.ItemsCache.Add(item);
+
+        children.Add(item);
+
+        this.Commit();
+      }
+
+      return true;
     }
 
     public override bool MoveItem(ID itemID, ID targetID)
