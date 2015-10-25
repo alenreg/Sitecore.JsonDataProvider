@@ -1,19 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace Sitecore.Pipelines.GetContentEditorWarnings
+﻿namespace Sitecore.Pipelines.GetContentEditorWarnings
 {
-  using Sitecore.Data;
-  using Sitecore.Data.Clones;
+  using System.Linq;
   using Sitecore.Data.DataProviders;
-  using Sitecore.Data.Items;
-  using Sitecore.Data.Mappings;
   using Sitecore.Diagnostics;
 
   public class JsonItemInfo
   {
+    [UsedImplicitly]
     public void Process(GetContentEditorWarningsArgs args)
     {
       Assert.ArgumentNotNull(args, nameof(args));
