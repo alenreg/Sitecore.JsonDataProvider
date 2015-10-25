@@ -4,6 +4,7 @@
   using System.Collections.Generic;
   using System.IO;
   using System.Linq;
+  using System.Web.Hosting;
   using System.Xml;
 
   using Sitecore.Collections;
@@ -32,6 +33,8 @@
     [NotNull]
     protected readonly object SyncRoot = new object();
 
+    public string MediaFolderPath { get; }
+
     public string DatabaseName { get; }
 
     public bool ReadOnly { get; }
@@ -48,10 +51,12 @@
       Assert.IsNotNullOrEmpty(filePath, nameof(filePath));
 
       var readOnly = mappingElement.GetAttribute("readOnly") == "true";
+      var media = mappingElement.GetAttribute("media");
       
       this.FileMappingPath = filePath;
       this.ReadOnly = readOnly;
       this.DatabaseName = databaseName;
+      this.MediaFolderPath = !string.IsNullOrEmpty(media) ? HostingEnvironment.MapPath(media) : null;
     }
 
     public void Initialize()

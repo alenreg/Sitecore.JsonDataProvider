@@ -21,6 +21,9 @@ namespace Sitecore.Data.Mappings
     bool ReadOnly { get; }
 
     [CanBeNull]
+    string MediaFolderPath { get; }
+
+    [CanBeNull]
     IEnumerable<ID> GetChildIDs([NotNull] ID itemId);
 
     [NotNull]
