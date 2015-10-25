@@ -78,7 +78,6 @@
     <Compile Include="Data\Collections\JsonUnversionedFieldsCollection.cs" />
     <Compile Include="Data\Collections\JsonVersionCollection.cs" />
     <Compile Include="Data\Helpers\Null.cs" />
-    <Compile Include="Data\Mappings\ItemChildrenMapping.cs" />
     <Compile Include="Hooks\ReplaceMediaCreator.cs" />
     <Compile Include="Pipelines\GetContentEditorWarnings\FixExclusive.cs" />
     <Compile Include="Pipelines\GetContentEditorWarnings\JsonItemInfo.cs" />
