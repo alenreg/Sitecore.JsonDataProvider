@@ -51,6 +51,10 @@
       return item?.Children.Select(x => x.ID);
     }
 
+    public override bool AcceptsNewChildrenOf(ID itemID)
+    {
+      return !this.ReadOnly;
+    }
 
     protected override bool IgnoreItem(JsonItem item)
     {
@@ -66,10 +70,15 @@
 
       var parent = this.ItemsCache.FirstOrDefault(x => x.ID == parentID);
 
+      if (this.ReadOnly)
+      {
+        return false;
+      }
+
       // no need to check: parent.ParentID == ID.Null
       if (parent == null)
       {
-        // return false;
+        
         parent = this.AddRootItem(parentID);
       }
 
@@ -98,6 +107,11 @@
       Assert.ArgumentNotNull(copyID, nameof(copyID));
       Assert.ArgumentNotNull(copyName, nameof(copyName));
 
+      if (this.ReadOnly)
+      {
+        return false;
+      }
+
       var sourceItem = this.GetItem(sourceItemID);
       if (sourceItem == null || this.IgnoreItem(sourceItem))
       {
@@ -119,6 +133,11 @@
     {
       Assert.ArgumentNotNull(itemID, nameof(itemID));
       Assert.ArgumentNotNull(targetID, nameof(targetID));
+      
+      if (this.ReadOnly)
+      {
+        return false;
+      }
 
       var item = this.GetItem(itemID);
       if (item == null || this.IgnoreItem(item))

@@ -31,7 +31,9 @@
     [NotNull]
     protected readonly object SyncRoot = new object();
 
-    protected readonly string DatabaseName;
+    public string DatabaseName { get; }
+
+    public bool ReadOnly { get; }
 
     protected AbstractMapping([NotNull] XmlElement mappingElement, [NotNull] string databaseName)
     {
@@ -44,7 +46,10 @@
       var filePath = MainUtil.MapPath(fileName);
       Assert.IsNotNullOrEmpty(filePath, nameof(filePath));
 
+      var readOnly = mappingElement.GetAttribute("readOnly") == "true";
+      
       this.FileMappingPath = filePath;
+      this.ReadOnly = readOnly;
       this.DatabaseName = databaseName;
     }
 
@@ -201,11 +206,16 @@
     {
       Assert.ArgumentNotNull(itemID, nameof(itemID));
       Assert.ArgumentNotNull(versionUri, nameof(versionUri));
-
+      
       var item = this.GetItem(itemID);
       if (item == null || this.IgnoreItem(item))
       {
         return -1;
+      }
+
+      if (this.ReadOnly)
+      {
+        throw new InvalidOperationException($"The file mapping the {itemID} item belongs to is in read-only mode");
       }
 
       var newNumber = -1;
@@ -270,11 +280,16 @@
     {
       Assert.ArgumentNotNull(itemID, nameof(itemID));
       Assert.ArgumentNotNull(changes, nameof(changes));
-
+      
       var item = this.GetItem(itemID);
       if (item == null)
       {
         return false;
+      }
+
+      if (this.ReadOnly)
+      {
+        throw new InvalidOperationException($"The file mapping the {itemID} item belongs to is in read-only mode");
       }
 
       lock (this.SyncRoot)
@@ -375,6 +390,11 @@
     public void ChangeFieldSharing(ID fieldID, TemplateFieldSharing sharing)
     {
       Assert.ArgumentNotNull(fieldID, nameof(fieldID));
+      
+      if (this.ReadOnly)
+      {
+        return;
+      }
 
       lock (this.SyncRoot)
       {
@@ -417,6 +437,11 @@
       {
         return false;
       }
+      
+      if (this.ReadOnly)
+      {
+        throw new InvalidOperationException($"The file mapping the {itemID} item belongs to is in read-only mode");
+      }
 
       var language = versionUri.Language;
       Assert.IsNotNull(language, "language");
@@ -455,6 +480,11 @@
       {
         return false;
       }
+      
+      if (this.ReadOnly)
+      {
+        throw new InvalidOperationException($"The file mapping the {itemID} item belongs to is in read-only mode");
+      }
 
       lock (this.SyncRoot)
       {
@@ -487,6 +517,11 @@
       if (item == null)
       {
         return false;
+      }
+      
+      if (this.ReadOnly)
+      {
+        throw new InvalidOperationException($"The file mapping the {itemID} item belongs to is in read-only mode");
       }
 
       lock (this.SyncRoot)
@@ -521,6 +556,8 @@
 
       this.GeneratePackageDesignerProject();
     }
+
+    public abstract bool AcceptsNewChildrenOf(ID itemID);
 
     [NotNull]
     protected abstract IEnumerable<JsonItem> Initialize([NotNull] string json);

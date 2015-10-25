@@ -14,6 +14,11 @@ namespace Sitecore.Data.Mappings
     [NotNull]
     string FilePath { get; }
 
+    [NotNull]
+    string DatabaseName { get; }
+
+    bool ReadOnly { get; }
+
     [CanBeNull]
     IEnumerable<ID> GetChildIDs([NotNull] ID itemId);
 
@@ -59,5 +64,7 @@ namespace Sitecore.Data.Mappings
     bool DeleteItem([NotNull] ID itemID);
 
     void Commit();
+
+    bool AcceptsNewChildrenOf(ID itemID);
   }
 }

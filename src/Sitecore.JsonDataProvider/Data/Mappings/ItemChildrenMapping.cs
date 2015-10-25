@@ -16,7 +16,7 @@
 
 
     [UsedImplicitly]
-    public ItemChildrenMapping([NotNull] XmlElement mappingElement, [NotNull] string databaseName) 
+    public ItemChildrenMapping([NotNull] XmlElement mappingElement, [NotNull] string databaseName)
       : base(mappingElement, databaseName)
     {
       Assert.ArgumentNotNull(mappingElement, nameof(mappingElement));
@@ -28,7 +28,7 @@
       ID itemID;
       ID.TryParse(itemString, out itemID);
       Assert.IsNotNull(itemID, $"the \"item\" attribute is not a valid GUID value: {mappingElement.OuterXml}");
-      
+
       this.ItemID = itemID;
     }
 
@@ -65,6 +65,11 @@
       return item?.Children.Select(x => x.ID);
     }
 
+    public override bool AcceptsNewChildrenOf(ID itemID)
+    {
+      return !ReadOnly && (itemID == this.ItemID || this.ItemsCache.Any(x => x.ID == itemID));
+    }
+
     protected override bool IgnoreItem(JsonItem item)
     {
       return false;
@@ -77,6 +82,11 @@
       Assert.ArgumentNotNull(itemName, nameof(itemName));
       Assert.ArgumentNotNull(templateID, nameof(templateID));
       Assert.ArgumentNotNull(parentID, nameof(parentID));
+
+      if (this.ReadOnly)
+      {
+        return false;
+      }
 
       JsonItem parent = null;
       if (this.ItemID != parentID)
@@ -120,6 +130,11 @@
       Assert.ArgumentNotNull(copyID, nameof(copyID));
       Assert.ArgumentNotNull(copyName, nameof(copyName));
 
+      if (this.ReadOnly)
+      {
+        return false;
+      }
+
       var sourceItem = this.GetItem(sourceItemID);
       if (sourceItem == null)
       {
@@ -142,6 +157,11 @@
     {
       Assert.ArgumentNotNull(itemID, nameof(itemID));
       Assert.ArgumentNotNull(targetID, nameof(targetID));
+
+      if (this.ReadOnly)
+      {
+        return false;
+      }
 
       var item = this.GetItem(itemID);
       if (item == null)

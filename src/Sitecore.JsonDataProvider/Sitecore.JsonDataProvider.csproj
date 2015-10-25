@@ -77,10 +77,14 @@
     <Compile Include="Data\Collections\JsonUnversionedFieldsCollection.cs" />
     <Compile Include="Data\Collections\JsonVersionCollection.cs" />
     <Compile Include="Data\Helpers\Null.cs" />
+    <Compile Include="Pipelines\GetContentEditorWarnings\FixExclusive.cs" />
     <Compile Include="Pipelines\GetContentEditorWarnings\JsonItemInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="..\packages\SC.Newtonsoft.Json.8.1.0.151003\lib\Newtonsoft.Json.dll">
+      <Link>Properties\EmbeddedResources\Newtonsoft.Json.dll</Link>
+    </EmbeddedResource>
     <Content Include="App_Config\Include\Sitecore.JsonDataProvider.config">
       <SubType>Designer</SubType>
     </Content>

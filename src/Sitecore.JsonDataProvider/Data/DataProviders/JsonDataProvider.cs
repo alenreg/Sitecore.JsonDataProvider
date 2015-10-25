@@ -4,6 +4,8 @@
   using System.Collections.Generic;
   using System.IO;
   using System.Linq;
+  using System.Reflection;
+  using System.Threading;
   using System.Xml;
 
   using Sitecore.Collections;
@@ -35,12 +37,31 @@
     public readonly string DatabaseName;
 
     [NotNull]
-    private static readonly Dictionary<string, JsonDataProvider> instances = new Dictionary<string, JsonDataProvider>(); 
+    private static readonly Dictionary<string, JsonDataProvider> instances = new Dictionary<string, JsonDataProvider>();
 
     [NotNull]
     public static IReadOnlyDictionary<string, JsonDataProvider> Instances => instances;
 
     public static bool BetterMerging { get; private set; }
+
+    static JsonDataProvider()
+    {
+      AppDomain.CurrentDomain.AssemblyResolve += (sender, args) =>
+        {
+          var currentAssembly = typeof(JsonDataProvider).Assembly;
+          var assemblyName = args.Name;
+          var resourceName = $"Sitecore.Properties.EmbeddedResources.{assemblyName.Substring(0, assemblyName.IndexOf(','))}.dll";
+          var stream = currentAssembly.GetManifestResourceStream(resourceName);
+          if (stream == null)
+          {
+            return null;
+          }
+
+          var bytes = new byte[stream.Length];
+          stream.Read(bytes, 0, bytes.Length);
+          return Assembly.Load(bytes);
+        };
+    }
 
     public JsonDataProvider([NotNull] string databaseName, [NotNull] string betterMerging)
     {
@@ -60,7 +81,7 @@
     }
 
     public JsonDataProvider([NotNull] string databaseName)
-      : this( databaseName, "true")
+      : this(databaseName, "true")
     {
       Assert.ArgumentNotNull(databaseName, nameof(databaseName));
     }
@@ -181,7 +202,7 @@
     public override IdCollection GetTemplateItemIds([NotNull] CallContext context)
     {
       Assert.ArgumentNotNull(context, nameof(context));
-      
+
       return this.TemplateItemIDsInternal();
     }
 
@@ -610,7 +631,7 @@
       return false;
     }
 
-    private static T Abort<T>(CallContext context, T obj) where T: class
+    private static T Abort<T>(CallContext context, T obj) where T : class
     {
       if (obj == null)
       {
@@ -621,7 +642,7 @@
       return obj;
     }
 
-    private static int Abort(CallContext context, int obj) 
+    private static int Abort(CallContext context, int obj)
     {
       if (obj == -1)
       {
