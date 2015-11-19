@@ -1,6 +1,7 @@
 ﻿<%@ Page Language="C#" %>
 <%@ Import Namespace="Sitecore" %>
 <%@ Import Namespace="Sitecore.Data.DataProviders" %>
+<%@ Import Namespace="Sitecore.Data.Mappings" %>
 
 <!DOCTYPE html>
 
@@ -11,7 +12,7 @@
 
     private void Reload([CanBeNull] object sender, [CanBeNull] EventArgs e)
     {
-      foreach (var mapping in JsonDataProvider.Instances.Values.SelectMany(x => x.FileMappings))
+      foreach (var mapping in JsonDataProvider.Instances.Values.SelectMany(x => x.Mappings))
       {
         mapping.Initialize();
       }
@@ -19,7 +20,7 @@
 
     private void Commit([CanBeNull] object sender, [CanBeNull] EventArgs e)
     {
-      foreach (var mapping in JsonDataProvider.Instances.Values.SelectMany(x => x.FileMappings))
+      foreach (var mapping in JsonDataProvider.Instances.Values.SelectMany(x => x.Mappings))
       {
         mapping.Commit();
       }
@@ -42,9 +43,9 @@
                </tr>
                </thead>
                <tbody>
-        <% foreach (var mapping in pair.Value.FileMappings)
+        <% foreach (var mapping in pair.Value.Mappings)
            {
-             %><tr><td><%= mapping.GetType().Name %></td><td><%= mapping.ItemsCount %></td><td><%= mapping.ReadOnly ? "ReadOnly" : "ReadWrite" %></td><td><%= mapping.FilePath %></td><td><%= mapping.MediaFolderPath %></td></tr>
+             %><tr><td><%= mapping.GetType().Name %></td><td><%= mapping.ItemsCount %></td><td><%= mapping.ReadOnly ? "ReadOnly" : "ReadWrite" %></td><td><%= mapping is IFileMapping ? ((IFileMapping)mapping).FilePath : "" %></td><td><%= mapping is IFileMapping ? ((IFileMapping)mapping).MediaFolderPath : "" %></td></tr>
         <% } %>
       </tbody></table></div>
       <% } %>

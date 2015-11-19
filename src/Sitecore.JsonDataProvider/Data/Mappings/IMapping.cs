@@ -13,17 +13,14 @@ namespace Sitecore.Data.Mappings
     void Initialize();
 
     [NotNull]
-    string FilePath { get; }
-
-    [NotNull]
     string DatabaseName { get; }
 
     bool ReadOnly { get; }
 
-    [CanBeNull]
-    string MediaFolderPath { get; }
-
     int ItemsCount { get; }
+
+    [NotNull]
+    string DisplayName { get; }
 
     [CanBeNull]
     IEnumerable<ID> GetChildIDs([NotNull] ID itemId);

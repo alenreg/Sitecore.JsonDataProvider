@@ -10,7 +10,7 @@
   using Sitecore.Data.Items;
   using Sitecore.Diagnostics;
 
-  public class ItemChildrenMapping : AbstractMapping
+  public class ItemChildrenMapping : AbstractFileMapping
   {
     [NotNull]
     public readonly ID ItemID;
@@ -189,7 +189,7 @@
         if (parentID == this.ItemID)
         {
           var target = this.GetItem(targetID);
-          Assert.IsNotNull(target, $"Moving item outside of ItemChildrenMapping ({this.ItemID}, {this.FileMappingPath}) is not supported");
+          Assert.IsNotNull(target, $"Moving item outside of ItemChildrenMapping ({this.ItemID}, {this.DisplayName}) is not supported");
 
           this.ItemChildren.Remove(item);
           target.Children.Add(item);
@@ -208,7 +208,7 @@
           Assert.IsNotNull(parent, $"Cannot find {parentID} item");
 
           var target = this.GetItem(targetID);
-          Assert.IsNotNull(targetID, $"Moving item outside of ItemChildrenMapping ({this.ItemID}, {this.FileMappingPath}) is not supported");
+          Assert.IsNotNull(targetID, $"Moving item outside of ItemChildrenMapping ({this.ItemID}, {this.DisplayName}) is not supported");
 
           parent.Children.Remove(item);
           target.Children.Add(item);

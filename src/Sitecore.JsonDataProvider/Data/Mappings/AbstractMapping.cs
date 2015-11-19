@@ -22,9 +22,6 @@
   public abstract class AbstractMapping : IMapping
   {
     [NotNull]
-    public readonly string FileMappingPath;
-
-    [NotNull]
     protected readonly List<JsonItem> ItemChildren = new List<JsonItem>();
 
     [NotNull]
@@ -33,63 +30,25 @@
     [NotNull]
     protected readonly object SyncRoot = new object();
 
-    public string MediaFolderPath { get; }
-
     public string DatabaseName { get; }
 
     public bool ReadOnly { get; }
 
     public int ItemsCount => ItemsCache.Count;
 
+    public abstract string DisplayName { get; }
+
     protected AbstractMapping([NotNull] XmlElement mappingElement, [NotNull] string databaseName)
     {
       Assert.ArgumentNotNull(mappingElement, nameof(mappingElement));
       Assert.ArgumentNotNull(databaseName, nameof(databaseName));
-
-      var fileName = mappingElement.GetAttribute("file");
-      Assert.IsNotNullOrEmpty(fileName, $"The \"file\" attribute is not specified or has empty string value: {mappingElement.OuterXml}");
-
-      var filePath = MainUtil.MapPath(fileName);
-      Assert.IsNotNullOrEmpty(filePath, nameof(filePath));
-
+      
       var readOnly = mappingElement.GetAttribute("readOnly") == "true";
-      var media = mappingElement.GetAttribute("media");
-
-      this.FileMappingPath = filePath;
       this.ReadOnly = readOnly;
       this.DatabaseName = databaseName;
-      this.MediaFolderPath = !string.IsNullOrEmpty(media) ? HostingEnvironment.MapPath(media) : null;
     }
 
-    public void Initialize()
-    {
-      var filePath = this.FileMappingPath;
-      if (!File.Exists(filePath))
-      {
-        return;
-      }
-
-      Log.Info($"Deserializing items from: {filePath}", this);
-      var json = File.ReadAllText(filePath);
-
-      try
-      {
-        lock (this.SyncRoot)
-        {
-          this.ItemsCache.Clear();
-          this.ItemChildren.Clear();
-          this.ItemChildren.AddRange(this.Initialize(json));
-        }
-
-        this.GeneratePackageDesignerProject();
-      }
-      catch (Exception ex)
-      {
-        throw new InvalidOperationException($"Cannot deserialize json file: {this.FileMappingPath}", ex);
-      }
-    }
-
-    public string FilePath => this.FileMappingPath;
+    public abstract void Initialize();
 
     public abstract IEnumerable<ID> GetChildIDs(ID itemId);
 
@@ -552,25 +511,9 @@
       return true;
     }
 
-    public void Commit()
-    {
-      var filePath = this.FileMappingPath;
-      var directory = Path.GetDirectoryName(filePath);
-      if (!Directory.Exists(directory))
-      {
-        Directory.CreateDirectory(directory);
-      }
-
-      var json = JsonHelper.Serialize(this.GetCommitObject(), true);
-      File.WriteAllText(filePath, json);
-
-      this.GeneratePackageDesignerProject();
-    }
+    public abstract void Commit();
 
     public abstract bool AcceptsNewChildrenOf(ID itemID);
-
-    [NotNull]
-    protected abstract IEnumerable<JsonItem> Initialize([NotNull] string json);
 
     protected abstract bool IgnoreItem([NotNull] JsonItem item);
 
@@ -685,9 +628,6 @@
 
       return this.ItemsCache.FirstOrDefault(x => x.ID == itemID);
     }
-
-    [NotNull]
-    protected abstract object GetCommitObject();
 
     private void ChangeFieldSharingToShared([NotNull] JsonItem item, [NotNull] ID fieldID)
     {
@@ -842,24 +782,6 @@
         Assert.IsNotNull(child, "child");
 
         this.DeleteItemTreeFromItemsCache(child);
-      }
-    }
-
-    private void GeneratePackageDesignerProject()
-    {
-      var name = Path.GetFileNameWithoutExtension(this.FileMappingPath);
-      var items = this.ItemsCache;
-
-      if (JsonDataProvider.Instances[this.DatabaseName].FileMappings.Count > 1)
-      {
-        PackageDesignerHeper.GenerateProject(this.DatabaseName, "auto-generated-for-mapping-" + name, items.Select(x => x.ID));
-      }
-
-      foreach (var pair in JsonDataProvider.Instances)
-      {
-        var databaseName = pair.Key;
-        var ids = pair.Value.FileMappings.SelectMany(z => z.GetAllItemsIDs()).Distinct();
-        PackageDesignerHeper.GenerateProject(databaseName, "auto-generated-for-database-" + databaseName, ids);
       }
     }
   }

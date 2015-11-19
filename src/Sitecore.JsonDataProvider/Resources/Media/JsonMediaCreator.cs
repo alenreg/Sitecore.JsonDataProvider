@@ -9,6 +9,7 @@
   using Sitecore;
   using Sitecore.Data;
   using Sitecore.Data.DataProviders;
+  using Sitecore.Data.Mappings;
   using Sitecore.Diagnostics;
   using Sitecore.IO;
   using Sitecore.SecurityModel;
@@ -45,7 +46,7 @@
           return base.GetFullFilePath(itemID, fileName, itemPath, options);
         }
 
-        foreach (var fileMapping in provider.FileMappings)
+        foreach (var fileMapping in provider.Mappings.OfType<IFileMapping>())
         {
           if (fileMapping.ReadOnly)
           {

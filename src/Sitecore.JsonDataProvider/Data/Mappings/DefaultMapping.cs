@@ -1,5 +1,6 @@
 ﻿namespace Sitecore.Data.Mappings
 {
+  using System;
   using System.Collections.Generic;
   using System.Linq;
   using System.Xml;
@@ -11,7 +12,7 @@
   using Sitecore.Data.Items;
   using Sitecore.Diagnostics;
 
-  public class DefaultMapping : AbstractMapping
+  public class DefaultMapping : AbstractFileMapping
   {
     [UsedImplicitly]
     public DefaultMapping([NotNull] XmlElement mappingElement, [NotNull] string databaseName)

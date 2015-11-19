@@ -31,7 +31,7 @@
     public static readonly IDictionary<ID, DefaultFieldValue> IgnoreFields = new Dictionary<ID, DefaultFieldValue>();
 
     [NotNull]
-    public readonly IList<IMapping> FileMappings = new List<IMapping>();
+    public readonly IList<IMapping> Mappings = new List<IMapping>();
 
     [NotNull]
     public readonly string DatabaseName;
@@ -87,7 +87,7 @@
     }
 
     [UsedImplicitly]
-    public void AddFileMappingType([NotNull] XmlNode mappingTypeNode)
+    public void AddMappingType([NotNull] XmlNode mappingTypeNode)
     {
       Assert.ArgumentNotNull(mappingTypeNode, nameof(mappingTypeNode));
 
@@ -129,7 +129,7 @@
     }
 
     [UsedImplicitly]
-    public void AddFileMapping([NotNull] XmlNode mappingNode)
+    public void AddMapping([NotNull] XmlNode mappingNode)
     {
       Assert.ArgumentNotNull(mappingNode, nameof(mappingNode));
 
@@ -139,13 +139,13 @@
 
       Type mappingType;
       MappingTypes.TryGetValue(mappingName, out mappingType);
-      Assert.IsNotNull(mappingType, "The {0} mapping type is not registered in <FileMappingTypes> element".FormatWith(mappingName));
+      Assert.IsNotNull(mappingType, "The {0} mapping type is not registered in <MappingTypes> element".FormatWith(mappingName));
 
       var mapping = (IMapping)Activator.CreateInstance(mappingType, mappingElement, this.DatabaseName);
       Assert.IsNotNull(mapping, "mapping");
 
       Log.Info("Mapping is estabileshed: " + mappingName, this);
-      this.FileMappings.Insert(0, mapping);
+      this.Mappings.Insert(0, mapping);
       mapping.Initialize();
     }
 
@@ -259,7 +259,7 @@
       Assert.ArgumentNotNull(fieldDefinition, nameof(fieldDefinition));
       Assert.ArgumentNotNull(context, nameof(context));
 
-      foreach (var mapping in this.FileMappings)
+      foreach (var mapping in this.Mappings)
       {
         mapping.ChangeFieldSharing(fieldDefinition.ID, sharing);
       }
@@ -348,12 +348,12 @@
     {
       var childIDs = new IDList();
 
-      // several fileMappings can point to same item so let's collect items from all of them
-      foreach (var file in this.FileMappings)
+      // several mappings can point to same item so let's collect items from all of them
+      foreach (var mapping in this.Mappings)
       {
-        Assert.IsNotNull(file, "file");
+        Assert.IsNotNull(mapping, nameof(mapping));
 
-        var fileChildIDs = file.GetChildIDs(itemId);
+        var fileChildIDs = mapping.GetChildIDs(itemId);
         if (fileChildIDs == null)
         {
           continue;
@@ -371,11 +371,11 @@
 
     private ItemDefinition GetItemDefinitionInternal(ID itemID)
     {
-      foreach (var file in this.FileMappings)
+      foreach (var mapping in this.Mappings)
       {
-        Assert.IsNotNull(file, "file");
+        Assert.IsNotNull(mapping, nameof(mapping));
 
-        var definition = file.GetItemDefinition(itemID);
+        var definition = mapping.GetItemDefinition(itemID);
         if (definition != null)
         {
           return definition;
@@ -390,11 +390,11 @@
       var itemID = itemDefinition.ID;
       Assert.IsNotNull(itemID, "itemID");
 
-      foreach (var file in this.FileMappings)
+      foreach (var mapping in this.Mappings)
       {
-        Assert.IsNotNull(file, "file");
+        Assert.IsNotNull(mapping, nameof(mapping));
 
-        var parentID = file.GetParentID(itemID);
+        var parentID = mapping.GetParentID(itemID);
         if (!Equals(parentID, null))
         {
           return parentID;
@@ -409,11 +409,11 @@
       var itemID = itemDefinition.ID;
       Assert.IsNotNull(itemID, "itemID");
 
-      foreach (var file in this.FileMappings)
+      foreach (var mapping in this.Mappings)
       {
-        Assert.IsNotNull(file, "file");
+        Assert.IsNotNull(mapping, nameof(mapping));
 
-        var itemVersions = file.GetItemVersiones(itemID);
+        var itemVersions = mapping.GetItemVersiones(itemID);
         if (itemVersions != null)
         {
           return itemVersions;
@@ -428,11 +428,11 @@
       var itemID = itemDefinition.ID;
       Assert.IsNotNull(itemID, "itemID");
 
-      foreach (var file in this.FileMappings)
+      foreach (var mapping in this.Mappings)
       {
-        Assert.IsNotNull(file, "file");
+        Assert.IsNotNull(mapping, nameof(mapping));
 
-        var fieldList = file.GetItemFields(itemID, versionUri);
+        var fieldList = mapping.GetItemFields(itemID, versionUri);
         if (fieldList != null)
         {
           return fieldList;
@@ -445,11 +445,11 @@
     private IdCollection TemplateItemIDsInternal()
     {
       var templateItemIDs = new IdCollection();
-      foreach (var file in this.FileMappings)
+      foreach (var mapping in this.Mappings)
       {
-        Assert.IsNotNull(file, "file");
+        Assert.IsNotNull(mapping, nameof(mapping));
 
-        var fileTemplateIDs = file.GetTemplateItemIDs();
+        var fileTemplateIDs = mapping.GetTemplateItemIDs();
         if (fileTemplateIDs != null)
         {
           foreach (var templateID in fileTemplateIDs)
@@ -464,7 +464,7 @@
     private LanguageCollection GetLanguagesInternal()
     {
       var languages = new LanguageCollection();
-      foreach (var mapping in this.FileMappings)
+      foreach (var mapping in this.Mappings)
       {
         var jsonLanguages = mapping.GetLanguages();
         foreach (var jsonLanguage in jsonLanguages)
@@ -484,11 +484,11 @@
       var parentId = parent.ID;
       Assert.IsNotNull(itemID, "itemID");
 
-      foreach (var file in this.FileMappings)
+      foreach (var mapping in this.Mappings)
       {
-        Assert.IsNotNull(file, "file");
+        Assert.IsNotNull(mapping, nameof(mapping));
 
-        if (file.CreateItem(itemID, itemName, templateID, parentId))
+        if (mapping.CreateItem(itemID, itemName, templateID, parentId))
         {
           return true;
         }
@@ -505,11 +505,11 @@
       var destinationItemID = destination.ID;
       Assert.IsNotNull(destinationItemID, "destinationItemID");
 
-      foreach (var file in this.FileMappings)
+      foreach (var mapping in this.Mappings)
       {
-        Assert.IsNotNull(file, "file");
+        Assert.IsNotNull(mapping, nameof(mapping));
 
-        if (file.CopyItem(sourceItemID, destinationItemID, copyID, copyName, context))
+        if (mapping.CopyItem(sourceItemID, destinationItemID, copyID, copyName, context))
         {
           return true;
         }
@@ -523,11 +523,11 @@
       var itemID = itemDefinition.ID;
       Assert.IsNotNull(itemID, "itemID");
 
-      foreach (var file in this.FileMappings)
+      foreach (var mapping in this.Mappings)
       {
-        Assert.IsNotNull(file, "file");
+        Assert.IsNotNull(mapping, nameof(mapping));
 
-        var versionNumber = file.AddVersion(itemID, baseVersion);
+        var versionNumber = mapping.AddVersion(itemID, baseVersion);
         if (versionNumber != -1)
         {
           return versionNumber;
@@ -547,11 +547,11 @@
       var itemID = itemDefinition.ID;
       Assert.IsNotNull(itemID, "itemID");
 
-      foreach (var file in this.FileMappings)
+      foreach (var mapping in this.Mappings)
       {
-        Assert.IsNotNull(file, "file");
+        Assert.IsNotNull(mapping, nameof(mapping));
 
-        if (file.SaveItem(itemID, changes))
+        if (mapping.SaveItem(itemID, changes))
         {
           return true;
         }
@@ -564,11 +564,11 @@
     {
       var itemID = itemDefinition.ID;
       var targetID = destination.ID;
-      foreach (var file in this.FileMappings)
+      foreach (var mapping in this.Mappings)
       {
-        Assert.IsNotNull(file, "file");
+        Assert.IsNotNull(mapping, nameof(mapping));
 
-        if (file.MoveItem(itemID, targetID))
+        if (mapping.MoveItem(itemID, targetID))
         {
           return true;
         }
@@ -582,11 +582,11 @@
       var itemID = itemDefinition.ID;
       Assert.IsNotNull(itemID, "itemID");
 
-      foreach (var file in this.FileMappings)
+      foreach (var mapping in this.Mappings)
       {
-        Assert.IsNotNull(file, "file");
+        Assert.IsNotNull(mapping, nameof(mapping));
 
-        if (file.RemoveVersion(itemID, versionUri))
+        if (mapping.RemoveVersion(itemID, versionUri))
         {
           return true;
         }
@@ -600,11 +600,11 @@
       var itemID = itemDefinition.ID;
       Assert.IsNotNull(itemID, "itemID");
 
-      foreach (var file in this.FileMappings)
+      foreach (var mapping in this.Mappings)
       {
-        Assert.IsNotNull(file, "file");
+        Assert.IsNotNull(mapping, nameof(mapping));
 
-        if (file.RemoveVersions(itemID, language))
+        if (mapping.RemoveVersions(itemID, language))
         {
           return true;
         }
@@ -618,11 +618,11 @@
       var itemID = itemDefinition.ID;
       Assert.IsNotNull(itemID, "itemID");
 
-      foreach (var file in this.FileMappings)
+      foreach (var mapping in this.Mappings)
       {
-        Assert.IsNotNull(file, "file");
+        Assert.IsNotNull(mapping, nameof(mapping));
 
-        if (file.DeleteItem(itemID))
+        if (mapping.DeleteItem(itemID))
         {
           return true;
         }
