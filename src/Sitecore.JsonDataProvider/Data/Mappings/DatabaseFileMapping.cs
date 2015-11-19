@@ -12,10 +12,10 @@
   using Sitecore.Data.Items;
   using Sitecore.Diagnostics;
 
-  public class DefaultMapping : AbstractFileMapping
+  public class DatabaseFileMapping : AbstractFileMapping
   {
     [UsedImplicitly]
-    public DefaultMapping([NotNull] XmlElement mappingElement, [NotNull] string databaseName)
+    public DatabaseFileMapping([NotNull] XmlElement mappingElement, [NotNull] string databaseName)
       : base(mappingElement, databaseName)
     {
       Assert.ArgumentNotNull(mappingElement, nameof(mappingElement));

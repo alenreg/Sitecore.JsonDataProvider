@@ -71,10 +71,10 @@
     <Compile Include="Data\Helpers\JsonNonPublicMemberContractResolver.cs" />
     <Compile Include="Data\Mappings\AbstractFileMapping.cs" />
     <Compile Include="Data\Mappings\AbstractMapping.cs" />
-    <Compile Include="Data\Mappings\DefaultMapping.cs" />
+    <Compile Include="Data\Mappings\DatabaseFileMapping.cs" />
     <Compile Include="Data\Mappings\IFileMapping.cs" />
     <Compile Include="Data\Mappings\IMapping.cs" />
-    <Compile Include="Data\Mappings\ItemChildrenMapping.cs" />
+    <Compile Include="Data\Mappings\SubTreeFileMapping.cs" />
     <Compile Include="Data\DataProviders\JsonDataProvider.cs" />
     <Compile Include="Data\Collections\JsonLanguageCollection.cs" />
     <Compile Include="Data\Collections\JsonUnversionedFieldsCollection.cs" />

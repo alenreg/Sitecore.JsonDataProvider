@@ -10,14 +10,13 @@
   using Sitecore.Data.Items;
   using Sitecore.Diagnostics;
 
-  public class ItemChildrenMapping : AbstractFileMapping
+  public class SubTreeFileMapping : AbstractFileMapping
   {
     [NotNull]
     public readonly ID ItemID;
-
-
+    
     [UsedImplicitly]
-    public ItemChildrenMapping([NotNull] XmlElement mappingElement, [NotNull] string databaseName)
+    public SubTreeFileMapping([NotNull] XmlElement mappingElement, [NotNull] string databaseName)
       : base(mappingElement, databaseName)
     {
       Assert.ArgumentNotNull(mappingElement, nameof(mappingElement));
@@ -33,8 +32,7 @@
       this.ItemID = itemID;
     }
 
-    [NotNull]
-    protected override IEnumerable<JsonItem> Initialize([NotNull] string json)
+    protected override IEnumerable<JsonItem> Initialize(string json)
     {
       Assert.ArgumentNotNull(json, nameof(json));
 
