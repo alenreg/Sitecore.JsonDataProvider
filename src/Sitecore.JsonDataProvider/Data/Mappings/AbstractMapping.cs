@@ -150,13 +150,6 @@
       return fieldList;
     }
 
-    public IEnumerable<string> GetFieldValues(ID fieldID)
-    {
-      Assert.ArgumentNotNull(fieldID, nameof(fieldID));
-
-      return this.ItemsCache.SelectMany(x => x.Fields.GetFieldValues(fieldID));
-    }
-
     public IEnumerable<ID> GetTemplateItemIDs()
     {
       return this.ItemsCache.Where(x => x.TemplateID == TemplateIDs.Template).Select(x => x.ID);

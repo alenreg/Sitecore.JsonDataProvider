@@ -12,9 +12,6 @@ namespace Sitecore.Data.Mappings
   {
     void Initialize();
 
-    [NotNull]
-    string DatabaseName { get; }
-
     bool ReadOnly { get; }
 
     int ItemsCount { get; }
@@ -39,8 +36,6 @@ namespace Sitecore.Data.Mappings
 
     [CanBeNull]
     FieldList GetItemFields([NotNull] ID itemID, [NotNull] VersionUri versionUri);
-
-    IEnumerable<string> GetFieldValues(ID fieldID);
 
     [CanBeNull]
     IEnumerable<ID> GetTemplateItemIDs();
