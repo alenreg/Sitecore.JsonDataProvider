@@ -70,7 +70,7 @@
 
       lock (instances)
       {
-        instances.Add(databaseName, this);
+        instances[databaseName] = this;
       }
 
       BetterMerging = bool.Parse(betterMerging);
