@@ -42,7 +42,7 @@
     {
       Assert.ArgumentNotNull(mappingElement, nameof(mappingElement));
       Assert.ArgumentNotNull(databaseName, nameof(databaseName));
-      
+
       var readOnly = mappingElement.GetAttribute("readOnly") == "true";
       this.ReadOnly = readOnly;
       this.DatabaseName = databaseName;
@@ -53,6 +53,78 @@
     public abstract IEnumerable<ID> GetChildIDs(ID itemId);
 
     public IEnumerable<ID> GetAllItemsIDs() => this.ItemsCache.Select(x => x.ID);
+
+    public IEnumerable<ID> ResolveNames(string itemName)
+    {
+      return this.ItemsCache.Where(x => x.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase)).Select(x => x.ID);
+    }
+
+    public IEnumerable<ID> ResolvePath(string path, CallContext context)
+    {
+      var words = path.Split('/');
+      if (words.Length == 0)
+      {
+        yield break;
+      }
+
+      foreach (var itemChild in this.ItemChildren)
+      {
+        var parentID = itemChild.ParentID;
+        if (parentID == ItemIDs.RootID)
+        {
+          if (itemChild.Name.Equals(words.First(), StringComparison.OrdinalIgnoreCase))
+          {
+            var ids = ResolvePath(itemChild.Children, words, 1);
+            if (ids != null)
+            {
+              foreach (var id in ids)
+              {
+                yield return id;
+              }
+            }
+          }
+        }
+        else
+        {
+          var parentItem = context.DataManager.Database.GetItem(parentID);
+          if (parentItem != null)
+          {
+            var parentPath = parentItem.Paths.FullPath;
+            if (parentPath.Equals(path, StringComparison.OrdinalIgnoreCase))
+            {
+              yield return parentID;
+            }
+            else if (path.StartsWith(parentPath, StringComparison.OrdinalIgnoreCase))
+            {
+              var ids = ResolvePath(itemChild.Children, path.Substring(parentPath.Length + 1).Split('/'), 0);
+              if (ids != null)
+              {
+                foreach (var id in ids)
+                {
+                  yield return id;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    private IEnumerable<ID> ResolvePath(JsonChildren children, string[] words, int index)
+    {
+      if (words.Length == index + 1)
+      {
+        return children.Where(x => x.Name == words[index]).Select(x => x.ID);
+      }
+      else if (words.Length <= index)
+      {
+        return children.Where(x => x.Name == words[index]).SelectMany(x => ResolvePath(x.Children, words, index + 1));
+      }
+      else
+      {
+        return null;
+      }
+    }
 
     public ItemDefinition GetItemDefinition(ID itemID)
     {
@@ -168,7 +240,7 @@
     {
       Assert.ArgumentNotNull(itemID, nameof(itemID));
       Assert.ArgumentNotNull(versionUri, nameof(versionUri));
-      
+
       var item = this.GetItem(itemID);
       if (item == null || this.IgnoreItem(item))
       {
@@ -242,7 +314,7 @@
     {
       Assert.ArgumentNotNull(itemID, nameof(itemID));
       Assert.ArgumentNotNull(changes, nameof(changes));
-      
+
       var item = this.GetItem(itemID);
       if (item == null)
       {
@@ -352,7 +424,7 @@
     public void ChangeFieldSharing(ID fieldID, TemplateFieldSharing sharing)
     {
       Assert.ArgumentNotNull(fieldID, nameof(fieldID));
-      
+
       if (this.ReadOnly)
       {
         return;
@@ -399,7 +471,7 @@
       {
         return false;
       }
-      
+
       if (this.ReadOnly)
       {
         throw new InvalidOperationException($"The file mapping the {itemID} item belongs to is in read-only mode");
@@ -442,7 +514,7 @@
       {
         return false;
       }
-      
+
       if (this.ReadOnly)
       {
         throw new InvalidOperationException($"The file mapping the {itemID} item belongs to is in read-only mode");
@@ -480,7 +552,7 @@
       {
         return false;
       }
-      
+
       if (this.ReadOnly)
       {
         throw new InvalidOperationException($"The file mapping the {itemID} item belongs to is in read-only mode");
@@ -574,7 +646,7 @@
             {
               continue;
             }
-            
+
             var field = version.Fields[fieldId];
             var value = field.GetValue(false, false, false, false);
             if (value == null)
@@ -745,9 +817,9 @@
             if (versions.Count == 0)
             {
               var fieldCollection = new JsonFieldsCollection
-                {
-                  [FieldIDs.Created] = DateUtil.IsoNowWithTicks
-                };
+              {
+                [FieldIDs.Created] = DateUtil.IsoNowWithTicks
+              };
 
               versions.Add(1, fieldCollection);
             }

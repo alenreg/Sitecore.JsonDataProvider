@@ -161,6 +161,32 @@
       return this.GetChildIDsInternal(itemId);
     }
 
+    public override IDList SelectIDs(string query, CallContext context)
+    {
+      if (query.StartsWith("fast:", StringComparison.InvariantCulture))
+      {
+        throw new NotSupportedException("FastQuery is not supported");
+      }
+
+      return this.QueryAny(query, context) ?? this.QueryPath(query, context);
+    }
+
+    public override ID SelectSingleID(string query, CallContext context)
+    {
+      if (query.StartsWith("fast:", StringComparison.InvariantCulture))
+      {
+        throw new NotSupportedException("FastQuery is not supported");
+      }
+
+      var idList = this.QueryAny(query, context) ?? this.QueryPath(query, context);
+      if (idList == null || idList.Count == 0)
+      {
+        return null;
+      }
+
+      return idList[0];
+    }
+
     [CanBeNull]
     public override ItemDefinition GetItemDefinition([NotNull] ID itemID, [NotNull] CallContext context)
     {
@@ -342,6 +368,75 @@
           throw new NotImplementedException();
         }
       }
+    }
+
+    private IDList QueryPath(string query, CallContext context)
+    {
+      if (query.IndexOf("//", StringComparison.InvariantCulture) < 0 && query.IndexOf('[') < 0 && query.IndexOf('@') < 0)
+        return this.ResolvePaths(query, context);
+
+      return null;
+    }
+
+    private IDList QueryAny(string query, CallContext context)
+    {
+      if (query.IndexOf("//", StringComparison.InvariantCulture) == 0 && query.IndexOf('[') < 0 && query.IndexOf('@') < 0 && query.LastIndexOf('/') == 1)
+        return this.ResolveNames(query.Substring(2));
+
+      return null;
+    }
+
+    protected virtual IDList ResolveNames(string itemName)
+    {
+      if (ID.IsID(itemName))
+      {
+        return IDList.Build(ID.Parse(itemName));
+      }
+
+      var idList = new IDList();
+      foreach (var mapping in this.Mappings)
+      {
+        var ids = mapping.ResolveNames(itemName);
+        if (ids == null)
+        {
+          continue;
+        }
+
+        foreach (var id in ids)
+        {
+          idList.Add(id);
+        }
+      }
+
+      return idList;
+    }
+
+    private IDList ResolvePaths(string itemPath, CallContext context)
+    {
+      if (ID.IsID(itemPath))
+      {
+        return IDList.Build(ID.Parse(itemPath));
+      }
+
+      var idList = new IDList();
+      foreach (string path in itemPath.Split('|'))
+      {
+        foreach (var mapping in this.Mappings)
+        {
+          var ids = mapping.ResolvePath(path, context);
+          if (ids == null)
+          {
+            continue;
+          }
+
+          foreach (var id in ids)
+          {
+            idList.Add(id);
+          }
+        }
+      }
+
+      return idList;
     }
 
     private IDList GetChildIDsInternal(ID itemId)

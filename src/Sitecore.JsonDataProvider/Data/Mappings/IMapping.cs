@@ -26,6 +26,12 @@ namespace Sitecore.Data.Mappings
     IEnumerable<ID> GetAllItemsIDs();
 
     [CanBeNull]
+    IEnumerable<ID> ResolveNames([NotNull] string itemName);
+
+    [CanBeNull]
+    IEnumerable<ID> ResolvePath([NotNull] string path, [NotNull] CallContext context);
+
+    [CanBeNull]
     ItemDefinition GetItemDefinition([NotNull] ID itemID);
 
     [CanBeNull]
