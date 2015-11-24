@@ -39,7 +39,7 @@
         }
       }
 
-      mapping = dataProvider.Mappings.FirstOrDefault(m => m.AcceptsNewChildrenOf(item.Parent.ID));
+      mapping = dataProvider.Mappings.FirstOrDefault(m => m.AcceptsNewChildrenOf(item.ID));
       if (mapping == null)
       {
         return;
