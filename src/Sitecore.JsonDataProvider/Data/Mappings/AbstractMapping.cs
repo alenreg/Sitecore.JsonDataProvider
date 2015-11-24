@@ -229,7 +229,7 @@
 
     public IEnumerable<string> GetLanguages()
     {
-      return this.ItemsCache.Where(x => x.TemplateID == TemplateIDs.Language).Select(x => x.Name).Distinct();
+      return this.ItemsCache.Where(x => x.ParentID == ItemIDs.LanguageRoot && x.TemplateID == TemplateIDs.Language).Select(x => x.Name).Distinct();
     }
 
     public abstract bool CreateItem(ID itemID, string itemName, ID templateID, ID parentID);
