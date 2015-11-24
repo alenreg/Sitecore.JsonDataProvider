@@ -2,19 +2,14 @@
 {
   using System;
   using System.Collections.Generic;
-  using System.IO;
   using System.Linq;
-  using System.Web.Hosting;
   using System.Xml;
 
   using Sitecore.Collections;
-  using Sitecore.Configuration;
   using Sitecore.Data.Collections;
   using Sitecore.Data.DataProviders;
-  using Sitecore.Data.Fields;
   using Sitecore.Data.Helpers;
   using Sitecore.Data.Items;
-  using Sitecore.Data.Managers;
   using Sitecore.Data.Templates;
   using Sitecore.Diagnostics;
   using Sitecore.Globalization;
@@ -56,74 +51,100 @@
 
     public IEnumerable<ID> ResolveNames(string itemName)
     {
+      Assert.ArgumentNotNull(itemName, nameof(itemName));
+
       return this.ItemsCache.Where(x => x.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase)).Select(x => x.ID);
     }
 
     public IEnumerable<ID> ResolvePath(string path, CallContext context)
     {
+      Assert.ArgumentNotNull(path, nameof(path));
+      Assert.ArgumentNotNull(context, nameof(context));
+
       var words = path.Split('/');
       if (words.Length == 0)
       {
         yield break;
       }
 
-      foreach (var itemChild in this.ItemChildren)
+      var dataManager = context.DataManager;
+      Assert.IsNotNull(dataManager, nameof(dataManager));
+
+      var database = dataManager.Database;
+      Assert.IsNotNull(database, nameof(database));
+
+      foreach (var item in this.ItemChildren)
       {
-        var parentID = itemChild.ParentID;
+        Assert.IsNotNull(item, nameof(item));
+
+        var parentID = item.ParentID;
         if (parentID == ItemIDs.RootID)
         {
-          if (itemChild.Name.Equals(words.First(), StringComparison.OrdinalIgnoreCase))
+          if (item.Name.Equals(words.First(), StringComparison.OrdinalIgnoreCase))
           {
-            var ids = ResolvePath(itemChild.Children, words, 1);
-            if (ids != null)
+            var ids = ResolvePath(item.Children, words, 1);
+            if (ids == null)
             {
-              foreach (var id in ids)
-              {
-                yield return id;
-              }
+              continue;
+            }
+
+            foreach (var id in ids)
+            {
+              yield return id;
             }
           }
         }
         else
         {
-          var parentItem = context.DataManager.Database.GetItem(parentID);
-          if (parentItem != null)
+          var parentItem = database.GetItem(parentID);
+
+          var parentPath = parentItem?.Paths?.FullPath;
+          if (parentPath == null)
           {
-            var parentPath = parentItem.Paths.FullPath;
-            if (parentPath.Equals(path, StringComparison.OrdinalIgnoreCase))
+            continue;
+          }
+
+          if (path.Equals(parentPath, StringComparison.OrdinalIgnoreCase))
+          {
+            yield return parentID;
+          }
+          else if (path.StartsWith(parentPath, StringComparison.OrdinalIgnoreCase))
+          {
+            var ids = ResolvePath(item.Children, path.Substring(parentPath.Length + 1).Split('/'), 0);
+            if (ids == null)
             {
-              yield return parentID;
+              continue;
             }
-            else if (path.StartsWith(parentPath, StringComparison.OrdinalIgnoreCase))
+
+            foreach (var id in ids)
             {
-              var ids = ResolvePath(itemChild.Children, path.Substring(parentPath.Length + 1).Split('/'), 0);
-              if (ids != null)
-              {
-                foreach (var id in ids)
-                {
-                  yield return id;
-                }
-              }
+              yield return id;
             }
           }
         }
       }
     }
 
-    private IEnumerable<ID> ResolvePath(JsonChildren children, string[] words, int index)
+    private IEnumerable<ID> ResolvePath([NotNull] JsonChildren children, [NotNull] string[] words, int index)
     {
+      Assert.ArgumentNotNull(children, nameof(children));
+      Assert.ArgumentNotNull(words, nameof(words));
+
       if (words.Length == index + 1)
       {
-        return children.Where(x => x.Name == words[index]).Select(x => x.ID);
+        var name = words[index];
+
+        return children.Where(x => x.Name == name).Select(x => x.ID);
       }
-      else if (words.Length <= index)
+
+      if (words.Length <= index)
       {
-        return children.Where(x => x.Name == words[index]).SelectMany(x => ResolvePath(x.Children, words, index + 1));
+        var name = words[index];
+
+        return children.Where(x => x.Name == name).SelectMany(x => ResolvePath(x.Children, words, index + 1));
       }
-      else
-      {
-        return null;
-      }
+
+      return null;
     }
 
     public ItemDefinition GetItemDefinition(ID itemID)

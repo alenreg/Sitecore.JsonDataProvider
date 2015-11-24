@@ -1,12 +1,10 @@
 ﻿namespace Sitecore.Data.Mappings
 {
-  using System;
   using System.Collections.Generic;
   using System.Linq;
   using System.Xml;
 
   using Sitecore.Data;
-  using Sitecore.Data.Collections;
   using Sitecore.Data.DataProviders;
   using Sitecore.Data.Helpers;
   using Sitecore.Data.Items;
@@ -54,7 +52,7 @@
       return item?.Children.Select(x => x.ID);
     }
 
-    public override bool AcceptsNewChildrenOf(ID itemID)
+    public override bool AcceptsNewChildrenOf([CanBeNull] ID itemID)
     {
       return !this.ReadOnly;
     }

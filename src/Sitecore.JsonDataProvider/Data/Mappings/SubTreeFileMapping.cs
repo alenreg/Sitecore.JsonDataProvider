@@ -66,6 +66,8 @@
 
     public override bool AcceptsNewChildrenOf(ID itemID)
     {
+      Assert.ArgumentNotNull(itemID, nameof(itemID));
+
       return !ReadOnly && (itemID == this.ItemID || this.ItemsCache.Any(x => x.ID == itemID));
     }
 
@@ -73,8 +75,7 @@
     {
       return false;
     }
-
-
+    
     public override bool CreateItem(ID itemID, string itemName, ID templateID, ID parentID)
     {
       Assert.ArgumentNotNull(itemID, nameof(itemID));

@@ -69,6 +69,6 @@ namespace Sitecore.Data.Mappings
 
     void Commit();
 
-    bool AcceptsNewChildrenOf(ID itemID);
+    bool AcceptsNewChildrenOf([NotNull] ID itemID);
   }
 }
