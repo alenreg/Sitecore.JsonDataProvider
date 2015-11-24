@@ -30,12 +30,12 @@
         if (mapping.ReadOnly)
         {
           jsonItem.Title = "JSON Read-Only Item";
-          jsonItem.Text = $"This item is stored in '{mapping.DisplayName}', but is read-only as configured in item mapping settings.";
+          jsonItem.Text = $"This item is stored in {mapping.DisplayName}, but is read-only as configured in item mapping settings.";
         }
         else
         {
           jsonItem.Title = "JSON Item";
-          jsonItem.Text = $"This item is stored in '{mapping.DisplayName}'.";
+          jsonItem.Text = $"This item is stored in {mapping.DisplayName}.";
         }
       }
 
@@ -47,7 +47,7 @@
 
       var createChildren = args.Add();
       createChildren.Title = "JSON Children";
-      createChildren.Text = $"All new children of this item will be stored in '{mapping.DisplayName}'. ";
+      createChildren.Text = $"All new children of this item will be stored in {mapping.DisplayName}. ";
     }
   }
 }

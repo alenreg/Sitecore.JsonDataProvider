@@ -561,6 +561,8 @@
       var languages = new LanguageCollection();
       foreach (var mapping in this.Mappings)
       {
+        Assert.IsNotNull(mapping, nameof(mapping));
+
         var jsonLanguages = mapping.GetLanguages();
         foreach (var jsonLanguage in jsonLanguages)
         {
@@ -583,6 +585,11 @@
       {
         Assert.IsNotNull(mapping, nameof(mapping));
 
+        if (mapping.ReadOnly)
+        {
+          continue;
+        }
+
         if (mapping.CreateItem(itemID, itemName, templateID, parentId))
         {
           return true;
@@ -604,6 +611,11 @@
       {
         Assert.IsNotNull(mapping, nameof(mapping));
 
+        if (mapping.ReadOnly)
+        {
+          continue;
+        }
+
         if (mapping.CopyItem(sourceItemID, destinationItemID, copyID, copyName, context))
         {
           return true;
@@ -621,6 +633,11 @@
       foreach (var mapping in this.Mappings)
       {
         Assert.IsNotNull(mapping, nameof(mapping));
+
+        if (mapping.ReadOnly)
+        {
+          continue;
+        }
 
         var versionNumber = mapping.AddVersion(itemID, baseVersion);
         if (versionNumber != -1)
@@ -646,6 +663,11 @@
       {
         Assert.IsNotNull(mapping, nameof(mapping));
 
+        if (mapping.ReadOnly)
+        {
+          continue;
+        }
+
         if (mapping.SaveItem(itemID, changes))
         {
           return true;
@@ -662,6 +684,11 @@
       foreach (var mapping in this.Mappings)
       {
         Assert.IsNotNull(mapping, nameof(mapping));
+
+        if (mapping.ReadOnly)
+        {
+          continue;
+        }
 
         if (mapping.MoveItem(itemID, targetID))
         {
@@ -681,6 +708,11 @@
       {
         Assert.IsNotNull(mapping, nameof(mapping));
 
+        if (mapping.ReadOnly)
+        {
+          continue;
+        }
+
         if (mapping.RemoveVersion(itemID, versionUri))
         {
           return true;
@@ -699,6 +731,11 @@
       {
         Assert.IsNotNull(mapping, nameof(mapping));
 
+        if (mapping.ReadOnly)
+        {
+          continue;
+        }
+
         if (mapping.RemoveVersions(itemID, language))
         {
           return true;
@@ -716,6 +753,11 @@
       foreach (var mapping in this.Mappings)
       {
         Assert.IsNotNull(mapping, nameof(mapping));
+
+        if (mapping.ReadOnly)
+        {
+          continue;
+        }
 
         if (mapping.DeleteItem(itemID))
         {

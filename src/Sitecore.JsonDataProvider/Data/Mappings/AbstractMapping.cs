@@ -32,7 +32,7 @@
 
     public string DatabaseName { get; }
 
-    public bool ReadOnly { get; }
+    public virtual bool ReadOnly { get; }
 
     public int ItemsCount => ItemsCache.Count;
 
@@ -249,7 +249,7 @@
 
       if (this.ReadOnly)
       {
-        throw new InvalidOperationException($"The file mapping the {itemID} item belongs to is in read-only mode");
+        throw new InvalidOperationException($"The file mapping the {itemID} item is in read-only mode");
       }
 
       var newNumber = -1;
