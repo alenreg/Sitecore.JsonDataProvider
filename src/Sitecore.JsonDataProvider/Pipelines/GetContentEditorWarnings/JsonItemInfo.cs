@@ -2,7 +2,6 @@
 {
   using System.Linq;
   using Sitecore.Data.DataProviders;
-  using Sitecore.Data.Mappings;
   using Sitecore.Diagnostics;
 
   public class JsonItemInfo

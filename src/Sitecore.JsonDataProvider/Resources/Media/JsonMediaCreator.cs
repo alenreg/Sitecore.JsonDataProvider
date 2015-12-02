@@ -1,10 +1,7 @@
 ﻿namespace Sitecore.Resources.Media
 {
-  using System;
-  using System.Collections.Generic;
   using System.IO;
   using System.Linq;
-  using System.Web.Hosting;
 
   using Sitecore;
   using Sitecore.Data;
@@ -13,7 +10,6 @@
   using Sitecore.Diagnostics;
   using Sitecore.IO;
   using Sitecore.SecurityModel;
-  using Sitecore.Sites;
 
   public class JsonMediaCreator : MediaCreator
   {

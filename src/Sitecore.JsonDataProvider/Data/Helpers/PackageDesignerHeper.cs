@@ -6,7 +6,6 @@
   using System.Linq;
 
   using Sitecore.Configuration;
-  using Sitecore.Data.Items;
 
   public static class PackageDesignerHeper
   {
