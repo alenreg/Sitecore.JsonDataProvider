@@ -29,7 +29,7 @@ namespace Sitecore.Data.Mappings
       var media = mappingElement.GetAttribute("media");
 
       this.FileMappingPath = filePath;
-      this.MediaFolderPath = !string.IsNullOrEmpty(media) ? HostingEnvironment.MapPath(media) : null;
+      this.MediaFolderPath = !string.IsNullOrEmpty(media) ? MainUtil.MapPath(media) : null;
     }
 
     public override string DisplayName => $"the {this.FilePath} file";
