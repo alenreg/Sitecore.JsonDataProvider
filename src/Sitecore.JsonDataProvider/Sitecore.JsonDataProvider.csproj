@@ -40,14 +40,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\SC.Newtonsoft.Json.8.1.0.151003\lib\Newtonsoft.Json.dll</HintPath>
-      <SpecificVersion>False</SpecificVersion>
-      <Private>False</Private>
+      <HintPath>..\packages\SC.Newtonsoft.Json.8.1.0.151207\lib\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Sitecore.Kernel, Version=8.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SC.Sitecore.Kernel.8.1.0.151003\lib\Sitecore.Kernel.dll</HintPath>
-      <SpecificVersion>False</SpecificVersion>
-      <Private>False</Private>
+      <HintPath>..\packages\SC.Sitecore.Kernel.8.1.0.151207\lib\Sitecore.Kernel.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -87,7 +85,7 @@
     <Compile Include="Resources\Media\JsonMediaCreator.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="..\packages\SC.Newtonsoft.Json.8.1.0.151003\lib\Newtonsoft.Json.dll">
+    <EmbeddedResource Include="..\packages\SC.Newtonsoft.Json.8.1.0.151207\lib\Newtonsoft.Json.dll">
       <Link>Properties\EmbeddedResources\Newtonsoft.Json.dll</Link>
     </EmbeddedResource>
     <Content Include="App_Config\Include\Sitecore.JsonDataProvider.config">
@@ -102,10 +100,10 @@
     <Content Include="App_Config\Include\Sitecore.JsonDataProvider.Core.config">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="packages.config" />
     <Content Include="App_Config\Include\Sitecore.JsonDataProvider.Web.config">
       <SubType>Designer</SubType>
     </Content>
+    <None Include="packages.config" />
     <None Include="Properties\PublishProfiles\Development.pubxml" />
     <None Include="Sitecore.JsonDataProvider.nuspec" />
   </ItemGroup>
