@@ -103,9 +103,23 @@
     <Content Include="App_Config\Include\Sitecore.JsonDataProvider.Web.config">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="App_Config\Include\Sitecore.JsonDataProvider.Core.DefaultMapping.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_Config\Include\Sitecore.JsonDataProvider.Master.DefaultMapping.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_Config\Include\Sitecore.JsonDataProvider.Web.DefaultMapping.config">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="packages.config" />
     <None Include="Properties\PublishProfiles\Development.pubxml" />
-    <None Include="Sitecore.JsonDataProvider.nuspec" />
+    <Content Include="Sitecore.JsonDataProvider.nuspec">
+      <SubType>Designer</SubType>
+    </Content>
+    <None Include="Sitecore.JsonDataProvider.Core.nuspec">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

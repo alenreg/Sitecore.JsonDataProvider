@@ -1,22 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
-  <metadata>
-    <id>Sitecore.JsonDataProvider</id>
-    <version>1.1.0.1</version>
-    <authors>Alen Pelin</authors>
-    <projectUrl>https://github.com/Sitecore/Sitecore.JsonDataProvider</projectUrl>
-    <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Configure Sitecore to store parts of Item Content Tree in one or several json files.</description>
-  </metadata>
-  <files>
-    <file src="App_Config\Include\Sitecore.JsonDataProvider.config" target="content\App_Config\Include\Sitecore.JsonDataProvider.config" />
-    <file src="App_Config\Include\Sitecore.JsonDataProvider.Core.config" target="content\App_Config\Include\Sitecore.JsonDataProvider.Core.config" />
-    <file src="App_Config\Include\Sitecore.JsonDataProvider.Master.config" target="content\App_Config\Include\Sitecore.JsonDataProvider.Master.config" />
-    <file src="App_Config\Include\Sitecore.JsonDataProvider.Web.config" target="content\App_Config\Include\Sitecore.JsonDataProvider.Web.config" />
-    <file src="sitecore\admin\json-data-provider.aspx" target="content\sitecore\admin\json-data-provider.aspx" />
-    <file src="bin\Sitecore.JsonDataProvider.dll" target="content\bin\Sitecore.JsonDataProvider.dll" />
-    <file src="bin\Sitecore.JsonDataProvider.pdb" target="content\bin\Sitecore.JsonDataProvider.pdb" />
-    <file src="bin\Sitecore.JsonDataProvider.dll" target="lib\Sitecore.JsonDataProvider.dll" />
-    <file src="bin\Sitecore.JsonDataProvider.pdb" target="lib\Sitecore.JsonDataProvider.pdb" />
-  </files>
+    <metadata>
+        <id>Sitecore.JsonDataProvider</id>
+        <version>1.1.0.2</version>
+        <authors>Alen Pelin</authors>
+        <projectUrl>https://github.com/Sitecore/Sitecore.JsonDataProvider</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Configure Sitecore to store parts of Item Content Tree in one or several json files.</description>
+        <dependencies>
+            <dependency id="Sitecore.JsonDataProvider.Core" version="1.1.0.2" />
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="App_Config\Include\Sitecore.JsonDataProvider.Core.DefaultMapping.config" target="content\App_Config\Include\Sitecore.JsonDataProvider.Core.DefaultMapping.config" />
+        <file src="App_Config\Include\Sitecore.JsonDataProvider.Master.DefaultMapping.config" target="content\App_Config\Include\Sitecore.JsonDataProvider.Master.DefaultMapping.config" />
+        <file src="App_Config\Include\Sitecore.JsonDataProvider.Web.DefaultMapping.config" target="content\App_Config\Include\Sitecore.JsonDataProvider.Web.DefaultMapping.config" />
+    </files>
 </package>
