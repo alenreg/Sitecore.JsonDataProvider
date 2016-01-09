@@ -113,7 +113,6 @@
       <SubType>Designer</SubType>
     </Content>
     <None Include="packages.config" />
-    <None Include="Properties\PublishProfiles\Development.pubxml" />
     <Content Include="Sitecore.JsonDataProvider.nuspec">
       <SubType>Designer</SubType>
     </Content>
