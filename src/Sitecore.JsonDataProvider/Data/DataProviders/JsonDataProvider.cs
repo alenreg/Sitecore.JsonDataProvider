@@ -165,7 +165,9 @@
     {
       if (query.StartsWith("fast:", StringComparison.InvariantCulture))
       {
-        throw new NotSupportedException("FastQuery is not supported");
+        Log.SingleWarn("JsonDataProvider does not support fast query. Query: " + query, this);
+
+        return new IDList();
       }
 
       return this.QueryAny(query, context) ?? this.QueryPath(query, context);
@@ -175,7 +177,9 @@
     {
       if (query.StartsWith("fast:", StringComparison.InvariantCulture))
       {
-        throw new NotSupportedException("FastQuery is not supported");
+        Log.SingleWarn("JsonDataProvider does not support fast query. Query: " + query, this);
+
+        return null;
       }
 
       var idList = this.QueryAny(query, context) ?? this.QueryPath(query, context);

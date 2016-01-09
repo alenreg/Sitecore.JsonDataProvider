@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>Sitecore.JsonDataProvider.Core</id>
-    <version>1.1.0.2</version>
+    <version>1.1.0.3</version>
     <authors>Alen Pelin</authors>
     <projectUrl>https://github.com/Sitecore/Sitecore.JsonDataProvider</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
