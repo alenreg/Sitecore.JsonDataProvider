@@ -1,0 +1,21 @@
+﻿<!-- 
+  Component: Sitecore.JsonDataProvider
+  Purpose: allows to change default location of master items json file
+  Changes: change .example extension of this file to .config to make it work
+  Removal: it is safe to delete this file
+-->
+<configuration xmlns:set="http://www.sitecore.net/xmlconfig/set/">  
+  <sitecore>
+    <databases>
+      <database id="master">
+        <dataProviders>
+          <dataProvider ref="dataProviders/json">
+            <Mappings>
+              <DatabaseFileMapping set:file="D:\Data\$(id)\items.json" set:media="D:\Data\$(id)\media\" />
+            </Mappings>
+          </dataProvider>
+        </dataProviders>
+      </database>
+    </databases>
+  </sitecore>
+</configuration>

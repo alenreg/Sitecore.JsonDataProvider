@@ -112,6 +112,24 @@
     <Content Include="App_Config\Include\Sitecore.JsonDataProvider.Web.DefaultMapping.config">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="App_Config\Include\Sitecore.JsonDataProvider.Core.DefaultMapping.CustomLocation.example">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_Config\Include\Sitecore.JsonDataProvider.Master.DefaultMapping.CustomLocation.example">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_Config\Include\Sitecore.JsonDataProvider.Master.DefaultMapping.Disable.example">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_Config\Include\Sitecore.JsonDataProvider.Core.DefaultMapping.Disable.example">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_Config\Include\Sitecore.JsonDataProvider.Web.DefaultMapping.Disable.example">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_Config\Include\Sitecore.JsonDataProvider.Web.DefaultMapping.CustomLocation.example">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="packages.config" />
     <Content Include="Sitecore.JsonDataProvider.nuspec">
       <SubType>Designer</SubType>
