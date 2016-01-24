@@ -13,13 +13,13 @@
     </metadata>
     <files>
       <file src="App_Config\Include\Sitecore.JsonDataProvider.Core.DefaultMapping.config" target="content\App_Config\Include\Sitecore.JsonDataProvider.Core.DefaultMapping.config" />
-      <file src="App_Config\Include\Sitecore.JsonDataProvider.Core.CustomLocation.example" target="content\App_Config\Include\Sitecore.JsonDataProvider.Core.CustomLocation.example" />
-      <file src="App_Config\Include\Sitecore.JsonDataProvider.Core.Disable.example" target="content\App_Config\Include\Sitecore.JsonDataProvider.Core.Disable.example" />
-      <file src="App_Config\Include\Sitecore.JsonDataProvider.Master.CustomLocation.example" target="content\App_Config\Include\Sitecore.JsonDataProvider.Master.CustomLocation.example" />
-      <file src="App_Config\Include\Sitecore.JsonDataProvider.Master.Disable.example" target="content\App_Config\Include\Sitecore.JsonDataProvider.Master.Disable.example" />
+      <file src="App_Config\Include\Sitecore.JsonDataProvider.Core.DefaultMapping.CustomLocation.example" target="content\App_Config\Include\Sitecore.JsonDataProvider.Core.CustomLocation.example" />
+      <file src="App_Config\Include\Sitecore.JsonDataProvider.Core.DefaultMapping.Disable.example" target="content\App_Config\Include\Sitecore.JsonDataProvider.Core.Disable.example" />
+      <file src="App_Config\Include\Sitecore.JsonDataProvider.Master.DefaultMapping.CustomLocation.example" target="content\App_Config\Include\Sitecore.JsonDataProvider.Master.CustomLocation.example" />
+      <file src="App_Config\Include\Sitecore.JsonDataProvider.Master.DefaultMapping.Disable.example" target="content\App_Config\Include\Sitecore.JsonDataProvider.Master.Disable.example" />
       <file src="App_Config\Include\Sitecore.JsonDataProvider.Master.DefaultMapping.config" target="content\App_Config\Include\Sitecore.JsonDataProvider.Master.DefaultMapping.config" />
       <file src="App_Config\Include\Sitecore.JsonDataProvider.Web.DefaultMapping.config" target="content\App_Config\Include\Sitecore.JsonDataProvider.Web.DefaultMapping.config" />
-      <file src="App_Config\Include\Sitecore.JsonDataProvider.Web.CustomLocation.example" target="content\App_Config\Include\Sitecore.JsonDataProvider.Web.CustomLocation.example" />
-      <file src="App_Config\Include\Sitecore.JsonDataProvider.Web.Disable.example" target="content\App_Config\Include\Sitecore.JsonDataProvider.Web.Disable.example" />
+      <file src="App_Config\Include\Sitecore.JsonDataProvider.Web.DefaultMapping.CustomLocation.example" target="content\App_Config\Include\Sitecore.JsonDataProvider.Web.CustomLocation.example" />
+      <file src="App_Config\Include\Sitecore.JsonDataProvider.Web.DefaultMapping.Disable.example" target="content\App_Config\Include\Sitecore.JsonDataProvider.Web.Disable.example" />
     </files>
 </package>
