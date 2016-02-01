@@ -130,7 +130,9 @@
     <Content Include="App_Config\Include\Sitecore.JsonDataProvider.Web.DefaultMapping.CustomLocation.example">
       <SubType>Designer</SubType>
     </Content>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
     <Content Include="Sitecore.JsonDataProvider.nuspec">
       <SubType>Designer</SubType>
     </Content>

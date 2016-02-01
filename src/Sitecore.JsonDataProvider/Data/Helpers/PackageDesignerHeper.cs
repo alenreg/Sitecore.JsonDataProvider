@@ -1,4 +1,6 @@
-﻿namespace Sitecore.Data.Helpers
+﻿using Sitecore.Diagnostics;
+
+namespace Sitecore.Data.Helpers
 {
   using System;
   using System.Collections.Generic;
@@ -12,15 +14,18 @@
   {
     public static void GenerateProject(string database, string name, IEnumerable<ID> items)
     {
-      var directoryPath = Settings.PackagePath;
-      var filePath = MainUtil.MapPath(Path.Combine(directoryPath, name + ".xml"));
-      if (!Directory.Exists(directoryPath))
-      {
-        Directory.CreateDirectory(directoryPath);
-      }
+      var directoryPath = MainUtil.MapPath(Settings.PackagePath);
+      var filePath = Path.Combine(directoryPath, name + ".xml");
 
-      var xitems = items.Select(x => $"        <x-item>/{database}/{x}/invariant/0</x-item>");
-      File.WriteAllText(filePath, $@"<project>
+      try
+      {
+        if (!Directory.Exists(directoryPath))
+        {
+          Directory.CreateDirectory(directoryPath);
+        }
+
+        var xitems = items.Select(x => $"        <x-item>/{database}/{x}/invariant/0</x-item>");
+        File.WriteAllText(filePath, $@"<project>
   <Sources>
     <xitems>
       <Entries>{Environment.NewLine + string.Join(Environment.NewLine, xitems)}
@@ -29,6 +34,11 @@
   </Sources>
 </project>
 ");
+      }
+      catch (Exception ex)
+      {
+        Log.Error($"Failed to generate package project: {filePath}", ex, typeof(PackageDesignerHeper));
+      }
     }
   }
 }
