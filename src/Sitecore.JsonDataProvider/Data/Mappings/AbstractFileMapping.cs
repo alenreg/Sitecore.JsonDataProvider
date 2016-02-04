@@ -51,11 +51,16 @@ namespace Sitecore.Data.Mappings
 
       try
       {
-        lock (this.SyncRoot)
+        Lock.EnterWriteLock();
+        try
         {
           this.ItemsCache.Clear();
           this.ItemChildren.Clear();
           this.ItemChildren.AddRange(this.Initialize(json));
+        }
+        finally
+        {
+          Lock.ExitWriteLock();
         }
 
         this.GeneratePackageDesignerProject();
@@ -78,8 +83,16 @@ namespace Sitecore.Data.Mappings
         Directory.CreateDirectory(directory);
       }
 
-      var json = JsonHelper.Serialize(this.GetCommitObject(), true);
-      File.WriteAllText(filePath, json);
+      Lock.EnterReadLock();
+      try
+      {
+        var json = JsonHelper.Serialize(this.GetCommitObject(), true);
+        File.WriteAllText(filePath, json);
+      }
+      finally
+      {
+        Lock.ExitReadLock();
+      }
 
       this.GeneratePackageDesignerProject();
     }
@@ -90,11 +103,19 @@ namespace Sitecore.Data.Mappings
     private void GeneratePackageDesignerProject()
     {
       var name = Path.GetFileNameWithoutExtension(this.FileMappingPath);
-      var items = this.ItemsCache;
 
-      if (JsonDataProvider.Instances[this.DatabaseName].Mappings.Count > 1)
+      Lock.EnterReadLock();
+      try
       {
-        PackageDesignerHeper.GenerateProject(this.DatabaseName, "auto-generated-for-mapping-" + name, items.Select(x => x.ID));
+        var items = this.ItemsCache;
+        if (JsonDataProvider.Instances[this.DatabaseName].Mappings.Count > 1)
+        {
+          PackageDesignerHeper.GenerateProject(this.DatabaseName, "auto-generated-for-mapping-" + name, items.Select(x => x.ID));
+        }
+      }
+      finally
+      {
+        Lock.ExitReadLock();
       }
 
       foreach (var pair in JsonDataProvider.Instances)

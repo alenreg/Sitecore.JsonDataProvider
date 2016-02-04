@@ -3,6 +3,7 @@
   using System;
   using System.Collections.Generic;
   using System.Linq;
+  using System.Threading;
   using System.Xml;
 
   using Sitecore.Collections;
@@ -16,20 +17,33 @@
 
   public abstract class AbstractMapping : IMapping
   {
+    protected readonly ReaderWriterLockSlim Lock = new ReaderWriterLockSlim();
+
     [NotNull]
     protected readonly List<JsonItem> ItemChildren = new List<JsonItem>();
 
     [NotNull]
     protected readonly List<JsonItem> ItemsCache = new List<JsonItem>();
 
-    [NotNull]
-    protected readonly object SyncRoot = new object();
-
     public string DatabaseName { get; }
 
     public virtual bool ReadOnly { get; }
 
-    public int ItemsCount => ItemsCache.Count;
+    public int ItemsCount
+    {
+      get
+      {
+        Lock.EnterReadLock();
+        try
+        {
+          return ItemsCache.Count;
+        }
+        finally
+        {
+          Lock.ExitReadLock();
+        }
+      }
+    }
 
     public abstract string DisplayName { get; }
 
@@ -47,13 +61,32 @@
 
     public abstract IEnumerable<ID> GetChildIDs(ID itemId);
 
-    public IEnumerable<ID> GetAllItemsIDs() => this.ItemsCache.Select(x => x.ID);
+    public IEnumerable<ID> GetAllItemsIDs()
+    {
+      Lock.EnterReadLock();
+      try
+      {
+        return this.ItemsCache.Select(x => x.ID);
+      }
+      finally
+      {
+        Lock.ExitReadLock();
+      }
+    }
 
     public IEnumerable<ID> ResolveNames(string itemName)
     {
       Assert.ArgumentNotNull(itemName, nameof(itemName));
 
-      return this.ItemsCache.Where(x => x.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase)).Select(x => x.ID);
+      Lock.EnterReadLock();
+      try
+      {
+        return this.ItemsCache.Where(x => x.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase)).Select(x => x.ID);
+      }
+      finally
+      {
+        Lock.ExitReadLock();
+      }
     }
 
     public IEnumerable<ID> ResolvePath(string path, CallContext context)
@@ -73,55 +106,64 @@
       var database = dataManager.Database;
       Assert.IsNotNull(database, nameof(database));
 
-      foreach (var item in this.ItemChildren)
+      Lock.EnterReadLock();
+      try
       {
-        Assert.IsNotNull(item, nameof(item));
-
-        var parentID = item.ParentID;
-        if (parentID == ItemIDs.RootID)
+        foreach (var item in this.ItemChildren)
         {
-          if (item.Name.Equals(words.First(), StringComparison.OrdinalIgnoreCase))
+          Assert.IsNotNull(item, nameof(item));
+
+          var parentID = item.ParentID;
+          if (parentID == ItemIDs.RootID)
           {
-            var ids = ResolvePath(item.Children, words, 1);
-            if (ids == null)
+            if (item.Name.Equals(words.First(), StringComparison.OrdinalIgnoreCase))
+            {
+              var ids = ResolvePath(item.Children, words, 1);
+              if (ids == null)
+              {
+                continue;
+              }
+
+              foreach (var id in ids)
+              {
+                yield return id;
+              }
+            }
+          }
+          else
+          {
+            var parentItem = database.GetItem(parentID);
+
+            var parentPath = parentItem?.Paths?.FullPath;
+            if (parentPath == null)
             {
               continue;
             }
 
-            foreach (var id in ids)
+            if (path.Equals(parentPath, StringComparison.OrdinalIgnoreCase))
             {
-              yield return id;
+              yield return parentID;
+            }
+            else if (path.StartsWith(parentPath, StringComparison.OrdinalIgnoreCase))
+            {
+              var ids = ResolvePath(item.Children, path.Substring(parentPath.Length + 1).Split('/'), 0);
+              if (ids == null)
+              {
+                continue;
+              }
+
+              foreach (var id in ids)
+              {
+                yield return id;
+              }
             }
           }
         }
-        else
-        {
-          var parentItem = database.GetItem(parentID);
 
-          var parentPath = parentItem?.Paths?.FullPath;
-          if (parentPath == null)
-          {
-            continue;
-          }
-
-          if (path.Equals(parentPath, StringComparison.OrdinalIgnoreCase))
-          {
-            yield return parentID;
-          }
-          else if (path.StartsWith(parentPath, StringComparison.OrdinalIgnoreCase))
-          {
-            var ids = ResolvePath(item.Children, path.Substring(parentPath.Length + 1).Split('/'), 0);
-            if (ids == null)
-            {
-              continue;
-            }
-
-            foreach (var id in ids)
-            {
-              yield return id;
-            }
-          }
-        }
+      }
+      finally
+      {
+        Lock.ExitReadLock();
       }
     }
 
@@ -245,12 +287,28 @@
 
     public IEnumerable<ID> GetTemplateItemIDs()
     {
-      return this.ItemsCache.Where(x => x.TemplateID == TemplateIDs.Template).Select(x => x.ID);
+      Lock.EnterReadLock();
+      try
+      {
+        return this.ItemsCache.Where(x => x.TemplateID == TemplateIDs.Template).Select(x => x.ID);
+      }
+      finally
+      {
+        Lock.ExitReadLock();
+      }
     }
 
     public IEnumerable<string> GetLanguages()
     {
-      return this.ItemsCache.Where(x => x.ParentID == ItemIDs.LanguageRoot && x.TemplateID == TemplateIDs.Language).Select(x => x.Name).Distinct();
+      Lock.EnterReadLock();
+      try
+      {
+        return this.ItemsCache.Where(x => x.ParentID == ItemIDs.LanguageRoot && x.TemplateID == TemplateIDs.Language).Select(x => x.Name).Distinct();
+      }
+      finally
+      {
+        Lock.ExitReadLock();
+      }
     }
 
     public abstract bool CreateItem(ID itemID, string itemName, ID templateID, ID parentID);
@@ -262,7 +320,9 @@
       Assert.ArgumentNotNull(itemID, nameof(itemID));
       Assert.ArgumentNotNull(versionUri, nameof(versionUri));
 
-      var item = this.GetItem(itemID);
+      JsonItem item;
+
+      item = this.GetItem(itemID);
       if (item == null || this.IgnoreItem(item))
       {
         return -1;
@@ -277,14 +337,10 @@
       var number = versionUri.Version.Number;
       var language = versionUri.Language;
 
-      lock (this.SyncRoot)
+      Lock.EnterWriteLock();
+      var locked = true;
+      try
       {
-        item = this.GetItem(itemID);
-        if (item == null || this.IgnoreItem(item))
-        {
-          return -1;
-        }
-
         var versions = item.Fields.Versioned[language];
 
         if (number > 0)
@@ -304,6 +360,10 @@
 
         if (newNumber != -1)
         {
+          // unlock to commit
+          Lock.ExitWriteLock();
+          locked = false;
+
           this.Commit();
 
           return newNumber;
@@ -324,11 +384,18 @@
         };
 
         versions.Add(newNumber, newVersion);
-
-        this.Commit();
-
-        return newNumber;
       }
+      finally
+      {
+        if (locked)
+        {
+          Lock.ExitWriteLock();
+        }
+      }
+
+      this.Commit();
+
+      return newNumber;
     }
 
     public bool SaveItem(ID itemID, ItemChanges changes)
@@ -347,14 +414,9 @@
         throw new InvalidOperationException($"The file mapping the {itemID} item belongs to is in read-only mode");
       }
 
-      lock (this.SyncRoot)
+      Lock.EnterWriteLock();
+      try
       {
-        item = this.GetItem(itemID);
-        if (item == null)
-        {
-          return false;
-        }
-
         if (changes.HasPropertiesChanged)
         {
           var name = changes.GetPropertyValue("name") as string;
@@ -435,9 +497,13 @@
             }
           }
         }
-
-        this.Commit();
       }
+      finally
+      {
+        Lock.ExitWriteLock();
+      }
+
+      this.Commit();
 
       return true;
     }
@@ -451,7 +517,8 @@
         return;
       }
 
-      lock (this.SyncRoot)
+      Lock.EnterWriteLock();
+      try
       {
         foreach (var item in this.ItemsCache)
         {
@@ -475,6 +542,10 @@
               break;
           }
         }
+      }
+      finally
+      {
+        Lock.ExitWriteLock();
       }
 
       this.Commit();
@@ -504,23 +575,22 @@
       var version = versionUri.Version;
       Assert.IsNotNull(version, "version");
 
-      lock (this.SyncRoot)
+      Lock.EnterWriteLock();
+      try
       {
-        item = this.GetItem(itemID);
-        if (item == null)
-        {
-          return false;
-        }
-
         var versions = item.Fields.Versioned[language];
 
         if (!versions.Remove(version.Number))
         {
           return false;
         }
-
-        this.Commit();
       }
+      finally
+      {
+        Lock.ExitWriteLock();
+      }
+
+      this.Commit();
 
       return true;
     }
@@ -541,14 +611,9 @@
         throw new InvalidOperationException($"The file mapping the {itemID} item belongs to is in read-only mode");
       }
 
-      lock (this.SyncRoot)
+      Lock.EnterWriteLock();
+      try
       {
-        item = this.GetItem(itemID);
-        if (item == null)
-        {
-          return false;
-        }
-
         if (language == Language.Invariant)
         {
           item.Fields.Versioned.Clear();
@@ -557,9 +622,13 @@
         {
           item.Fields.Versioned[language].Clear();
         }
-
-        this.Commit();
       }
+      finally
+      {
+        Lock.ExitWriteLock();
+      }
+
+      this.Commit();
 
       return true;
     }
@@ -578,21 +647,19 @@
       {
         throw new InvalidOperationException($"The file mapping the {itemID} item belongs to is in read-only mode");
       }
-
-      lock (this.SyncRoot)
+      Lock.EnterWriteLock();
+      try
       {
-        item = this.GetItem(itemID);
-        if (item == null)
-        {
-          return false;
-        }
-
         this.DoDeleteItem(item);
 
         this.DeleteItemTreeFromItemsCache(item);
-
-        this.Commit();
       }
+      finally
+      {
+        Lock.ExitWriteLock();
+      }
+
+      this.Commit();
 
       return true;
     }
@@ -691,6 +758,7 @@
     {
       Assert.ArgumentNotNull(item, nameof(item));
 
+      // no lock needed
       this.ItemsCache.Add(item);
 
       JsonDataProvider.InitializeDefaultValues(item.Fields);
@@ -711,8 +779,15 @@
     protected JsonItem GetItem([NotNull] ID itemID)
     {
       Assert.ArgumentNotNull(itemID, nameof(itemID));
-
-      return this.ItemsCache.FirstOrDefault(x => x.ID == itemID);
+      Lock.EnterReadLock();
+      try
+      {
+        return this.ItemsCache.FirstOrDefault(x => x.ID == itemID);
+      }
+      finally
+      {
+        Lock.ExitReadLock();
+      }
     }
 
     private void ChangeFieldSharingToShared([NotNull] JsonItem item, [NotNull] ID fieldID)
@@ -862,12 +937,20 @@
     {
       Assert.ArgumentNotNull(item, nameof(item));
 
-      this.ItemsCache.Remove(item);
-      foreach (var child in item.Children)
+      Lock.EnterWriteLock();
+      try
       {
-        Assert.IsNotNull(child, "child");
+        this.ItemsCache.Remove(item);
+        foreach (var child in item.Children)
+        {
+          Assert.IsNotNull(child, "child");
 
-        this.DeleteItemTreeFromItemsCache(child);
+          this.DeleteItemTreeFromItemsCache(child);
+        }
+      }
+      finally
+      {
+        Lock.ExitWriteLock();
       }
     }
   }

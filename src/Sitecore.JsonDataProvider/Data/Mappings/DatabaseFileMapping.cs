@@ -69,33 +69,38 @@
       Assert.ArgumentNotNull(templateID, nameof(templateID));
       Assert.ArgumentNotNull(parentID, nameof(parentID));
 
-      var parent = this.ItemsCache.FirstOrDefault(x => x.ID == parentID);
-
       if (this.ReadOnly)
       {
         return false;
       }
 
-      // no need to check: parent.ParentID == ID.Null
-      if (parent == null)
+      var parent = this.GetItem(parentID);
+      
+      Lock.EnterWriteLock();
+      try
       {
-        parent = this.AddRootItem(parentID);
-      }
+        // no need to check: parent.ParentID == ID.Null
+        if (parent == null)
+        {
+          parent = this.AddRootItem(parentID);
+        }
 
-      var item = new JsonItem(itemID, parentID)
-      {
-        Name = itemName,
-        TemplateID = templateID
-      };
+        var item = new JsonItem(itemID, parentID)
+        {
+          Name = itemName,
+          TemplateID = templateID
+        };
 
-      lock (this.SyncRoot)
-      {
         this.ItemsCache.Add(item);
 
         parent.Children.Add(item);
-
-        this.Commit();
       }
+      finally
+      {
+        Lock.ExitWriteLock();
+      }
+
+      this.Commit();
 
       return true;
     }
@@ -111,25 +116,32 @@
       {
         return false;
       }
-      
-      var destinationItem = this.GetItem(destinationItemID);
 
-      // no need to check: destinationItem.ParentID == ID.Null
-      if (destinationItem == null)
+      JsonItem destinationItem;
+
+      destinationItem = this.GetItem(destinationItemID);
+
+      Lock.EnterWriteLock();
+      try
       {
-        destinationItem = AddRootItem(destinationItemID);
-      }
+        // no need to check: destinationItem.ParentID == ID.Null
+        if (destinationItem == null)
+        {
+          destinationItem = AddRootItem(destinationItemID);
+        }
 
-      var item = DoCopy(sourceItemID, destinationItemID, copyID, copyName, context);
+        var item = DoCopy(sourceItemID, destinationItemID, copyID, copyName, context);
 
-      lock (this.SyncRoot)
-      {
         this.ItemsCache.Add(item);
 
         destinationItem.Children.Add(item);
-
-        this.Commit();
       }
+      finally
+      {
+        Lock.ExitWriteLock();
+      }
+
+      this.Commit();
 
       return true;
     }
@@ -138,11 +150,6 @@
     {
       Assert.ArgumentNotNull(itemID, nameof(itemID));
       Assert.ArgumentNotNull(targetID, nameof(targetID));
-      
-      if (this.ReadOnly)
-      {
-        return false;
-      }
 
       var item = this.GetItem(itemID);
       if (item == null || this.IgnoreItem(item))
@@ -159,13 +166,23 @@
       var parent = this.GetItem(item.ParentID);
       Assert.IsNotNull(parent, "Cannot find {0} item", item.ParentID);
 
-      lock (this.SyncRoot)
+      if (this.ReadOnly)
+      {
+        return false;
+      }
+
+      Lock.EnterWriteLock();
+      try
       {
         parent.Children.Remove(item);
         target.Children.Add(item);
-
-        this.Commit();
       }
+      finally
+      {
+        Lock.EnterWriteLock();
+      }
+
+      this.Commit();
 
       return true;
     }
@@ -183,6 +200,7 @@
 
     protected override object GetCommitObject()
     {
+      // no need to lock
       return this.ItemChildren.Where(x => x.Children.Count > 0).ToDictionary(x => x.ID.ToString(), x => x.Children);
     }
 
@@ -196,6 +214,7 @@
         Name = "$default-mapping"
       };
 
+      // no need to lock 
       this.ItemChildren.Add(rootItem);
       this.ItemsCache.Add(rootItem);
 

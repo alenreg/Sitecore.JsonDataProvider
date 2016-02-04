@@ -14,7 +14,7 @@
   {
     [NotNull]
     public readonly ID ItemID;
-    
+
     [UsedImplicitly]
     public SubTreeFileMapping([NotNull] XmlElement mappingElement, [NotNull] string databaseName)
       : base(mappingElement, databaseName)
@@ -54,28 +54,54 @@
     public override IEnumerable<ID> GetChildIDs(ID itemId)
     {
       Assert.ArgumentNotNull(itemId, nameof(itemId));
-
-      if (itemId == this.ItemID)
+      Lock.EnterReadLock();
+      try
       {
-        return this.ItemChildren.Select(x => x.ID);
-      }
+        if (itemId == this.ItemID)
+        {
+          return this.ItemChildren.Select(x => x.ID);
+        }
 
-      var item = this.GetItem(itemId);
-      return item?.Children.Select(x => x.ID);
+        var item = this.GetItem(itemId);
+        return item?.Children.Select(x => x.ID);
+      }
+      finally
+      {
+        Lock.ExitReadLock();
+      }
     }
 
     public override bool AcceptsNewChildrenOf(ID itemID)
     {
       Assert.ArgumentNotNull(itemID, nameof(itemID));
 
-      return !ReadOnly && (itemID == this.ItemID || this.ItemsCache.Any(x => x.ID == itemID));
+      if (ReadOnly)
+      {
+        return false;
+      }
+
+      if (itemID == this.ItemID)
+      {
+        return true;
+      }
+
+      Lock.EnterReadLock();
+      try
+      {
+        return this.ItemsCache.Any(x => x.ID == itemID);
+      }
+      finally
+      {
+        Lock.ExitReadLock();
+      }
+
     }
 
     protected override bool IgnoreItem(JsonItem item)
     {
       return false;
     }
-    
+
     public override bool CreateItem(ID itemID, string itemName, ID templateID, ID parentID)
     {
       Assert.ArgumentNotNull(itemID, nameof(itemID));
@@ -89,9 +115,11 @@
       }
 
       JsonItem parent = null;
+
       if (this.ItemID != parentID)
       {
-        parent = this.ItemsCache.FirstOrDefault(x => x.ID == parentID);
+        parent = this.GetItem(parentID);
+
         if (parent == null)
         {
           return false;
@@ -104,7 +132,8 @@
         TemplateID = templateID
       };
 
-      lock (this.SyncRoot)
+      Lock.EnterWriteLock();
+      try
       {
         this.ItemsCache.Add(item);
 
@@ -116,9 +145,13 @@
         {
           this.ItemChildren.Add(item);
         }
-
-        this.Commit();
       }
+      finally
+      {
+        Lock.ExitWriteLock();
+      }
+
+      this.Commit();
 
       return true;
     }
@@ -134,29 +167,44 @@
       {
         return false;
       }
-      
-      var children = this.ItemChildren;
-      if (destinationItemID != this.ItemID)
-      {
-        var destinationItem = this.GetItem(destinationItemID);
-        if (destinationItem == null)
-        {
-          return false;
-        }
 
-        children = destinationItem.Children;
+      List<JsonItem> children;
+
+      Lock.EnterReadLock();
+      try
+      {
+        children = this.ItemChildren;
+        if (destinationItemID != this.ItemID)
+        {
+          var destinationItem = this.GetItem(destinationItemID);
+          if (destinationItem == null)
+          {
+            return false;
+          }
+
+          children = destinationItem.Children;
+        }
+      }
+      finally
+      {
+        Lock.ExitReadLock();
       }
 
-      var item = DoCopy(sourceItemID, destinationItemID, copyID, copyName, context);
-
-      lock (this.SyncRoot)
+      Lock.EnterWriteLock();
+      try
       {
+        var item = DoCopy(sourceItemID, destinationItemID, copyID, copyName, context);
+
         this.ItemsCache.Add(item);
 
         children.Add(item);
-
-        this.Commit();
       }
+      finally
+      {
+        Lock.ExitWriteLock();
+      }
+
+      this.Commit();
 
       return true;
     }
@@ -171,19 +219,32 @@
         return false;
       }
 
-      var item = this.GetItem(itemID);
-      if (item == null)
+      JsonItem item;
+      ID parentID;
+
+      Lock.EnterReadLock();
+      try
       {
-        return false;
+        item = this.GetItem(itemID);
+        if (item == null)
+        {
+          return false;
+        }
+
+        parentID = item.ParentID;
+        if (parentID == targetID)
+        {
+          return true;
+        }
+
+      }
+      finally
+      {
+        Lock.ExitReadLock();
       }
 
-      var parentID = item.ParentID;
-      if (parentID == targetID)
-      {
-        return true;
-      }
-
-      lock (this.SyncRoot)
+      Lock.EnterWriteLock();
+      try
       {
         if (parentID == this.ItemID)
         {
@@ -212,9 +273,13 @@
           parent.Children.Remove(item);
           target.Children.Add(item);
         }
-
-        this.Commit();
       }
+      finally
+      {
+        Lock.EnterWriteLock();
+      }
+
+      this.Commit();
 
       return true;
     }
@@ -223,6 +288,7 @@
     {
       Assert.ArgumentNotNull(item, nameof(item));
 
+      // no need in lock
       if (item.ParentID == this.ItemID)
       {
         this.ItemChildren.Remove(item);
@@ -239,6 +305,7 @@
 
     protected override object GetCommitObject()
     {
+      // no need in lock
       return this.ItemChildren;
     }
   }
