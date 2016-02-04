@@ -62,7 +62,7 @@
           return this.ItemChildren.Select(x => x.ID);
         }
 
-        var item = this.GetItem(itemId);
+        var item = this.ItemsCache.FirstOrDefault(x => x.ID == itemId);
         return item?.Children.Select(x => x.ID);
       }
       finally
@@ -176,7 +176,7 @@
         children = this.ItemChildren;
         if (destinationItemID != this.ItemID)
         {
-          var destinationItem = this.GetItem(destinationItemID);
+          var destinationItem = this.ItemsCache.FirstOrDefault(x => x.ID == destinationItemID);
           if (destinationItem == null)
           {
             return false;
@@ -225,7 +225,7 @@
       Lock.EnterReadLock();
       try
       {
-        item = this.GetItem(itemID);
+        item = this.ItemsCache.FirstOrDefault(x => x.ID == itemID);
         if (item == null)
         {
           return false;
@@ -236,7 +236,6 @@
         {
           return true;
         }
-
       }
       finally
       {
@@ -248,7 +247,7 @@
       {
         if (parentID == this.ItemID)
         {
-          var target = this.GetItem(targetID);
+          var target = this.ItemsCache.FirstOrDefault(x => x.ID == targetID);
           Assert.IsNotNull(target, $"Moving item outside of ItemChildrenMapping ({this.ItemID}, {this.DisplayName}) is not supported");
 
           this.ItemChildren.Remove(item);
@@ -256,7 +255,7 @@
         }
         else if (targetID == this.ItemID)
         {
-          var parent = this.GetItem(parentID);
+          var parent = this.ItemsCache.FirstOrDefault(x => x.ID == parentID);
           Assert.IsNotNull(parent, $"Cannot find {parentID} item");
 
           parent.Children.Remove(item);
@@ -264,10 +263,10 @@
         }
         else
         {
-          var parent = this.GetItem(parentID);
+          var parent = this.ItemsCache.FirstOrDefault(x => x.ID == parentID);
           Assert.IsNotNull(parent, $"Cannot find {parentID} item");
 
-          var target = this.GetItem(targetID);
+          var target = this.ItemsCache.FirstOrDefault(x => x.ID == targetID);
           Assert.IsNotNull(targetID, $"Moving item outside of ItemChildrenMapping ({this.ItemID}, {this.DisplayName}) is not supported");
 
           parent.Children.Remove(item);
@@ -276,7 +275,7 @@
       }
       finally
       {
-        Lock.EnterWriteLock();
+        Lock.ExitWriteLock();
       }
 
       this.Commit();
@@ -296,7 +295,7 @@
       else
       {
         var parentID = item.ParentID;
-        var parent = this.GetItem(parentID);
+        var parent = this.ItemsCache.FirstOrDefault(x => x.ID == parentID);
         Assert.IsNotNull(parent, "parent");
 
         parent.Children.Remove(item);

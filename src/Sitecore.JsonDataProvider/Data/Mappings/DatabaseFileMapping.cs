@@ -75,7 +75,7 @@
       }
 
       var parent = this.GetItem(parentID);
-      
+
       Lock.EnterWriteLock();
       try
       {
@@ -117,9 +117,7 @@
         return false;
       }
 
-      JsonItem destinationItem;
-
-      destinationItem = this.GetItem(destinationItemID);
+      var destinationItem = this.GetItem(destinationItemID);
 
       Lock.EnterWriteLock();
       try
@@ -179,7 +177,7 @@
       }
       finally
       {
-        Lock.EnterWriteLock();
+        Lock.ExitWriteLock();
       }
 
       this.Commit();
@@ -192,7 +190,7 @@
       Assert.ArgumentNotNull(item, nameof(item));
 
       var parentID = item.ParentID;
-      var parent = this.GetItem(parentID);
+      var parent = this.ItemsCache.FirstOrDefault(x => x.ID == parentID);
       Assert.IsNotNull(parent, "parent");
 
       parent.Children.Remove(item);

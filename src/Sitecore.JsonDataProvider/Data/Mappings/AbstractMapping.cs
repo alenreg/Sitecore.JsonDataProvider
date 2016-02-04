@@ -226,10 +226,19 @@
       }
 
       var versionUriList = new VersionUriList();
-      var versions = item.Fields.Versioned.SelectMany(lang => lang.Value.Select(ver => new VersionUri(Language.Parse(lang.Key), new Sitecore.Data.Version(ver.Key))));
-      foreach (var versionUri in versions)
+
+      Lock.EnterReadLock();
+      try
       {
-        versionUriList.Add(versionUri);
+        var versions = item.Fields.Versioned.SelectMany(lang => lang.Value.Select(ver => new VersionUri(Language.Parse(lang.Key), new Sitecore.Data.Version(ver.Key))));
+        foreach (var versionUri in versions)
+        {
+          versionUriList.Add(versionUri);
+        }
+      }
+      finally
+      {
+        Lock.ExitReadLock();
       }
 
       return versionUriList;
@@ -249,37 +258,45 @@
       var fieldList = new FieldList();
 
       // add shared fields
-      foreach (var field in item.Fields.Shared)
+      Lock.EnterReadLock();
+      try
       {
-        fieldList.Add(field.Key, field.Value);
+        foreach (var field in item.Fields.Shared)
+        {
+          fieldList.Add(field.Key, field.Value);
+        }
+
+        var language = versionUri.Language;
+        Assert.IsNotNull(language, "language");
+
+        if (language == Language.Invariant)
+        {
+          return fieldList;
+        }
+
+        // add unversioned fields
+        foreach (var field in item.Fields.Unversioned[language])
+        {
+          fieldList.Add(field.Key, field.Value);
+        }
+
+        var number = versionUri.Version.Number;
+        var version = item.Fields.Versioned[language][number];
+
+        if (version == null)
+        {
+          return fieldList;
+        }
+
+        // add versioned fields
+        foreach (var field in version)
+        {
+          fieldList.Add(field.Key, field.Value);
+        }
       }
-
-      var language = versionUri.Language;
-      Assert.IsNotNull(language, "language");
-
-      if (language == Language.Invariant)
+      finally
       {
-        return fieldList;
-      }
-
-      // add unversioned fields
-      foreach (var field in item.Fields.Unversioned[language])
-      {
-        fieldList.Add(field.Key, field.Value);
-      }
-
-      var number = versionUri.Version.Number;
-      var version = item.Fields.Versioned[language][number];
-
-      if (version == null)
-      {
-        return fieldList;
-      }
-
-      // add versioned fields
-      foreach (var field in version)
-      {
-        fieldList.Add(field.Key, field.Value);
+        Lock.ExitReadLock();
       }
 
       return fieldList;
@@ -647,6 +664,7 @@
       {
         throw new InvalidOperationException($"The file mapping the {itemID} item belongs to is in read-only mode");
       }
+
       Lock.EnterWriteLock();
       try
       {
@@ -936,21 +954,13 @@
     private void DeleteItemTreeFromItemsCache([NotNull] JsonItem item)
     {
       Assert.ArgumentNotNull(item, nameof(item));
-
-      Lock.EnterWriteLock();
-      try
+      
+      this.ItemsCache.Remove(item);
+      foreach (var child in item.Children)
       {
-        this.ItemsCache.Remove(item);
-        foreach (var child in item.Children)
-        {
-          Assert.IsNotNull(child, "child");
+        Assert.IsNotNull(child, "child");
 
-          this.DeleteItemTreeFromItemsCache(child);
-        }
-      }
-      finally
-      {
-        Lock.ExitWriteLock();
+        this.DeleteItemTreeFromItemsCache(child);
       }
     }
   }

@@ -47,7 +47,10 @@
         }
 
         value = new JsonVersionCollection();
-        return base[language] = value;
+
+        this.Add(language, value);
+
+        return value;
       }
 
       set
