@@ -215,7 +215,7 @@
       return item.ParentID;
     }
 
-    public VersionUriList GetItemVersiones(ID itemID)
+    public VersionUriList GetItemVersions(ID itemID)
     {
       Assert.ArgumentNotNull(itemID, nameof(itemID));
 

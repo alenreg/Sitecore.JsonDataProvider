@@ -38,7 +38,7 @@ namespace Sitecore.Data.Mappings
     ID GetParentID([NotNull] ID itemID);
 
     [CanBeNull]
-    VersionUriList GetItemVersiones([NotNull] ID itemID);
+    VersionUriList GetItemVersions([NotNull] ID itemID);
 
     [CanBeNull]
     FieldList GetItemFields([NotNull] ID itemID, [NotNull] VersionUri versionUri);

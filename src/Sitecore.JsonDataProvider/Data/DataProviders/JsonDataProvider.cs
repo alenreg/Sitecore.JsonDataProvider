@@ -512,7 +512,7 @@
       {
         Assert.IsNotNull(mapping, nameof(mapping));
 
-        var itemVersions = mapping.GetItemVersiones(itemID);
+        var itemVersions = mapping.GetItemVersions(itemID);
         if (itemVersions != null)
         {
           return itemVersions;
