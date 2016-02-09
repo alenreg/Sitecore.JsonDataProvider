@@ -1,6 +1,10 @@
 ﻿namespace Sitecore.Pipelines.GetContentEditorWarnings
 {
   using System.Linq;
+  using System.Web;
+  using Sitecore.Collections;
+  using Sitecore.StringExtensions;
+  using Sitecore.Web.UI.HtmlControls;
   using Sitecore.Data.DataProviders;
   using Sitecore.Data.Mappings;
   using Sitecore.Diagnostics;
@@ -18,12 +22,18 @@
       var databaseName = item.Database.Name;
       var itemID = item.ID;
       JsonDataProvider dataProvider;
-      if (!JsonDataProvider.Instances.TryGetValue(databaseName, out dataProvider) || dataProvider == null || dataProvider.Mappings.Count == 0)
+      if (!JsonDataProvider.Instances.TryGetValue(databaseName, out dataProvider) || dataProvider == null)
       {
         return;
       }
 
-      var mapping = dataProvider.Mappings.FirstOrDefault(x => x.GetItemDefinition(itemID) != null);
+      var mappings = dataProvider.Mappings.OfType<IFileMapping>().ToArray();
+      if(mappings.Length == 0)
+      {
+        return;
+      }
+
+      var mapping = mappings.FirstOrDefault(x => x.GetItemDefinition(itemID) != null);
       if (mapping != null)
       {
         var jsonItem = args.Add();
@@ -39,7 +49,17 @@
         }
       }
 
-      mapping = dataProvider.Mappings.FirstOrDefault(m => m.AcceptsNewChildrenOf(item.ID));
+      var overrideJsonMapping = Registry.GetValue("overrideJsonMapping");
+      if (!string.IsNullOrEmpty(overrideJsonMapping))
+      {
+        mapping = mappings.FirstOrDefault(m => m.DisplayName == HttpUtility.UrlDecode(overrideJsonMapping) && m.AcceptsNewChildrenOf(item.ID));
+      }
+
+      if (mapping == null)
+      {
+        mapping = mappings.FirstOrDefault(m => m.AcceptsNewChildrenOf(item.ID));
+      }
+
       if (mapping == null)
       {
         return;
@@ -47,7 +67,19 @@
 
       var createChildren = args.Add();
       createChildren.Title = "JSON Children";
-      createChildren.Text = $"All new children of this item will be stored in {mapping.DisplayName}. ";
+      createChildren.Text = $"All new children of this item will be stored in <b>{mapping.DisplayName}</b>.";
+      if (mappings.Length > 1)
+      {
+        foreach (IFileMapping otherMapping in mappings)
+        {
+          if (otherMapping == mapping || otherMapping.ReadOnly)
+          {
+            continue;
+          }
+
+          createChildren.Options.Add(new Pair<string, string>("Change to " + otherMapping.DisplayName, "json:override(id={0})".FormatWith(HttpUtility.UrlEncode(otherMapping.DisplayName))));
+        }
+      }
     }
   }
 }

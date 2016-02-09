@@ -6,6 +6,7 @@
   using System.Linq;
   using System.Reflection;
   using System.Threading;
+  using System.Web;
   using System.Xml;
 
   using Sitecore.Collections;
@@ -20,6 +21,7 @@
   using Sitecore.Diagnostics;
   using Sitecore.Globalization;
   using Sitecore.StringExtensions;
+  using Sitecore.Web.UI.HtmlControls;
 
   [UsedImplicitly]
   public class JsonDataProvider : DataProvider
@@ -585,6 +587,19 @@
       var parentId = parent.ID;
       Assert.IsNotNull(itemID, "itemID");
 
+      var overrideJsonMapping = Registry.GetValue("overrideJsonMapping");
+      if (!string.IsNullOrEmpty(overrideJsonMapping))
+      {
+        var mapping = this.Mappings.FirstOrDefault(m => m.DisplayName == HttpUtility.UrlDecode(overrideJsonMapping) && m.AcceptsNewChildrenOf(parent.ID));
+        if (mapping != null && !mapping.ReadOnly)
+        {
+          if (mapping.CreateItem(itemID, itemName, templateID, parentId))
+          {
+            return true;
+          }
+        }
+      }
+      
       foreach (var mapping in this.Mappings)
       {
         Assert.IsNotNull(mapping, nameof(mapping));

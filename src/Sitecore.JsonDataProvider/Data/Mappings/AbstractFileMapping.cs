@@ -17,6 +17,8 @@ namespace Sitecore.Data.Mappings
     [NotNull]
     public readonly string FileMappingPath;
 
+    private readonly string VirtualPath;
+
     protected AbstractFileMapping([NotNull] XmlElement mappingElement, [NotNull] string databaseName)
       : base(mappingElement, databaseName)
     {
@@ -28,11 +30,12 @@ namespace Sitecore.Data.Mappings
       
       var media = mappingElement.GetAttribute("media");
 
+      this.VirtualPath = fileName;
       this.FileMappingPath = filePath;
       this.MediaFolderPath = !string.IsNullOrEmpty(media) ? MainUtil.MapPath(media) : null;
     }
 
-    public override string DisplayName => $"the {this.FilePath} file";
+    public override string DisplayName => $"{this.VirtualPath} file";
 
     public string MediaFolderPath { get; }
 
