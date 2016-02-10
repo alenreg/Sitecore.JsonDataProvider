@@ -40,12 +40,12 @@
         if (mapping.ReadOnly)
         {
           jsonItem.Title = "JSON Read-Only Item";
-          jsonItem.Text = $"This item is stored in {mapping.DisplayName}, but is read-only as configured in item mapping settings.";
+          jsonItem.Text = $"This item is stored in <b>{mapping.DisplayName}</b>, but is read-only as configured in item mapping settings.";
         }
         else
         {
           jsonItem.Title = "JSON Item";
-          jsonItem.Text = $"This item is stored in {mapping.DisplayName}.";
+          jsonItem.Text = $"This item is stored in <b>{mapping.DisplayName}</b>.";
         }
       }
 
