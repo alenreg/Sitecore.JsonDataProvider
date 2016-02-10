@@ -376,6 +376,21 @@
       }
     }
 
+    private IMapping GetOverriddenMapping([NotNull] ID parentID)
+    {
+      Assert.ArgumentNotNull(parentID, "parentID");
+
+      IMapping mapping1 = null;
+      var overrideJsonMapping = Registry.GetValue("overrideJsonMapping");
+      if (!string.IsNullOrEmpty(overrideJsonMapping))
+      {
+        mapping1 =
+          this.Mappings.FirstOrDefault(
+            m => m.DisplayName == overrideJsonMapping && m.AcceptsNewChildrenOf(parentID));
+      }
+      return mapping1;
+    }
+
     private IDList QueryPath(string query, CallContext context)
     {
       if (query.IndexOf("//", StringComparison.InvariantCulture) < 0 && query.IndexOf('[') < 0 && query.IndexOf('@') < 0)
@@ -587,16 +602,12 @@
       var parentId = parent.ID;
       Assert.IsNotNull(itemID, "itemID");
 
-      var overrideJsonMapping = Registry.GetValue("overrideJsonMapping");
-      if (!string.IsNullOrEmpty(overrideJsonMapping))
+      var overriddenMapping = GetOverriddenMapping(parent.ID);
+      if (overriddenMapping != null && !overriddenMapping.ReadOnly)
       {
-        var mapping = this.Mappings.FirstOrDefault(m => m.DisplayName == HttpUtility.UrlDecode(overrideJsonMapping) && m.AcceptsNewChildrenOf(parent.ID));
-        if (mapping != null && !mapping.ReadOnly)
+        if (overriddenMapping.CreateItem(itemID, itemName, templateID, parentId))
         {
-          if (mapping.CreateItem(itemID, itemName, templateID, parentId))
-          {
-            return true;
-          }
+          return true;
         }
       }
       
