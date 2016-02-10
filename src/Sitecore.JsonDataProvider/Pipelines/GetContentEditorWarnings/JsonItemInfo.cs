@@ -49,17 +49,17 @@
         }
       }
 
+      IFileMapping overrideMapping = null;
       var overrideJsonMapping = Registry.GetValue("overrideJsonMapping");
       if (!string.IsNullOrEmpty(overrideJsonMapping))
       {
-        mapping = mappings.FirstOrDefault(m => m.DisplayName == HttpUtility.UrlDecode(overrideJsonMapping) && m.AcceptsNewChildrenOf(item.ID));
+        mapping = mappings.FirstOrDefault(m => m.DisplayName == overrideJsonMapping && m.AcceptsNewChildrenOf(item.ID));
+        overrideMapping = mapping;
       }
 
-      if (mapping == null)
-      {
-        mapping = mappings.FirstOrDefault(m => m.AcceptsNewChildrenOf(item.ID));
-      }
-
+      var firstMapping = mappings.FirstOrDefault(m => m.AcceptsNewChildrenOf(item.ID));
+      mapping = mapping ?? firstMapping;
+      
       if (mapping == null)
       {
         return;
@@ -72,12 +72,21 @@
       {
         foreach (IFileMapping otherMapping in mappings)
         {
-          if (otherMapping == mapping || otherMapping.ReadOnly)
+          if (otherMapping == mapping || !otherMapping.AcceptsNewChildrenOf(itemID))
           {
             continue;
           }
 
-          createChildren.Options.Add(new Pair<string, string>("Change to " + otherMapping.DisplayName, "json:override(id={0})".FormatWith(HttpUtility.UrlEncode(otherMapping.DisplayName))));
+          var reset = overrideMapping != null && firstMapping == otherMapping;
+          if (reset)
+          {
+            createChildren.Options.Add(new Pair<string, string>("Change to " + otherMapping.DisplayName + " (remove override)",
+              "json:override(action=reset)".FormatWith(HttpUtility.UrlEncode(otherMapping.DisplayName))));
+          }
+          else
+          {
+            createChildren.Options.Add(new Pair<string, string>("Change to " + otherMapping.DisplayName, "json:override(id={0})".FormatWith(HttpUtility.UrlEncode(otherMapping.DisplayName))));
+          }
         }
       }
     }
