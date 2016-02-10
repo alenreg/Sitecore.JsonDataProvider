@@ -28,7 +28,7 @@
       }
 
       var mappings = dataProvider.Mappings.OfType<IFileMapping>().ToArray();
-      if(mappings.Length == 0)
+      if (mappings.Length == 0)
       {
         return;
       }

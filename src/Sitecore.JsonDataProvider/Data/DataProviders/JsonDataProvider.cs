@@ -610,7 +610,7 @@
           return true;
         }
       }
-      
+
       foreach (var mapping in this.Mappings)
       {
         Assert.IsNotNull(mapping, nameof(mapping));
