@@ -267,7 +267,7 @@
           Assert.IsNotNull(parent, $"Cannot find {parentID} item");
 
           var target = this.ItemsCache.FirstOrDefault(x => x.ID == targetID);
-          Assert.IsNotNull(targetID, $"Moving item outside of ItemChildrenMapping ({this.ItemID}, {this.DisplayName}) is not supported");
+          Assert.IsNotNull(target, $"Moving item outside of ItemChildrenMapping ({this.ItemID}, {this.DisplayName}) is not supported");
 
           parent.Children.Remove(item);
           target.Children.Add(item);
