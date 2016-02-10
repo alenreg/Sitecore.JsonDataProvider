@@ -392,7 +392,7 @@
       return null;
     }
 
-    protected virtual IDList ResolveNames(string itemName)
+    private IDList ResolveNames(string itemName)
     {
       if (ID.IsID(itemName))
       {
