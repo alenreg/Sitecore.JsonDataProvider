@@ -2,13 +2,13 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>Sitecore.JsonDataProvider</id>
-        <version>1.2.0.2</version>
+        <version>1.2.0.3</version>
         <authors>Alen Pelin</authors>
         <projectUrl>https://github.com/Sitecore/Sitecore.JsonDataProvider</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Configure Sitecore to store parts of Item Content Tree in one or several json files.</description>
         <dependencies>
-            <dependency id="Sitecore.JsonDataProvider.Core" version="1.2.0.2" />
+            <dependency id="Sitecore.JsonDataProvider.Core" version="1.2.0.3" />
         </dependencies>
     </metadata>
     <files>
