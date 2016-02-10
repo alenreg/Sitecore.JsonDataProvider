@@ -637,6 +637,15 @@
       var destinationItemID = destination.ID;
       Assert.IsNotNull(destinationItemID, "destinationItemID");
 
+      var overriddenMapping = GetOverriddenMapping(destinationItemID);
+      if (overriddenMapping != null && !overriddenMapping.ReadOnly)
+      {
+        if (overriddenMapping.CopyItem(sourceItemID, destinationItemID, copyID, copyName, context))
+        {
+          return true;
+        }
+      }
+
       foreach (var mapping in this.Mappings)
       {
         Assert.IsNotNull(mapping, nameof(mapping));
