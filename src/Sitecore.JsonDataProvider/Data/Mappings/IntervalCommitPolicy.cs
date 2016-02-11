@@ -1,11 +1,11 @@
 using System;
-using System.Threading;
 using System.Timers;
+using System.Web.Hosting;
 using Timer = System.Timers.Timer;
 
 namespace Sitecore.Data.Mappings
 {
-  public class IntervalCommitPolicy : ICommitPolicy
+  public class IntervalCommitPolicy : ICommitPolicy, IRegisteredObject
   {
     private readonly Action DoCommit;
 
@@ -14,6 +14,8 @@ namespace Sitecore.Data.Mappings
     public IntervalCommitPolicy(Action doCommit, double interval)
     {
       this.DoCommit = doCommit;
+
+      HostingEnvironment.RegisterObject(this);
 
       new Timer
       {
@@ -42,6 +44,14 @@ namespace Sitecore.Data.Mappings
       lock (this)
       {
         CommitRequested = true;
+      }
+    }
+
+    public void Stop(bool immediate)
+    {
+      if (!immediate)
+      {
+        TryCommit(null, null);
       }
     }
   }
