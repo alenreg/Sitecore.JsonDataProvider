@@ -1,5 +1,6 @@
 namespace Sitecore.Data.Mappings
 {
+  using System;
   using System.Collections.Generic;
 
   using Sitecore.Collections;
@@ -47,7 +48,7 @@ namespace Sitecore.Data.Mappings
     IEnumerable<ID> GetTemplateItemIDs();
 
     [NotNull]
-    IEnumerable<string> GetLanguages();
+    IEnumerable<Tuple<string, ID>> GetLanguages();
 
     bool CreateItem([NotNull] ID itemID, [NotNull] string itemName, [NotNull] ID templateID, [NotNull] ID parentID);
 

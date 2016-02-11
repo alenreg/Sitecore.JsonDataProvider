@@ -587,9 +587,10 @@
         var jsonLanguages = mapping.GetLanguages();
         foreach (var jsonLanguage in jsonLanguages)
         {
-          var language = Language.Parse(jsonLanguage);
+          var language = Language.Parse(jsonLanguage.Item1);
           if (!languages.Contains(language))
           {
+            language.Origin.ItemId = jsonLanguage.Item2;
             languages.Add(language);
           }
         }

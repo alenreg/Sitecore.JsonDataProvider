@@ -316,12 +316,12 @@
       }
     }
 
-    public IEnumerable<string> GetLanguages()
+    public IEnumerable<Tuple<string, ID>> GetLanguages()
     {
       Lock.EnterReadLock();
       try
       {
-        return this.ItemsCache.Values.Where(x => x.ParentID == ItemIDs.LanguageRoot && x.TemplateID == TemplateIDs.Language).Select(x => x.Name).Distinct();
+        return this.ItemsCache.Values.Where(x => x.ParentID == ItemIDs.LanguageRoot && x.TemplateID == TemplateIDs.Language).Select(x => new Tuple<string, ID>(x.Name, x.ID));
       }
       finally
       {
