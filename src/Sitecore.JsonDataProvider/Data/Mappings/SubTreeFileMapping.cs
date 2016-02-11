@@ -62,7 +62,7 @@
           return this.ItemChildren.Select(x => x.ID);
         }
 
-        var item = this.ItemsCache.FirstOrDefault(x => x.ID == itemId);
+        var item = this.ItemsCache[itemId];
         return item?.Children.Select(x => x.ID);
       }
       finally
@@ -88,7 +88,7 @@
       Lock.EnterReadLock();
       try
       {
-        return this.ItemsCache.Any(x => x.ID == itemID);
+        return this.ItemsCache.ContainsKey(itemID);
       }
       finally
       {
@@ -135,7 +135,7 @@
       Lock.EnterWriteLock();
       try
       {
-        this.ItemsCache.Add(item);
+        this.ItemsCache[item.ID] = item;
 
         if (parent != null)
         {
@@ -176,7 +176,7 @@
         children = this.ItemChildren;
         if (destinationItemID != this.ItemID)
         {
-          var destinationItem = this.ItemsCache.FirstOrDefault(x => x.ID == destinationItemID);
+          var destinationItem = this.ItemsCache[destinationItemID];
           if (destinationItem == null)
           {
             return false;
@@ -195,7 +195,7 @@
       {
         var item = DoCopy(sourceItemID, destinationItemID, copyID, copyName, context);
 
-        this.ItemsCache.Add(item);
+        this.ItemsCache[item.ID] = item;
 
         children.Add(item);
       }
@@ -225,7 +225,7 @@
       Lock.EnterReadLock();
       try
       {
-        item = this.ItemsCache.FirstOrDefault(x => x.ID == itemID);
+        item = this.ItemsCache[itemID];
         if (item == null)
         {
           return false;
@@ -247,7 +247,7 @@
       {
         if (parentID == this.ItemID)
         {
-          var target = this.ItemsCache.FirstOrDefault(x => x.ID == targetID);
+          var target = this.ItemsCache[targetID];
           Assert.IsNotNull(target, $"Moving item outside of ItemChildrenMapping ({this.ItemID}, {this.DisplayName}) is not supported");
 
           this.ItemChildren.Remove(item);
@@ -255,7 +255,7 @@
         }
         else if (targetID == this.ItemID)
         {
-          var parent = this.ItemsCache.FirstOrDefault(x => x.ID == parentID);
+          var parent = this.ItemsCache[parentID];
           Assert.IsNotNull(parent, $"Cannot find {parentID} item");
 
           parent.Children.Remove(item);
@@ -263,10 +263,10 @@
         }
         else
         {
-          var parent = this.ItemsCache.FirstOrDefault(x => x.ID == parentID);
+          var parent = this.ItemsCache[parentID];
           Assert.IsNotNull(parent, $"Cannot find {parentID} item");
 
-          var target = this.ItemsCache.FirstOrDefault(x => x.ID == targetID);
+          var target = this.ItemsCache[targetID];
           Assert.IsNotNull(target, $"Moving item outside of ItemChildrenMapping ({this.ItemID}, {this.DisplayName}) is not supported");
 
           parent.Children.Remove(item);
@@ -295,7 +295,7 @@
       else
       {
         var parentID = item.ParentID;
-        var parent = this.ItemsCache.FirstOrDefault(x => x.ID == parentID);
+        var parent = this.ItemsCache[parentID];
         Assert.IsNotNull(parent, "parent");
 
         parent.Children.Remove(item);

@@ -113,7 +113,7 @@ namespace Sitecore.Data.Mappings
         var items = this.ItemsCache;
         if (JsonDataProvider.Instances[this.DatabaseName].Mappings.Count > 1)
         {
-          PackageDesignerHeper.GenerateProject(this.DatabaseName, "auto-generated-for-mapping-" + name, items.Select(x => x.ID));
+          PackageDesignerHeper.GenerateProject(this.DatabaseName, "auto-generated-for-mapping-" + name, items.Keys);
         }
       }
       finally

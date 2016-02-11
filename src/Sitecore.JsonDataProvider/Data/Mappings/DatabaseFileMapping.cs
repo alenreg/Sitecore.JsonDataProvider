@@ -91,7 +91,7 @@
           TemplateID = templateID
         };
 
-        this.ItemsCache.Add(item);
+        this.ItemsCache[item.ID] = item;
 
         parent.Children.Add(item);
       }
@@ -130,7 +130,7 @@
 
         var item = DoCopy(sourceItemID, destinationItemID, copyID, copyName, context);
 
-        this.ItemsCache.Add(item);
+        this.ItemsCache[item.ID] = item;
 
         destinationItem.Children.Add(item);
       }
@@ -190,7 +190,7 @@
       Assert.ArgumentNotNull(item, nameof(item));
 
       var parentID = item.ParentID;
-      var parent = this.ItemsCache.FirstOrDefault(x => x.ID == parentID);
+      var parent = this.ItemsCache[parentID];
       Assert.IsNotNull(parent, "parent");
 
       parent.Children.Remove(item);
@@ -214,7 +214,7 @@
 
       // no need to lock 
       this.ItemChildren.Add(rootItem);
-      this.ItemsCache.Add(rootItem);
+      this.ItemsCache[rootItem.ID] = rootItem;
 
       return rootItem;
     }

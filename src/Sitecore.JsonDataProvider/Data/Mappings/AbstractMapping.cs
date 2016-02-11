@@ -23,7 +23,7 @@
     protected readonly List<JsonItem> ItemChildren = new List<JsonItem>();
 
     [NotNull]
-    protected readonly List<JsonItem> ItemsCache = new List<JsonItem>();
+    protected readonly Dictionary<ID, JsonItem> ItemsCache = new Dictionary<ID, JsonItem>();
 
     public string DatabaseName { get; }
 
@@ -66,7 +66,7 @@
       Lock.EnterReadLock();
       try
       {
-        return this.ItemsCache.Select(x => x.ID);
+        return this.ItemsCache.Keys;
       }
       finally
       {
@@ -78,10 +78,11 @@
     {
       Assert.ArgumentNotNull(itemName, nameof(itemName));
 
+      //TODO: optimize this
       Lock.EnterReadLock();
       try
       {
-        return this.ItemsCache.Where(x => x.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase)).Select(x => x.ID);
+        return this.ItemsCache.Values.Where(x => x.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase)).Select(x => x.ID);
       }
       finally
       {
@@ -307,7 +308,7 @@
       Lock.EnterReadLock();
       try
       {
-        return this.ItemsCache.Where(x => x.TemplateID == TemplateIDs.Template).Select(x => x.ID);
+        return this.ItemsCache.Values.Where(x => x.TemplateID == TemplateIDs.Template).Select(x => x.ID);
       }
       finally
       {
@@ -320,7 +321,7 @@
       Lock.EnterReadLock();
       try
       {
-        return this.ItemsCache.Where(x => x.ParentID == ItemIDs.LanguageRoot && x.TemplateID == TemplateIDs.Language).Select(x => x.Name).Distinct();
+        return this.ItemsCache.Values.Where(x => x.ParentID == ItemIDs.LanguageRoot && x.TemplateID == TemplateIDs.Language).Select(x => x.Name).Distinct();
       }
       finally
       {
@@ -537,7 +538,7 @@
       Lock.EnterWriteLock();
       try
       {
-        foreach (var item in this.ItemsCache)
+        foreach (var item in this.ItemsCache.Values)
         {
           if (item == null)
           {
@@ -777,7 +778,7 @@
       Assert.ArgumentNotNull(item, nameof(item));
 
       // no lock needed
-      this.ItemsCache.Add(item);
+      this.ItemsCache[item.ID] = item;
 
       JsonDataProvider.InitializeDefaultValues(item.Fields);
 
@@ -800,7 +801,7 @@
       Lock.EnterReadLock();
       try
       {
-        return this.ItemsCache.FirstOrDefault(x => x.ID == itemID);
+        return this.ItemsCache[itemID];
       }
       finally
       {
@@ -955,7 +956,7 @@
     {
       Assert.ArgumentNotNull(item, nameof(item));
       
-      this.ItemsCache.Remove(item);
+      this.ItemsCache.Remove(item.ID);
       foreach (var child in item.Children)
       {
         Assert.IsNotNull(child, "child");
