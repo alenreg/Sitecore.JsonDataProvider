@@ -19,6 +19,8 @@ namespace Sitecore.Data.Mappings
 
     private readonly string VirtualPath;
 
+    private readonly ICommitPolicy CommitPolicy;
+
     protected AbstractFileMapping([NotNull] XmlElement mappingElement, [NotNull] string databaseName)
       : base(mappingElement, databaseName)
     {
@@ -29,10 +31,12 @@ namespace Sitecore.Data.Mappings
       Assert.IsNotNullOrEmpty(filePath, nameof(filePath));
       
       var media = mappingElement.GetAttribute("media");
+      var intervalText = mappingElement.GetAttribute("interval");
 
       this.VirtualPath = fileName;
       this.FileMappingPath = filePath;
       this.MediaFolderPath = !string.IsNullOrEmpty(media) ? MainUtil.MapPath(media) : null;
+      this.CommitPolicy = CommitPolicyFactory.GetCommitPolicy(intervalText, this.DoCommit);
     }
 
     public override string DisplayName => $"{this.VirtualPath} file";
@@ -79,6 +83,14 @@ namespace Sitecore.Data.Mappings
 
     public override void Commit()
     {
+      this.CommitPolicy.Commit();
+    }
+
+    [NotNull]
+    protected abstract object GetCommitObject();
+
+    private void DoCommit()
+    {
       var filePath = this.FileMappingPath;
       var directory = Path.GetDirectoryName(filePath);
       if (!Directory.Exists(directory))
@@ -89,6 +101,8 @@ namespace Sitecore.Data.Mappings
       Lock.EnterReadLock();
       try
       {
+        Log.Info("Saving file: " + filePath, this);
+
         var json = JsonHelper.Serialize(this.GetCommitObject(), true);
         File.WriteAllText(filePath, json);
       }
@@ -99,9 +113,6 @@ namespace Sitecore.Data.Mappings
 
       this.GeneratePackageDesignerProject();
     }
-
-    [NotNull]
-    protected abstract object GetCommitObject();
 
     private void GeneratePackageDesignerProject()
     {

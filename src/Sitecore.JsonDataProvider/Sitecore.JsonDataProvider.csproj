@@ -72,9 +72,13 @@
     <Compile Include="Data\Helpers\JsonNonPublicMemberContractResolver.cs" />
     <Compile Include="Data\Mappings\AbstractFileMapping.cs" />
     <Compile Include="Data\Mappings\AbstractMapping.cs" />
+    <Compile Include="Data\Mappings\CommitPolicyFactory.cs" />
     <Compile Include="Data\Mappings\DatabaseFileMapping.cs" />
+    <Compile Include="Data\Mappings\ICommitPolicy.cs" />
     <Compile Include="Data\Mappings\IFileMapping.cs" />
     <Compile Include="Data\Mappings\IMapping.cs" />
+    <Compile Include="Data\Mappings\ImmediateCommitPolicy.cs" />
+    <Compile Include="Data\Mappings\IntervalCommitPolicy.cs" />
     <Compile Include="Data\Mappings\SubTreeFileMapping.cs" />
     <Compile Include="Data\DataProviders\JsonDataProvider.cs" />
     <Compile Include="Data\Collections\JsonLanguageCollection.cs" />
