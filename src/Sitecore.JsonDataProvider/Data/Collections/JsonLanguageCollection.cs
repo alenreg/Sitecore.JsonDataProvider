@@ -1,6 +1,5 @@
 ﻿namespace Sitecore.Data.Collections
 {
-  using System.Collections.Generic;
   using System.Linq;
 
   using Newtonsoft.Json;
@@ -10,7 +9,7 @@
   using Sitecore.Globalization;
 
   [JsonConverter(typeof(JsonLanguageCollectionConverter))]
-  public class JsonLanguageCollection : Dictionary<string, JsonVersionCollection>
+  public class JsonLanguageCollection : DefaultDictionary<string, JsonVersionCollection>
   {
     [NotNull]
     public JsonVersionCollection this[Language language]
@@ -31,35 +30,9 @@
       }
     }
 
-    [NotNull]
-    public new JsonVersionCollection this[string language]
+    protected override JsonVersionCollection GetDefaultValue(string key)
     {
-      get
-      {
-        Assert.ArgumentNotNullOrEmpty(language, nameof(language));
-
-        JsonVersionCollection value;
-        if (this.TryGetValue(language, out value))
-        {
-          Assert.IsNotNull(value, "value");
-
-          return value;
-        }
-
-        value = new JsonVersionCollection();
-
-        this.Add(language, value);
-
-        return value;
-      }
-
-      set
-      {
-        Assert.ArgumentNotNullOrEmpty(language, nameof(language));
-        Assert.ArgumentNotNull(value, nameof(value));
-
-        base[language] = value;
-      }
+      return new JsonVersionCollection();
     }
 
     public void RemoveField([NotNull] ID fieldID)

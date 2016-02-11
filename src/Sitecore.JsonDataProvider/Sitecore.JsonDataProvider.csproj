@@ -54,7 +54,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\OverrideJsonMapping.cs" />
+    <Compile Include="Data\Collections\DefaultDictionary.cs" />
     <Compile Include="Data\Collections\JsonFieldsCollection.cs" />
+    <Compile Include="Data\Collections\NullDictionary.cs" />
     <Compile Include="Data\Converters\JsonVersionCollectionConverter.cs" />
     <Compile Include="Data\Converters\JsonUnversionedFieldsCollectionConverter.cs" />
     <Compile Include="Data\Converters\JsonLanguageCollectionConverter.cs" />
