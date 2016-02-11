@@ -23,7 +23,7 @@
     protected readonly List<JsonItem> ItemChildren = new List<JsonItem>();
 
     [NotNull]
-    protected readonly Dictionary<ID, JsonItem> ItemsCache = new Dictionary<ID, JsonItem>();
+    protected readonly NullDictionary<ID, JsonItem> ItemsCache = new NullDictionary<ID, JsonItem>();
 
     public string DatabaseName { get; }
 
