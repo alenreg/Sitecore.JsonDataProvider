@@ -46,7 +46,7 @@
     {
       Assert.ArgumentNotNull(itemId, nameof(itemId));
 
-      var item = this.GetItem(itemId);
+      var item = this.GetItemRaw(itemId);
 
       // no need to check IgnoreItem(item)
       return item?.Children.Select(x => x.ID);
@@ -74,7 +74,7 @@
         return false;
       }
 
-      var parent = this.GetItem(parentID);
+      var parent = this.GetItemRaw(parentID);
 
       Lock.EnterWriteLock();
       try
@@ -117,7 +117,7 @@
         return false;
       }
 
-      var destinationItem = this.GetItem(destinationItemID);
+      var destinationItem = this.GetItemRaw(destinationItemID);
 
       Lock.EnterWriteLock();
       try
@@ -150,12 +150,12 @@
       Assert.ArgumentNotNull(targetID, nameof(targetID));
 
       var item = this.GetItem(itemID);
-      if (item == null || this.IgnoreItem(item))
+      if (item == null)
       {
         return false;
       }
 
-      var target = this.GetItem(targetID);
+      var target = this.GetItemRaw(targetID);
       if (target == null)
       {
         target = this.AddRootItem(targetID);

@@ -13,6 +13,7 @@
   using Sitecore.Data.Items;
   using Sitecore.Data.Templates;
   using Sitecore.Diagnostics;
+  using Sitecore.Extensions;
   using Sitecore.Globalization;
 
   public abstract class AbstractMapping : IMapping
@@ -195,7 +196,7 @@
       Assert.ArgumentNotNull(itemID, nameof(itemID));
 
       var item = this.GetItem(itemID);
-      if (item == null || this.IgnoreItem(item))
+      if (item == null)
       {
         return null;
       }
@@ -208,7 +209,7 @@
       Assert.ArgumentNotNull(itemID, nameof(itemID));
 
       var item = this.GetItem(itemID);
-      if (item == null || this.IgnoreItem(item))
+      if (item == null)
       {
         return null;
       }
@@ -221,7 +222,7 @@
       Assert.ArgumentNotNull(itemID, nameof(itemID));
 
       var item = this.GetItem(itemID);
-      if (item == null || this.IgnoreItem(item))
+      if (item == null)
       {
         return null;
       }
@@ -251,7 +252,7 @@
       Assert.ArgumentNotNull(versionUri, nameof(versionUri));
 
       var item = this.GetItem(itemID);
-      if (item == null || this.IgnoreItem(item))
+      if (item == null)
       {
         return null;
       }
@@ -341,7 +342,7 @@
       JsonItem item;
 
       item = this.GetItem(itemID);
-      if (item == null || this.IgnoreItem(item))
+      if (item == null)
       {
         return -1;
       }
@@ -422,7 +423,7 @@
       Assert.ArgumentNotNull(changes, nameof(changes));
 
       var item = this.GetItem(itemID);
-      if (item == null || this.IgnoreItem(item))
+      if (item == null)
       {
         return false;
       }
@@ -577,7 +578,7 @@
       Assert.ArgumentNotNull(versionUri, nameof(versionUri));
 
       var item = this.GetItem(itemID);
-      if (item == null || this.IgnoreItem(item))
+      if (item == null)
       {
         return false;
       }
@@ -619,7 +620,7 @@
       Assert.ArgumentNotNull(language, nameof(language));
 
       var item = this.GetItem(itemID);
-      if (item == null || this.IgnoreItem(item))
+      if (item == null)
       {
         return false;
       }
@@ -656,7 +657,7 @@
       Assert.ArgumentNotNull(itemID, nameof(itemID));
 
       var item = this.GetItem(itemID);
-      if (item == null || this.IgnoreItem(item))
+      if (item == null)
       {
         return false;
       }
@@ -796,6 +797,14 @@
 
     [CanBeNull]
     protected JsonItem GetItem([NotNull] ID itemID)
+    {
+      Assert.ArgumentNotNull(itemID, nameof(itemID));
+
+      return GetItemRaw(itemID).OnlyIf(x => !this.IgnoreItem(x));
+    }
+
+    [CanBeNull]
+    protected JsonItem GetItemRaw([NotNull] ID itemID)
     {
       Assert.ArgumentNotNull(itemID, nameof(itemID));
       Lock.EnterReadLock();
