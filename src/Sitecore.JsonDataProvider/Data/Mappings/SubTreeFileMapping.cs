@@ -119,8 +119,7 @@
       if (this.ItemID != parentID)
       {
         parent = this.GetItem(parentID);
-
-        if (parent == null)
+        if (parent == null || this.IgnoreItem(parent))
         {
           return false;
         }

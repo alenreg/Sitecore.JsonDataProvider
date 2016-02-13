@@ -422,7 +422,7 @@
       Assert.ArgumentNotNull(changes, nameof(changes));
 
       var item = this.GetItem(itemID);
-      if (item == null)
+      if (item == null || this.IgnoreItem(item))
       {
         return false;
       }
@@ -577,7 +577,7 @@
       Assert.ArgumentNotNull(versionUri, nameof(versionUri));
 
       var item = this.GetItem(itemID);
-      if (item == null)
+      if (item == null || this.IgnoreItem(item))
       {
         return false;
       }
@@ -619,7 +619,7 @@
       Assert.ArgumentNotNull(language, nameof(language));
 
       var item = this.GetItem(itemID);
-      if (item == null)
+      if (item == null || this.IgnoreItem(item))
       {
         return false;
       }
@@ -656,7 +656,7 @@
       Assert.ArgumentNotNull(itemID, nameof(itemID));
 
       var item = this.GetItem(itemID);
-      if (item == null)
+      if (item == null || this.IgnoreItem(item))
       {
         return false;
       }

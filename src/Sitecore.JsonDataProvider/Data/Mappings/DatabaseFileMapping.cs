@@ -163,6 +163,7 @@
 
       var parent = this.GetItem(item.ParentID);
       Assert.IsNotNull(parent, "Cannot find {0} item", item.ParentID);
+      Assert.IsTrue(!this.IgnoreItem(parent), "!this.IgnoreItem(parent)");
 
       if (this.ReadOnly)
       {
