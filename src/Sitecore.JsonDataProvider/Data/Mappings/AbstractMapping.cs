@@ -178,17 +178,23 @@
       {
         var name = words[index];
 
-        return children.Where(x => x.Name == name).Select(x => x.ID);
+        foreach (var id in children.Where(x => x.Name == name).Select(x => x.ID))
+        {
+          yield return id;
+        }
       }
 
       if (words.Length <= index)
       {
         var name = words[index];
-
-        return children.Where(x => x.Name == name).SelectMany(x => ResolvePath(x.Children, words, index + 1));
+        foreach (var child in children.Where(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
+        {
+          foreach (var id in ResolvePath(child.Children, words, index + 1))
+          {
+            yield return id;
+          }
+        }
       }
-
-      return null;
     }
 
     public ItemDefinition GetItemDefinition(ID itemID)
@@ -232,10 +238,18 @@
       Lock.EnterReadLock();
       try
       {
-        var versions = item.Fields.Versioned.SelectMany(lang => lang.Value.Select(ver => new VersionUri(Language.Parse(lang.Key), new Sitecore.Data.Version(ver.Key))));
-        foreach (var versionUri in versions)
+        foreach (var lang in item.Fields.Versioned)
         {
-          versionUriList.Add(versionUri);
+          var language = Language.Parse(lang.Key);
+          var versions = lang.Value;
+
+          foreach (var versionNumber in versions.Keys)
+          {
+            var version = new Sitecore.Data.Version(versionNumber);
+            var versionUri = new VersionUri(language, version);
+
+            versionUriList.Add(versionUri);
+          }
         }
       }
       finally
@@ -964,7 +978,7 @@
     private void DeleteItemTreeFromItemsCache([NotNull] JsonItem item)
     {
       Assert.ArgumentNotNull(item, nameof(item));
-      
+
       this.ItemsCache.Remove(item.ID);
       foreach (var child in item.Children)
       {
