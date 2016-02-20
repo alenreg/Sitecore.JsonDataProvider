@@ -18,7 +18,7 @@
 
   public abstract class AbstractMapping : IMapping
   {
-    protected readonly ReaderWriterLockSlim Lock = new ReaderWriterLockSlim();
+    protected readonly ReaderWriterLockSlim Lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
     [NotNull]
     protected readonly List<JsonItem> ItemChildren = new List<JsonItem>();
