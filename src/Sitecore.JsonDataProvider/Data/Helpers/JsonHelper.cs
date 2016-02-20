@@ -1,5 +1,6 @@
 ﻿namespace Sitecore.Data.Helpers
 {
+  using System.IO;
   using System.Linq;
 
   using Newtonsoft.Json;
@@ -8,10 +9,14 @@
 
   public static class JsonHelper
   {
+    private static readonly JsonNonPublicMemberContractResolver ContractResolver = new JsonNonPublicMemberContractResolver();
+
+    private static readonly JsonSerializer JsonSerializer = new JsonSerializer() { ContractResolver = ContractResolver };
+
     [NotNull]
     private static readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
     {
-      ContractResolver = new JsonNonPublicMemberContractResolver()
+      ContractResolver = ContractResolver
     };
 
     [CanBeNull]
@@ -20,6 +25,14 @@
       Assert.ArgumentNotNull(json, nameof(json));
 
       return JsonConvert.DeserializeObject<T>(json, JsonSettings);
+    }
+
+    [CanBeNull]
+    public static T Deserialize<T>([NotNull] JsonReader reader)
+    {
+      Assert.ArgumentNotNull(reader, nameof(reader));
+
+      return JsonSerializer.Deserialize<T>(reader);
     }
 
     [NotNull]
