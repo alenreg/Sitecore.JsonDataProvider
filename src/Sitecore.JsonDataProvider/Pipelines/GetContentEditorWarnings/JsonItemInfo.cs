@@ -37,16 +37,8 @@
       if (mapping != null)
       {
         var jsonItem = args.Add();
-        if (mapping.ReadOnly)
-        {
-          jsonItem.Title = "JSON Read-Only Item";
-          jsonItem.Text = $"This item is stored in <b>{mapping.DisplayName}</b>, but is read-only as configured in item mapping settings.";
-        }
-        else
-        {
-          jsonItem.Title = "JSON Item";
-          jsonItem.Text = $"This item is stored in <b>{mapping.DisplayName}</b>.";
-        }
+        jsonItem.Title = "JSON Read-Only Item";
+        jsonItem.Text = $"This item is stored in <b>{mapping.Name}</b> file mapping{(mapping.ReadOnly ? ", but is read-only as configured in the mapping settings" : "")}. The file path is:<br />{MainUtil.MapPath(mapping.FilePath)}";
       }
 
       IFileMapping overrideMapping = null;
@@ -67,7 +59,7 @@
 
       var createChildren = args.Add();
       createChildren.Title = "JSON Children";
-      createChildren.Text = $"All new children of this item will be stored in <b>{mapping.DisplayName}</b>.";
+      createChildren.Text = $"All new children of this item will be stored in the <b>{mapping.Name}</b> file mapping. The file path is:<br />{MainUtil.MapPath(mapping.FilePath)}";
       if (mappings.Length > 1)
       {
         foreach (IFileMapping otherMapping in mappings)

@@ -38,12 +38,12 @@ namespace Sitecore.Data.Mappings
       this.MediaFolderPath = !string.IsNullOrEmpty(media) ? MainUtil.MapPath(media) : null;
       this.CommitPolicy = CommitPolicyFactory.GetCommitPolicy(intervalText, this.DoCommit);
     }
-
-    public override string DisplayName => $"{this.VirtualPath} file";
-
+    
     public string MediaFolderPath { get; }
 
     public string FilePath => this.FileMappingPath;
+
+    public override string DisplayName => string.IsNullOrEmpty(base.Name) ? $"{this.VirtualPath} file" : base.DisplayName;
 
     public override void Initialize()
     {

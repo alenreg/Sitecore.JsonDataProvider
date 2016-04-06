@@ -46,7 +46,9 @@
       }
     }
 
-    public abstract string DisplayName { get; }
+    public virtual string DisplayName => $"{this.Name} mapping";
+
+    public string Name { get; }
 
     protected AbstractMapping([NotNull] XmlElement mappingElement, [NotNull] string databaseName)
     {
@@ -54,6 +56,9 @@
       Assert.ArgumentNotNull(databaseName, nameof(databaseName));
 
       var readOnly = mappingElement.GetAttribute("readOnly") == "true";
+      var name = mappingElement.GetAttribute("name");
+
+      this.Name = name;
       this.ReadOnly = readOnly;
       this.DatabaseName = databaseName;
     }

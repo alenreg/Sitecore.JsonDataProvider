@@ -18,6 +18,9 @@ namespace Sitecore.Data.Mappings
     int ItemsCount { get; }
 
     [NotNull]
+    string Name { get; }
+
+    [NotNull]
     string DisplayName { get; }
 
     [CanBeNull]
