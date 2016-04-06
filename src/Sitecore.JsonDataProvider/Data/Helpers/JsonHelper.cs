@@ -28,11 +28,11 @@
     }
 
     [CanBeNull]
-    public static T Deserialize<T>([NotNull] JsonReader reader)
+    public static T Deserialize<T>([NotNull] TextReader reader)
     {
       Assert.ArgumentNotNull(reader, nameof(reader));
 
-      return JsonSerializer.Deserialize<T>(reader);
+      return JsonSerializer.Deserialize<T>(new JsonTextReader(reader));
     }
 
     [NotNull]
