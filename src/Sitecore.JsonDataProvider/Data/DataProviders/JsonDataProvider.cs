@@ -51,8 +51,14 @@
       AppDomain.CurrentDomain.AssemblyResolve += (sender, args) =>
         {
           var currentAssembly = typeof(JsonDataProvider).Assembly;
-          var assemblyName = args.Name;
-          var resourceName = $"Sitecore.Properties.EmbeddedResources.{assemblyName.Substring(0, assemblyName.IndexOf(','))}.dll";
+          var assemblyName = args.Name.Trim();
+          var pos = assemblyName.IndexOf(',');
+          if (pos >= 0)
+          {
+            assemblyName = assemblyName.Substring(0, pos).Trim();
+          }
+
+          var resourceName = $"Sitecore.Properties.EmbeddedResources.{assemblyName}.dll";
           var stream = currentAssembly.GetManifestResourceStream(resourceName);
           if (stream == null)
           {
