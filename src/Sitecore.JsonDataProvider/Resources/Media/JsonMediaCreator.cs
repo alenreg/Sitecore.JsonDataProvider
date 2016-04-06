@@ -74,7 +74,14 @@
             Directory.CreateDirectory(folder);
           }
 
-          return FileUtil.GetUniqueFilename(Path.Combine(folder, Path.GetFileName(fileName)));
+          var filePath = FileUtil.GetUniqueFilename(Path.Combine(folder, Path.GetFileName(fileName)));
+          var webRootPath = MainUtil.MapPath("/");
+          if (!filePath.StartsWith(webRootPath, StringComparison.OrdinalIgnoreCase))
+          {
+            return filePath;
+          }
+
+          return filePath.Substring(webRootPath.Length - 1).Replace("\\", "/");
         }
 
         return base.GetFullFilePath(itemID, fileName, itemPath, options);
