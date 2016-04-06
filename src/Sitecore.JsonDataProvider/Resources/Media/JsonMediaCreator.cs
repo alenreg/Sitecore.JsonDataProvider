@@ -68,7 +68,7 @@
           Assert.IsNotNull(item, "item");
 
           itemPath = item.Parent.Paths.FullPath;
-          var folder = Path.Combine(mediaFolderPath, itemPath.Substring("/sitecore/media library".Length).TrimStart('/'));
+          var folder = Path.Combine(mediaFolderPath, itemPath.Substring("/sitecore/media library".Length).TrimStart('/')).Replace("/", "\\");
           if (!Directory.Exists(folder))
           {
             Directory.CreateDirectory(folder);
