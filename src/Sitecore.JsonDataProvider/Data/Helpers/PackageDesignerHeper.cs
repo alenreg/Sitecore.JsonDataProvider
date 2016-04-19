@@ -1,6 +1,4 @@
-﻿using Sitecore.Diagnostics;
-
-namespace Sitecore.Data.Helpers
+﻿namespace Sitecore.Data.Helpers
 {
   using System;
   using System.Collections.Generic;
@@ -8,7 +6,7 @@ namespace Sitecore.Data.Helpers
   using System.Linq;
 
   using Sitecore.Configuration;
-  using Sitecore.Data.Items;
+  using Sitecore.Diagnostics;
 
   public static class PackageDesignerHeper
   {

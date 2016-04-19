@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using Sitecore.Diagnostics;
-
-namespace Sitecore.Data.Collections
+﻿namespace Sitecore.Data.Collections
 {
+  using System.Collections.Generic;
+  using Sitecore.Diagnostics;
+
   public class NullDictionary<TKey, TValue> : Dictionary<TKey, TValue>
   {
     public NullDictionary()

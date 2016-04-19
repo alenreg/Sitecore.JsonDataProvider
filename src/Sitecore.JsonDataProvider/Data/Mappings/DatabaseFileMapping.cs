@@ -1,8 +1,7 @@
-﻿using System.IO;
-
-namespace Sitecore.Data.Mappings
+﻿namespace Sitecore.Data.Mappings
 {
   using System.Collections.Generic;
+  using System.IO;
   using System.Linq;
   using System.Xml;
 

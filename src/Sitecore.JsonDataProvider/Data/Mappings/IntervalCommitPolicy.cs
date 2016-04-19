@@ -1,10 +1,10 @@
-using System;
-using System.Timers;
-using System.Web.Hosting;
-using Timer = System.Timers.Timer;
-
 namespace Sitecore.Data.Mappings
 {
+  using System;
+  using System.Timers;
+  using System.Web.Hosting;
+  using Timer = System.Timers.Timer;
+
   public class IntervalCommitPolicy : ICommitPolicy, IRegisteredObject
   {
     private readonly Action DoCommit;

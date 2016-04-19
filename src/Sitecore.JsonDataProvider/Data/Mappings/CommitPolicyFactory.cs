@@ -1,7 +1,7 @@
-using System;
-
 namespace Sitecore.Data.Mappings
 {
+  using System;
+
   public static class CommitPolicyFactory
   {
     public static ICommitPolicy GetCommitPolicy(string intervalText, Action doCommit)

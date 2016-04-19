@@ -1,16 +1,15 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using Sitecore.Configuration;
-using Sitecore.Data;
-using Sitecore.Data.DataProviders;
-using Sitecore.Data.Mappings;
-using Sitecore.Diagnostics;
-using Sitecore.Jobs;
-
-namespace Sitecore.Hooks
+﻿namespace Sitecore.Hooks
 {
+  using System.Collections.Generic;
+  using System.Diagnostics;
+  using System.Linq;
+  using Sitecore.Configuration;
+  using Sitecore.Data;
+  using Sitecore.Data.DataProviders;
+  using Sitecore.Data.Mappings;
+  using Sitecore.Diagnostics;
   using Sitecore.Events.Hooks;
+  using Sitecore.Jobs;
 
   public class CheckDuplicateIDs : IHook
   {

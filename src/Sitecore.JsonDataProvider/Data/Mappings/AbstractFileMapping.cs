@@ -4,9 +4,8 @@ namespace Sitecore.Data.Mappings
   using System.Collections.Generic;
   using System.IO;
   using System.Linq;
-  using System.Web.Hosting;
   using System.Xml;
-
+  using Sitecore.Caching;
   using Sitecore.Data.DataProviders;
   using Sitecore.Data.Helpers;
   using Sitecore.Data.Items;
@@ -20,6 +19,7 @@ namespace Sitecore.Data.Mappings
     private readonly string VirtualPath;
 
     private readonly ICommitPolicy CommitPolicy;
+    private FileSystemWatcher FileWatcher;
 
     protected AbstractFileMapping([NotNull] XmlElement mappingElement, [NotNull] string databaseName)
       : base(mappingElement, databaseName)
@@ -29,7 +29,7 @@ namespace Sitecore.Data.Mappings
 
       var filePath = MainUtil.MapPath(fileName);
       Assert.IsNotNullOrEmpty(filePath, nameof(filePath));
-      
+
       var media = mappingElement.GetAttribute("media");
       var intervalText = mappingElement.GetAttribute("interval");
 
@@ -38,7 +38,7 @@ namespace Sitecore.Data.Mappings
       this.MediaFolderPath = !string.IsNullOrEmpty(media) ? MainUtil.MapPath(media) : null;
       this.CommitPolicy = CommitPolicyFactory.GetCommitPolicy(intervalText, this.DoCommit);
     }
-    
+
     public string MediaFolderPath { get; }
 
     public string FilePath => this.FileMappingPath;
@@ -54,7 +54,7 @@ namespace Sitecore.Data.Mappings
       }
 
       Log.Info($"Deserializing items from: {filePath}", this);
-      
+
       try
       {
         Lock.EnterWriteLock();

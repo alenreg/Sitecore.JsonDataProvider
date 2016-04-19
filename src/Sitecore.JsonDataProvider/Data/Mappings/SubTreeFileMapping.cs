@@ -1,9 +1,7 @@
-﻿using System;
-using System.IO;
-
-namespace Sitecore.Data.Mappings
+﻿namespace Sitecore.Data.Mappings
 {
   using System.Collections.Generic;
+  using System.IO;
   using System.Linq;
   using System.Xml;
 
@@ -35,11 +33,11 @@ namespace Sitecore.Data.Mappings
       this.ItemID = itemID;
     }
 
-    protected override IEnumerable<JsonItem> Initialize(FileInfo filePath)
+    protected override IEnumerable<JsonItem> Initialize(FileInfo file)
     {
-      Assert.ArgumentNotNull(filePath, nameof(filePath));
+      Assert.ArgumentNotNull(file, nameof(file));
 
-      var children = Deserialize(filePath);
+      var children = Deserialize(file);
       if (children == null)
       {
         return new List<JsonItem>();

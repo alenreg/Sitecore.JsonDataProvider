@@ -1,8 +1,8 @@
-using System.Collections.Generic;
-using Sitecore.Diagnostics;
-
 namespace Sitecore.Data.Collections
 {
+  using System.Collections.Generic;
+  using Sitecore.Diagnostics;
+
   public abstract class DefaultDictionary<TKey, TValue> : Dictionary<TKey, TValue>
   {
     protected DefaultDictionary()

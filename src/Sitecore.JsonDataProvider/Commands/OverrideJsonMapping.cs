@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Sitecore.Diagnostics;
+﻿using Sitecore.Diagnostics;
 using Sitecore.Shell.Framework.Commands;
 using Sitecore.Web.UI.HtmlControls;
 
