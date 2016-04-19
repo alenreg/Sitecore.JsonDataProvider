@@ -86,6 +86,7 @@
     <Compile Include="Data\Collections\JsonVersionCollection.cs" />
     <Compile Include="Data\Helpers\Null.cs" />
     <Compile Include="Extensions\That.cs" />
+    <Compile Include="Hooks\CheckDuplicateIDs.cs" />
     <Compile Include="Hooks\ReplaceMediaCreator.cs" />
     <Compile Include="Pipelines\GetContentEditorWarnings\FixExclusive.cs" />
     <Compile Include="Pipelines\GetContentEditorWarnings\JsonItemInfo.cs" />
