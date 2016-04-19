@@ -27,7 +27,7 @@ namespace Sitecore.Data.Mappings
     IEnumerable<ID> GetChildIDs([NotNull] ID itemId);
 
     [NotNull]
-    IEnumerable<ID> GetAllItemsIDs();
+    IEnumerable<ID> GetIDs();
 
     [CanBeNull]
     IEnumerable<ID> ResolveNames([NotNull] string itemName);

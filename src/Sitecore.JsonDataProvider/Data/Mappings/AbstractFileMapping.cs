@@ -135,7 +135,7 @@ namespace Sitecore.Data.Mappings
       foreach (var pair in JsonDataProvider.Instances)
       {
         var databaseName = pair.Key;
-        var ids = pair.Value.Mappings.SelectMany(z => z.GetAllItemsIDs()).Distinct();
+        var ids = pair.Value.Mappings.SelectMany(z => z.GetIDs()).Distinct();
         PackageDesignerHeper.GenerateProject(databaseName, "auto-generated-for-database-" + databaseName, ids);
       }
     }

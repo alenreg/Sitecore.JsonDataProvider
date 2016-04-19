@@ -2,21 +2,15 @@
 {
   using System;
   using System.Collections.Generic;
-  using System.IO;
   using System.Linq;
   using System.Reflection;
-  using System.Threading;
-  using System.Web;
   using System.Xml;
 
   using Sitecore.Collections;
-  using Sitecore.Configuration;
   using Sitecore.Data;
   using Sitecore.Data.Helpers;
   using Sitecore.Data.Items;
-  using Sitecore.Data.Managers;
   using Sitecore.Data.Mappings;
-  using Sitecore.Data.SqlServer;
   using Sitecore.Data.Templates;
   using Sitecore.Diagnostics;
   using Sitecore.Globalization;

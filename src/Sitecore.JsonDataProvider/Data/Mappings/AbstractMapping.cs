@@ -24,7 +24,7 @@
     protected readonly List<JsonItem> ItemChildren = new List<JsonItem>();
 
     [NotNull]
-    protected readonly NullDictionary<ID, JsonItem> ItemsCache = new NullDictionary<ID, JsonItem>();
+    protected internal readonly NullDictionary<ID, JsonItem> ItemsCache = new NullDictionary<ID, JsonItem>();
 
     public string DatabaseName { get; }
 
@@ -67,7 +67,7 @@
 
     public abstract IEnumerable<ID> GetChildIDs(ID itemId);
 
-    public IEnumerable<ID> GetAllItemsIDs()
+    public IEnumerable<ID> GetIDs()
     {
       Lock.EnterReadLock();
       try
@@ -826,6 +826,7 @@
     protected JsonItem GetItemRaw([NotNull] ID itemID)
     {
       Assert.ArgumentNotNull(itemID, nameof(itemID));
+
       Lock.EnterReadLock();
       try
       {
