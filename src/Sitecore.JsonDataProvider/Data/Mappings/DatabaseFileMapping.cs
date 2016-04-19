@@ -1,4 +1,6 @@
-﻿namespace Sitecore.Data.Mappings
+﻿using System.IO;
+
+namespace Sitecore.Data.Mappings
 {
   using System.Collections.Generic;
   using System.Linq;
@@ -20,11 +22,11 @@
       Assert.ArgumentNotNull(databaseName, nameof(databaseName));
     }
 
-    protected override IEnumerable<JsonItem> Initialize(string json)
+    protected override IEnumerable<JsonItem> Initialize(FileInfo file)
     {
-      Assert.ArgumentNotNull(json, nameof(json));
+      Assert.ArgumentNotNull(file, nameof(file));
 
-      var dictionary = JsonHelper.Deserialize<IDictionary<string, List<JsonItem>>>(json);
+      var dictionary = Deserialize(file);
       if (dictionary == null)
       {
         return new List<JsonItem>();
@@ -40,6 +42,18 @@
       }
 
       return children;
+    }
+
+    [CanBeNull]
+    private IDictionary<string, List<JsonItem>> Deserialize(FileInfo file)
+    {
+      Assert.ArgumentNotNull(file, nameof(file));
+      Assert.ArgumentCondition(file.Exists, nameof(file), $"The {file.FullName} file doesn't exist");
+
+      using (var reader = file.OpenText())
+      {
+        return JsonHelper.Deserialize<IDictionary<string, List<JsonItem>>>(reader);
+      }
     }
 
     public override IEnumerable<ID> GetChildIDs(ID itemId)

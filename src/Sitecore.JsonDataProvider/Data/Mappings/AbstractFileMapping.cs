@@ -54,8 +54,7 @@ namespace Sitecore.Data.Mappings
       }
 
       Log.Info($"Deserializing items from: {filePath}", this);
-      var json = File.ReadAllText(filePath);
-
+      
       try
       {
         Lock.EnterWriteLock();
@@ -63,7 +62,7 @@ namespace Sitecore.Data.Mappings
         {
           this.ItemsCache.Clear();
           this.ItemChildren.Clear();
-          this.ItemChildren.AddRange(this.Initialize(json));
+          this.ItemChildren.AddRange(this.Initialize(new FileInfo(filePath)));
         }
         finally
         {
@@ -79,7 +78,7 @@ namespace Sitecore.Data.Mappings
     }
 
     [NotNull]
-    protected abstract IEnumerable<JsonItem> Initialize([NotNull] string json);
+    protected abstract IEnumerable<JsonItem> Initialize([NotNull] FileInfo json);
 
     public override void Commit()
     {
