@@ -75,6 +75,21 @@ namespace Sitecore.Data.Mappings
       {
         throw new InvalidOperationException($"Cannot deserialize json file: {this.FileMappingPath}", ex);
       }
+
+      var watcher = new FileSystemWatcher();
+      watcher.Path = Path.GetDirectoryName(filePath);
+      watcher.IncludeSubdirectories = false;
+      watcher.Filter = Path.GetFileName(filePath);
+      watcher.EnableRaisingEvents = true;
+      watcher.Changed += this.Reinitialize;
+      this.FileWatcher = watcher;
+    }
+
+    private void Reinitialize(object sender, FileSystemEventArgs e)
+    {      
+      Log.Warn($"The { this.FileMappingPath } file was changed outside and needs re-loading.", this);
+      CacheManager.ClearAllCaches();
+      this.Initialize();
     }
 
     [NotNull]
