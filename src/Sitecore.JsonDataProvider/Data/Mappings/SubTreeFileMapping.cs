@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace Sitecore.Data.Mappings
 {
@@ -61,9 +62,36 @@ namespace Sitecore.Data.Mappings
       var filePath = file.FullName;
       Assert.ArgumentCondition(file.Exists, nameof(file), $"The {filePath} file does not exist");
 
-      using (var reader = file.OpenText())
+      try
       {
-        return JsonHelper.Deserialize<List<JsonItem>>(reader);
+        using (var reader = file.OpenText())
+        {
+          return JsonHelper.Deserialize<List<JsonItem>>(reader);
+        }
+      }
+      catch
+      {
+        using (var reader = file.OpenText())
+        {
+          var dict = JsonHelper.Deserialize<Dictionary<ID, List<JsonItem>>>(reader);
+          if (dict == null)
+          {
+            return null;
+          }
+
+          if (dict.Count == 0)
+          {
+            return null;
+          }
+
+          Assert.IsTrue(dict.Count == 1, "The root dictionary of the {0} file contains more than single key", filePath);
+
+          var actualId = dict.Keys.Single();
+          var expectedId = this.ItemID;
+          Assert.IsTrue(actualId == expectedId, "The value ({0}) of single key of the root dictionary of the {1} file differs from the one specified in the mapping configuration ({2})", actualId, filePath, expectedId);
+
+          return dict.Values.Single();
+        }
       }
     }
 
