@@ -38,7 +38,7 @@ namespace Sitecore.Data.Converters
         writer.WriteValue(field.Value);
       }
 
-      if (JsonDataProvider.BetterMerging)
+      if (JsonDataProvider.Settings.BetterMerging)
       {
         if (any)
         {

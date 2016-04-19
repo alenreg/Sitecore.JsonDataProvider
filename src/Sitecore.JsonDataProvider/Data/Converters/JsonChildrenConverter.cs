@@ -29,7 +29,7 @@ namespace Sitecore.Data.Converters
         serializer.Serialize(writer, jsonItem);
       }
 
-      if (JsonDataProvider.BetterMerging)
+      if (JsonDataProvider.Settings.BetterMerging)
       {
         if (array.Count > 0)
         {

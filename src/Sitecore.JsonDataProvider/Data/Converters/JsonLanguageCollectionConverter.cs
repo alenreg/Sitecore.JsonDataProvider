@@ -41,7 +41,7 @@
         serializer.Serialize(writer, versionCollection);
       }
 
-      if (JsonDataProvider.BetterMerging)
+      if (JsonDataProvider.Settings.BetterMerging)
       {
         if (any)
         {

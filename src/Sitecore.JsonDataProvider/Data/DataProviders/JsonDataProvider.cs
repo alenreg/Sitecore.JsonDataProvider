@@ -38,8 +38,6 @@
     [NotNull]
     public static IReadOnlyDictionary<string, JsonDataProvider> Instances => instances;
 
-    public static bool BetterMerging { get; private set; }
-
     static JsonDataProvider()
     {
       AppDomain.CurrentDomain.AssemblyResolve += (sender, args) =>
@@ -65,29 +63,20 @@
         };
     }
 
-    public JsonDataProvider([NotNull] string databaseName, [NotNull] string betterMerging)
+    public JsonDataProvider([NotNull] string databaseName)
     {
       Assert.ArgumentNotNull(databaseName, nameof(databaseName));
-      Assert.ArgumentNotNull(betterMerging, nameof(betterMerging));
 
       lock (instances)
       {
         instances[databaseName] = this;
       }
 
-      BetterMerging = bool.Parse(betterMerging);
-
       Log.Info($"JsonDataProvider is being initialized for \"{databaseName}\" database", this);
 
       this.DatabaseName = databaseName;
     }
-
-    public JsonDataProvider([NotNull] string databaseName)
-      : this(databaseName, "true")
-    {
-      Assert.ArgumentNotNull(databaseName, nameof(databaseName));
-    }
-
+    
     [UsedImplicitly]
     public void AddMappingType([NotNull] XmlNode mappingTypeNode)
     {
@@ -839,6 +828,11 @@
 
       context.Abort();
       return true;
+    }
+
+    public static class Settings
+    {
+      public static readonly bool BetterMerging = Configuration.Settings.GetBoolSetting("JSON.BetterMerging", true);
     }
   }
 }

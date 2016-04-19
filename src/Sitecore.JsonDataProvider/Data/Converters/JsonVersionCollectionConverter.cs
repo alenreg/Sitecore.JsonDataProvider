@@ -30,7 +30,7 @@
         serializer.Serialize(writer, pair.Value);
       }
 
-      if (JsonDataProvider.BetterMerging)
+      if (JsonDataProvider.Settings.BetterMerging)
       {
         if (dictionary.Count > 0)
         {
