@@ -6,6 +6,7 @@ using Sitecore.Data;
 using Sitecore.Data.DataProviders;
 using Sitecore.Data.Mappings;
 using Sitecore.Diagnostics;
+using Sitecore.Jobs;
 
 namespace Sitecore.Hooks
 {
@@ -14,6 +15,11 @@ namespace Sitecore.Hooks
   public class CheckDuplicateIDs : IHook
   {
     public void Initialize()
+    {
+      JobManager.Start(new JobOptions("Check duplicate IDs", "JsonDataProvider", "scheduler", this, "Run"));
+    }
+
+    public void Run()
     {
       Log.Info("JsonDataProvider mappings are being validated.", this);
       var list = new List<ID>();
