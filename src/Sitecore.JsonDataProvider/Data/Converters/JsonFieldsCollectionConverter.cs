@@ -5,7 +5,7 @@ namespace Sitecore.Data.Converters
   using System.Linq;
 
   using Newtonsoft.Json;
-
+  using Newtonsoft.Json.Linq;
   using Sitecore.Data;
   using Sitecore.Data.Collections;
   using Sitecore.Data.DataProviders;
@@ -35,7 +35,34 @@ namespace Sitecore.Data.Converters
 
         any = true;
         writer.WritePropertyName(id.ToString());
-        writer.WriteValue(field.Value);
+        var fieldValue = field.Value;
+        if (JsonDataProvider.Settings.SpecialFields.Enabled && fieldValue.Length < JsonDataProvider.Settings.SpecialFields.MaxFieldLength && fieldValue.Contains('|'))
+        {
+          writer.WriteStartArray();
+          var any1 = false;
+          foreach (var arrayItem in fieldValue.Split("|".ToCharArray(), StringSplitOptions.RemoveEmptyEntries))
+          {
+            if (!string.IsNullOrEmpty(arrayItem))
+            {
+              any1 = true;
+              writer.WriteValue(arrayItem);
+            }
+          }
+
+          if (JsonDataProvider.Settings.BetterMerging)
+          {
+            if (any1)
+            {
+              writer.WriteRaw(",");
+            }
+          }
+
+          writer.WriteEndArray();
+        }
+        else
+        {
+          writer.WriteValue(fieldValue);
+        }
       }
 
       if (JsonDataProvider.Settings.BetterMerging)
@@ -61,10 +88,10 @@ namespace Sitecore.Data.Converters
 
       try
       {
-        var dictionary = serializer.Deserialize<Dictionary<string, string>>(reader);
+        var dictionary = serializer.Deserialize<Dictionary<string, object>>(reader);
         if (dictionary != null)
         {
-          return new JsonFieldsCollection(dictionary.ToDictionary(x => ID.Parse(x.Key), x => x.Value));
+          return new JsonFieldsCollection(dictionary.ToDictionary(ParseKey, ParseValue));
         }
 
         return null;
@@ -75,6 +102,16 @@ namespace Sitecore.Data.Converters
 
         return null;
       }
+    }
+
+    private static ID ParseKey(KeyValuePair<string, object> x)
+    {
+      return ID.Parse(x.Key);
+    }
+
+    private static string ParseValue(KeyValuePair<string, object> x)
+    {
+      return x.Value as string ?? string.Join("|", ((JArray)x.Value).Select(y => (string)y));
     }
   }
 }

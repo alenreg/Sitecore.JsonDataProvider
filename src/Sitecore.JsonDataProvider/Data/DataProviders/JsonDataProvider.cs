@@ -833,6 +833,13 @@
     public static class Settings
     {
       public static readonly bool BetterMerging = Configuration.Settings.GetBoolSetting("JSON.BetterMerging", true);
+
+      public static class SpecialFields
+      {
+        public static readonly bool Enabled = Configuration.Settings.GetBoolSetting("JSON.SpecialFields.Enabled", false);
+
+        public static readonly int MaxFieldLength = Configuration.Settings.GetIntSetting("JSON.SpecialFields.MaxFieldLength", 1024);
+      }
     }
   }
 }
